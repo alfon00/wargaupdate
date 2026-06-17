@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320" role="img" aria-label="Foto RT">
+  <rect width="320" height="320" rx="24" fill="#ecfdf5"/>
+  <circle cx="160" cy="120" r="56" fill="#a7f3d0"/>
+  <path d="M64 280c18-52 62-84 96-84s78 32 96 84" fill="#047857"/>
+  <text x="160" y="300" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" fill="#64748b">Foto pengurus RT</text>
+</svg>

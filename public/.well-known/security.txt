@@ -1,0 +1,9 @@
+Contact: mailto:admin@layananwarga.my.id
+Preferred-Languages: id, en
+Canonical: https://layananwarga.my.id/.well-known/security.txt
+Policy: https://layananwarga.my.id/keamanan
+
+# Portal layanan administrasi RT Kelurahan Inauga (bukan situs Dukcapil/Kemendagri).
+# Login resmi pengurus: https://layananwarga.my.id/akses-pengurus
+# Path /masuk sudah tidak dipakai (redirect ke /akses-pengurus).
+# Laporkan penyalahgunaan domain layananwarga.my.id ke pengurus RT setempat.

@@ -1,0 +1,85 @@
+@extends('layouts.panel')
+
+@section('title', 'Profil Kelurahan')
+
+@section('content')
+@php
+    $lurahName = $lurah['nama'] ?? 'Lurah Kelurahan Inauga';
+    $lurahPhoto = $lurah['photo'] ?? null;
+    $initial = mb_strtoupper(mb_substr(preg_replace('/^[^A-Za-z0-9]+/u', '', $lurahName) ?: 'L', 0, 1));
+    $kel = config('kelurahan');
+@endphp
+<div class="lw-admin-page">
+    <p class="lw-mb-4">
+        <a href="{{ route('admin.profile') }}" class="lw-panel-page-back">← Kembali ke profil</a>
+    </p>
+
+    <article class="lw-panel-card lw-panel-card--full lw-panel-profile-show">
+        <div class="lw-panel-profile-show-hero">
+            <div class="lw-panel-profile-show-hero__photo-wrap">
+                @if($lurahPhoto)
+                    <img src="{{ $lurahPhoto }}" alt="Foto {{ $lurahName }}" class="lw-panel-profile-show-hero__photo" width="112" height="112">
+                @else
+                    <div class="lw-panel-profile-show-hero__photo lw-panel-profile-show-hero__photo--placeholder" aria-hidden="true">{{ $initial }}</div>
+                @endif
+            </div>
+            <div class="lw-panel-profile-show-hero__content">
+                <p class="lw-panel-page-eyebrow">Profil Kelurahan · Halaman publik</p>
+                <h1 class="lw-panel-page-title lw-panel-profile-show-hero__title">{{ $lurahName }}</h1>
+                <p class="lw-panel-profile-show-hero__role">{{ $lurah['jabatan'] ?? 'Lurah' }} · {{ $kel['nama'] }}, {{ $kel['distrik'] }}</p>
+            </div>
+        </div>
+
+        @if(filled($lurah['visi'] ?? null) || filled($lurah['misi'] ?? null))
+            <div class="lw-mt-4">
+                @if(filled($lurah['visi'] ?? null))
+                    <h2 class="lw-panel-section-title">Visi</h2>
+                    <p class="lw-panel-profile-show-text">{{ $lurah['visi'] }}</p>
+                @endif
+                @if(filled($lurah['misi'] ?? null))
+                    <h2 class="lw-panel-section-title lw-mt-4">Misi</h2>
+                    <p class="lw-panel-profile-show-text lw-pre-wrap">{{ $lurah['misi'] }}</p>
+                @endif
+            </div>
+        @endif
+
+        <dl class="lw-panel-dl lw-mt-4">
+            @if(filled($lurah['telepon'] ?? null))
+                <div class="lw-panel-dl-row">
+                    <dt>Telepon</dt>
+                    <dd>{{ $lurah['telepon'] }}</dd>
+                </div>
+            @endif
+            @if(filled($lurah['whatsapp'] ?? null))
+                <div class="lw-panel-dl-row">
+                    <dt>WhatsApp</dt>
+                    <dd>{{ $lurah['whatsapp'] }}</dd>
+                </div>
+            @endif
+            @if(filled($lurah['email'] ?? null))
+                <div class="lw-panel-dl-row">
+                    <dt>Email kontak</dt>
+                    <dd>{{ $lurah['email'] }}</dd>
+                </div>
+            @endif
+            @if(filled($lurah['jam_layanan'] ?? null))
+                <div class="lw-panel-dl-row">
+                    <dt>Jam layanan</dt>
+                    <dd>{{ $lurah['jam_layanan'] }}</dd>
+                </div>
+            @endif
+            @if(filled($lurah['alamat_kantor'] ?? null))
+                <div class="lw-panel-dl-row">
+                    <dt>Alamat kantor</dt>
+                    <dd>{{ $lurah['alamat_kantor'] }}</dd>
+                </div>
+            @endif
+        </dl>
+
+        <div class="lw-panel-profile-show-actions">
+            <a href="{{ route('admin.profile.kelurahan.edit') }}" class="lw-panel-btn">Edit profil kelurahan</a>
+            <a href="{{ route('profile.index') }}" class="lw-panel-btn lw-panel-btn--secondary" target="_blank" rel="noopener">Pratinjau publik</a>
+        </div>
+    </article>
+</div>
+@endsection
