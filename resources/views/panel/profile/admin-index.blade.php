@@ -8,7 +8,7 @@
         <div>
             <p class="lw-panel-page-eyebrow">Admin sistem</p>
             <h1 class="lw-panel-page-title">Profil</h1>
-            <p class="lw-panel-page-lead">Kelola profil akun admin dan profil Kelurahan yang ditampilkan di halaman publik.</p>
+            <p class="lw-panel-page-lead">Kelola profil akun admin dan profil lurah yang ditampilkan di halaman publik.</p>
         </div>
     </header>
 
@@ -33,11 +33,11 @@
 
         <article class="lw-panel-profile-card">
             @php
-                $lurahName = $lurah['nama'] ?? 'Lurah Kelurahan Inauga';
+                $lurahName = $lurah['nama'] ?? 'Lurah';
                 $lurahPhoto = $lurah['photo'] ?? null;
                 $initial = mb_strtoupper(mb_substr(preg_replace('/^[^A-Za-z0-9]+/u', '', $lurahName) ?: 'L', 0, 1));
             @endphp
-            <a href="{{ route('admin.profile.kelurahan.show') }}" class="lw-panel-profile-card__photo-link" aria-label="Detail profil Kelurahan {{ $lurahName }}">
+            <a href="{{ route('admin.profile.kelurahan.show') }}" class="lw-panel-profile-card__photo-link" aria-label="Detail profil lurah {{ $lurahName }}">
                 @if($lurahPhoto)
                     <img src="{{ $lurahPhoto }}" alt="" class="lw-panel-profile-card__photo" width="96" height="96">
                 @else
@@ -46,9 +46,9 @@
                 <span class="lw-panel-profile-card__photo-hint">Detail</span>
             </a>
             <div class="lw-panel-profile-card__body">
-                <p class="lw-panel-profile-card__eyebrow">Profil Kelurahan publik</p>
+                <p class="lw-panel-profile-card__eyebrow">Profil lurah publik</p>
                 <h2 class="lw-panel-profile-card__title">{{ $lurahName }}</h2>
-                <p class="lw-panel-profile-card__meta">{{ $lurah['jabatan'] ?? 'Lurah Kelurahan Inauga' }}</p>
+                <p class="lw-panel-profile-card__meta">{{ $lurah['jabatan'] ?? 'Lurah' }}</p>
                 <p class="lw-panel-profile-card__meta lw-panel-profile-card__meta--muted">Ditampilkan di <a href="{{ route('profile.index') }}" class="lw-panel-link" target="_blank" rel="noopener">Profil</a> warga</p>
                 <div class="lw-panel-profile-card__actions">
                     <a href="{{ route('admin.profile.kelurahan.show') }}" class="lw-panel-btn lw-panel-btn--sm">Detail</a>

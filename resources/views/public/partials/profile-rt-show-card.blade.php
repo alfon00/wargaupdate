@@ -45,7 +45,7 @@
                 @if(filled($rtProfile->rw_number))
                     · RW {{ $rtProfile->rw_number }}
                 @endif
-                · {{ $rtProfile->kelurahan ?: $kel['nama'] }}, {{ $kel['distrik'] }}
+                · {{ $kel['distrik'] }}
             </p>
 
             @if($ketuaUsers->isNotEmpty() || $sekretarisUsers->isNotEmpty())

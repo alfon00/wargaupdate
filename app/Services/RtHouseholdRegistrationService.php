@@ -73,7 +73,7 @@ class RtHouseholdRegistrationService
             ]);
 
             $created = collect();
-            $notifyEnabled = true;
+            $notifyEnabled = $request->boolean('whatsapp_notify', true);
             foreach ($members as $i => $member) {
                 $isHead = $i === 0;
                 $created->push(Resident::create([

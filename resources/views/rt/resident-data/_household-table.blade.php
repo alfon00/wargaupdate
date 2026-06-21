@@ -37,10 +37,7 @@
                             @include('rt.partials.surat-readiness-badge', ['readiness' => $faceReadiness])
                             @if($household->pendataanDocuments->isNotEmpty())
                                 @php
-                                    $docChipPending = $documentHead && in_array($documentHead->domicile_status, [
-                                        DomicileStatus::MenungguVerifikasi,
-                                        DomicileStatus::PerluLengkap,
-                                    ], true);
+                                    $docChipPending = $documentHead && $documentHead->domicile_status === DomicileStatus::MenungguVerifikasi;
                                 @endphp
                                 <span class="lw-rt-doc-chip {{ $docChipPending ? 'lw-rt-doc-chip--pending' : '' }}">
                                     {{ $household->pendataanDocuments->count() }} berkas

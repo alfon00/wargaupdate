@@ -6,10 +6,10 @@
         <div class="lw-profile-hero__inner">
             <p class="lw-profile-hero__eyebrow">
                 <span class="lw-hero-eyebrow-dot" aria-hidden="true"></span>
-                Profil wilayah · {{ $kel['nama'] }}
+                Profil wilayah
             </p>
             <h1 id="profile-hero-heading" class="lw-profile-hero__title">
-                Profil Kelurahan &amp; RT
+                Profil &amp; RT
             </h1>
             <p class="lw-profile-hero__lead">
                 {{ $kel['penjelasan_wilayah'] }}

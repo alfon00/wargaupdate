@@ -1,11 +1,11 @@
 @extends('layouts.panel')
 
-@section('title', 'Dashboard Kelurahan')
+@section('title', 'Dashboard Monitoring')
 
 @section('content')
 <div class="lw-kel-page">
 @include('kelurahan.partials.page-head', [
-    'title' => 'Dashboard Kelurahan',
+    'title' => 'Dashboard Monitoring',
     'lead' => 'Ringkasan data warga dan permohonan seluruh RT. Mode baca saja — status tidak dapat diubah dari panel ini.',
 ])
 

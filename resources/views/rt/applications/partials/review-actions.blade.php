@@ -1,19 +1,27 @@
 @php
-    $canComplete = $application->status->canRequestCompletionByRt();
+    $canAccept = $application->status->canAcceptByRt();
     $canReject = $application->status->canRejectByRt();
 @endphp
 
 <section class="lw-rt-review-actions lw-rt-application-detail__card" aria-label="Keputusan permohonan">
     <h3 class="lw-rt-application-detail__card-title">Keputusan permohonan</h3>
     <p class="lw-panel-card-note lw-mb-3">
-        Periksa data pemohon dan lampiran. Jika berkas lengkap, cetak surat manual di sekretariat RT lalu catat nomor surat di bawah untuk mengirim notifikasi teks WhatsApp ke warga.
+        @if($application->status === \App\Enums\ApplicationStatus::VerifikasiRt)
+            Permohonan diterima. Lanjutkan susun, tandatangani, dan terbitkan PDF surat.
+        @else
+            Periksa data pemohon dan lampiran. Jika berkas lengkap, terima permohonan lalu susun dan terbitkan surat PDF.
+        @endif
     </p>
 
     <div class="lw-rt-review-actions__buttons">
-        @if($canComplete)
-        <button type="button" class="lw-panel-btn lw-panel-btn--warn" data-rt-completion-open>
-            Lengkapi berkas
-        </button>
+        @if($canAccept)
+        <form method="POST" action="{{ route('rt.applications.verify', $application) }}"
+            onsubmit="return confirm('Terima permohonan ini? Anda akan diarahkan ke halaman susun surat.');">
+            @csrf
+            <button type="submit" class="lw-panel-btn">
+                Terima — lanjut susun surat
+            </button>
+        </form>
         @endif
 
         @if($canReject)
@@ -23,32 +31,6 @@
         @endif
     </div>
 </section>
-
-@if($canComplete)
-<div id="lw-rt-completion-modal" class="lw-rt-delete-modal" role="dialog" aria-modal="true" aria-labelledby="lw-rt-completion-modal-title" hidden>
-    <div class="lw-rt-delete-modal__backdrop" data-rt-completion-close tabindex="-1"></div>
-    <div class="lw-rt-delete-modal__card lw-rt-reject-modal__card">
-        <h2 id="lw-rt-completion-modal-title" class="lw-panel-card-title">Minta lengkapi berkas</h2>
-        <p class="lw-panel-card-note lw-mb-3">Warga akan menerima notifikasi WhatsApp berisi daftar berkas yang perlu dilengkapi.</p>
-
-        <form method="POST" action="{{ route('rt.applications.request-completion', $application) }}">
-            @csrf
-            <div class="lw-panel-field">
-                <label for="completion_notes">Catatan untuk warga <span class="lw-form-label-required">*</span></label>
-                <textarea id="completion_notes" name="completion_notes" rows="6" required
-                    placeholder="Contoh: KK belum jelas, surat permohonan belum ditandatangani, dll.">{{ old('completion_notes', $application->rejection_reason) }}</textarea>
-                @error('completion_notes')
-                    <p class="lw-form-error">{{ $message }}</p>
-                @enderror
-            </div>
-            <div class="lw-panel-form-actions lw-mt-3">
-                <button type="submit" class="lw-panel-btn lw-panel-btn--warn">Kirim permintaan lengkapi berkas</button>
-                <button type="button" class="lw-panel-btn lw-panel-btn--secondary" data-rt-completion-close>Batal</button>
-            </div>
-        </form>
-    </div>
-</div>
-@endif
 
 @if($canReject)
 <div id="lw-rt-reject-modal" class="lw-rt-delete-modal" role="dialog" aria-modal="true" aria-labelledby="lw-rt-reject-modal-title" hidden>
@@ -117,14 +99,6 @@
         '[data-rt-reject-close]',
         '#rejection_message',
         {{ $errors->has('rejection_message') ? 'true' : 'false' }}
-    );
-
-    bindModal(
-        'lw-rt-completion-modal',
-        '[data-rt-completion-open]',
-        '[data-rt-completion-close]',
-        '#completion_notes',
-        {{ $errors->has('completion_notes') ? 'true' : 'false' }}
     );
 
     document.addEventListener('keydown', (e) => {

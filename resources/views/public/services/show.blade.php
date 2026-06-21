@@ -27,7 +27,7 @@
     @endif
 
     <div class="lw-alert lw-alert--warn lw-service-show-warn">
-        <strong>Perhatian:</strong> Portal memfasilitasi <strong>permohonan surat pengantar</strong> RT. Surat dicetak dan ditandatangani di sekretariat RT — bukan melalui unduhan PDF di portal ini.
+        <strong>Perhatian:</strong> Portal memfasilitasi <strong>permohonan surat pengantar</strong> RT. Pengurus RT menyusun, menandatangani, dan menerbitkan surat PDF melalui panel; PDF dapat dikirim ke warga via WhatsApp. Salinan fisik tetap dapat diambil di sekretariat RT.
         Dokumen resmi (KK, KTP-el, SKTM/SKU, SKCK, dll.) diterbitkan oleh instansi berwenang setelah Anda melengkapi persyaratan mereka.
     </div>
 

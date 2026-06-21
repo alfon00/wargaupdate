@@ -55,7 +55,7 @@ class AdminKelurahanProfileTest extends TestCase
             ->assertSee('lw-panel-profile-hub', false)
             ->assertSee('lw-panel-profile-card', false)
             ->assertSee('Profil akun saya', false)
-            ->assertSee('Profil Kelurahan', false)
+            ->assertSee('Profil lurah publik', false)
             ->assertSee(route('admin.profile.account.show'), false)
             ->assertSee(route('admin.profile.kelurahan.show'), false)
             ->assertDontSee('id="lurah_jabatan"', false);
@@ -68,7 +68,7 @@ class AdminKelurahanProfileTest extends TestCase
         $this->actingAs($admin)
             ->get(route('admin.profile.kelurahan.show'))
             ->assertOk()
-            ->assertSee('Edit profil kelurahan', false)
+            ->assertSee('Edit profil lurah', false)
             ->assertSee(route('admin.profile.kelurahan.edit'), false);
     }
 
@@ -125,7 +125,7 @@ class AdminKelurahanProfileTest extends TestCase
             ->assertSee('Profil saya', false)
             ->assertSee('id="name"', false)
             ->assertDontSee(route('admin.profile.kelurahan.show'), false)
-            ->assertDontSee('Profil Kelurahan publik', false);
+            ->assertDontSee('Profil lurah publik', false);
     }
 
     public function test_non_super_admin_cannot_update_kelurahan_public_profile(): void

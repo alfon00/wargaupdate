@@ -45,15 +45,16 @@ class LetterPdfStyles
             .closing{margin:12px 0 0;line-height:1.55}
             .ttd{margin-top:24px;width:100%;border-collapse:collapse}
             .ttd-spacer{width:50%}
-            .ttd-right{width:50%;text-align:center;vertical-align:top;font-size:12pt}
+            .ttd-right{width:50%;text-align:center;vertical-align:top;font-size:12pt;overflow:visible}
             .ttd-right p{margin:2px 0;line-height:1.45}
             .ttd-place{margin-bottom:6px}
             .ttd-place-line{text-decoration:underline}
             .ttd-hormat{margin-top:4px}
             .ttd-role{margin-top:2px}
-            .ttd-img{min-height:88px;margin:18px 0 10px}
-            .ttd-img img{max-height:64px;max-width:140px}
-            .ttd-nama-paren{margin-top:6px;font-size:12pt;text-decoration:underline}
+            .ttd-sign-block{text-align:center;margin:18px auto 8px;line-height:0}
+            .ttd-img{display:block;margin:0 auto;line-height:0}
+            .ttd-img img{max-height:58px;max-width:132px;object-fit:contain}
+            .ttd-nama-paren{margin-top:4px;font-size:12pt;text-decoration:underline}
 CSS;
     }
 }

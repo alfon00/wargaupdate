@@ -6,12 +6,12 @@ final class HomeContent
 {
     public static function heroTagline(): string
     {
-        return config('kelurahan.portal_subtitle');
+        return config('kelurahan.portal_hero_tagline');
     }
 
     public static function platformIntroLead(): string
     {
-        return 'Portal terbuka untuk warga '.config('kelurahan.nama').'. Ajukan surat pengantar RT, pendataan ulang, atau pendataan warga secara online — tanpa login. Warga terdata memverifikasi identitas dengan NIK dan nomor HP sebelum melanjutkan layanan surat.';
+        return 'Portal terbuka untuk warga. Ajukan surat pengantar RT, pendataan ulang, atau pendataan warga secara online — tanpa login. Warga terdata memverifikasi identitas dengan NIK dan nomor HP sebelum melanjutkan layanan surat.';
     }
 
     /** @return list<array{title: string, desc: string}> */
@@ -28,7 +28,7 @@ final class HomeContent
             ],
             [
                 'title' => 'Akurat & terintegrasi',
-                'desc' => 'Verifikasi identitas dan data warga terpusat di sistem RT berbasis cloud Kelurahan Inauga.',
+                'desc' => 'Verifikasi identitas dan data warga terpusat di sistem RT berbasis cloud.',
             ],
         ];
     }
@@ -71,8 +71,8 @@ final class HomeContent
                         'desc' => 'Isi keperluan dan unggah berkas pendukung.',
                     ],
                     [
-                        'title' => 'Surat siap diambil',
-                        'desc' => 'Pengurus RT memverifikasi permohonan, mencetak surat di sekretariat RT, lalu mengirim notifikasi teks WhatsApp. Ambil surat fisik di sekretariat RT. Lacak status via menu Lacak.',
+                        'title' => 'Surat siap',
+                        'desc' => 'Pengurus RT memverifikasi permohonan, menyusun surat PDF dengan tanda tangan digital, lalu menerbitkannya. Anda mendapat notifikasi WhatsApp; pengurus dapat mengirim PDF. Ambil salinan fisik di sekretariat RT bila diperlukan. Lacak status via menu Lacak.',
                     ],
                 ],
             ],
@@ -143,7 +143,7 @@ final class HomeContent
             ],
             [
                 'question' => 'Bagaimana cara mengambil surat yang sudah jadi?',
-                'answer' => 'Setelah pengurus RT selesai memproses dan surat dicetak di sekretariat RT, Anda mendapat notifikasi teks WhatsApp (jika nomor aktif). Ambil surat fisik di sekretariat RT. Lacak status dan nomor surat di menu Lacak Permohonan.',
+                'answer' => 'Setelah pengurus RT menerbitkan surat PDF, Anda mendapat notifikasi WhatsApp (jika nomor aktif). Pengurus dapat mengirim PDF via WhatsApp. Ambil salinan fisik di sekretariat RT bila diperlukan. Lacak status dan nomor surat di menu Lacak Permohonan.',
             ],
             [
                 'question' => 'Apa saja dokumen yang perlu disiapkan?',

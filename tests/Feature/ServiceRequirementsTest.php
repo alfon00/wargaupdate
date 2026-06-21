@@ -42,4 +42,25 @@ class ServiceRequirementsTest extends TestCase
         $this->assertSame(1, substr_count($html, '>KK<'));
         $this->assertSame(1, substr_count($html, '>KTP<'));
     }
+
+    public function test_surat_catalog_uses_keterangan_labels_not_pengantar(): void
+    {
+        $this->seed(ServiceCatalogSeeder::class);
+
+        $response = $this->get(route('services.surat'));
+        $response->assertOk();
+
+        foreach (ServiceCatalogSeeder::catalog() as $svc) {
+            $response->assertSee($svc['name'], false);
+            $response->assertSee($svc['description'], false);
+        }
+
+        $html = $response->getContent();
+        preg_match_all('/class="lw-service-card-name"[^>]*>([^<]+)</', $html, $names);
+        preg_match_all('/class="lw-service-card-desc"[^>]*>([^<]+)</', $html, $descriptions);
+
+        foreach (array_merge($names[1] ?? [], $descriptions[1] ?? []) as $text) {
+            $this->assertStringNotContainsStringIgnoringCase('pengantar', $text);
+        }
+    }
 }

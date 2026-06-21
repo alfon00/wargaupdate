@@ -153,7 +153,7 @@ class PanelUiTest extends TestCase
         $this->actingAs($kelurahan)
             ->get(route('kelurahan.dashboard'))
             ->assertOk()
-            ->assertSee('Dashboard Kelurahan')
+            ->assertSee('Dashboard Monitoring')
             ->assertSee('Laporan warga terbaru')
             ->assertSee('lw-kel-page', false);
 

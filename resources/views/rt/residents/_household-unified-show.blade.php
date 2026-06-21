@@ -46,4 +46,15 @@
         :collapsible="false"
         class="lw-rt-unified-kk-docs lw-rt-unified-kk-section--docs"
     />
+
+    @if(! ($monitoringMode ?? false) && ! auth()->user()?->isKelurahan())
+        <p class="lw-panel-field-hint lw-rt-doc-edit-hint lw-mt-2">
+            Berkas identitas anggota dapat diperbarui lewat tombol
+            <a href="{{ route('rt.residents.edit', array_merge(['resident' => $resident], $listQuery ?? [])) }}" class="lw-inline-link">Edit</a>
+            di section Detail anggota di atas.
+            @if($resident->is_head_of_family)
+                Sebagai kepala keluarga, scan KK dan lampiran tambahan juga dapat diperbarui dari halaman Edit yang sama.
+            @endif
+        </p>
+    @endif
 </div>

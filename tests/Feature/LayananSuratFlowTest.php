@@ -80,7 +80,8 @@ class LayananSuratFlowTest extends TestCase
     {
         return ServiceType::create([
             'code' => $code,
-            'name' => 'Surat Domisili',
+            'name' => 'Surat Keterangan Domisili',
+            'description' => 'Keterangan domisili untuk keperluan administrasi umum.',
             'is_active' => true,
         ]);
     }
@@ -340,7 +341,7 @@ class LayananSuratFlowTest extends TestCase
         $resident = $this->createResident($rt);
         $service = ServiceType::create([
             'code' => 'surat_usaha',
-            'name' => 'Surat Pengantar Usaha',
+            'name' => 'Surat Keterangan Usaha (SKU)',
             'required_fields' => ['KK', 'KTP'],
             'is_active' => true,
         ]);

@@ -22,13 +22,6 @@
         'rejectMessageTemplate' => $rejectMessageTemplate,
     ])
 
-    @if($application->rejection_reason && $application->status === \App\Enums\ApplicationStatus::PerluLengkap)
-        <div class="lw-alert lw-alert--warn">
-            <p class="lw-alert__title">Catatan untuk warga:</p>
-            <p class="lw-pre-wrap-block">{{ $application->rejection_reason }}</p>
-        </div>
-    @endif
-
     @if($application->suratIdentityVerification)
     <section class="lw-panel-section">
         <h2 class="lw-panel-section-title">Verifikasi wajah saat pengajuan</h2>
@@ -49,8 +42,8 @@
 </article>
 
 <div class="lw-rt-application-actions lw-panel-stack">
-    @if($application->status->showsManualLetterSection())
-        @include('rt.applications.partials.letter-issue-card', ['application' => $application])
+    @if($application->status->showsLetterSection() || $application->generatedLetter)
+        @include('rt.applications.partials.letter-show-card', ['application' => $application])
     @endif
 
 </div>

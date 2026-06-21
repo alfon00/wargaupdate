@@ -108,58 +108,17 @@ class RtApplicationReviewActionsTest extends TestCase
         return [$staff, $profile, $application];
     }
 
-    public function test_verify_redirects_to_show_with_info(): void
+    public function test_verify_redirects_to_compose_and_updates_status(): void
     {
         [$staff, , $application] = $this->seedReviewableApplication();
 
         $this->actingAs($staff)
             ->post(route('rt.applications.verify', $application))
-            ->assertRedirect(route('rt.applications.show', $application))
-            ->assertSessionHas('info');
-
-        $application->refresh();
-        $this->assertSame(ApplicationStatus::Diajukan, $application->status);
-    }
-
-    public function test_issue_manual_letter_sends_whatsapp_and_marks_ready(): void
-    {
-        [$staff, , $application] = $this->seedReviewableApplication('RT008-2026060010');
-        $letterNumber = 'RT008/SK/06/2026/010';
-
-        $this->actingAs($staff)
-            ->from(route('rt.applications.show', $application))
-            ->post(route('rt.applications.letter.issue', $application), [
-                'letter_number' => $letterNumber,
-            ])
-            ->assertRedirect(route('rt.applications.show', $application))
+            ->assertRedirect(route('rt.applications.letter.compose', $application))
             ->assertSessionHas('success');
 
         $application->refresh();
-        $this->assertSame(ApplicationStatus::SiapDiambil, $application->status);
-        $this->assertSame($letterNumber, $application->manualLetterNumber());
-
-        $log = NotificationLog::query()
-            ->where('application_id', $application->id)
-            ->where('event', 'letter_ready')
-            ->latest()
-            ->first();
-
-        $this->assertNotNull($log);
-        $this->assertSame('sent', $log->status);
-        $this->assertStringContainsString($letterNumber, $log->message);
-        $this->assertStringContainsString('ambil surat fisik', $log->message);
-        $this->assertStringContainsString($application->resident->nik, $log->message);
-    }
-
-    public function test_issue_manual_letter_requires_number(): void
-    {
-        [$staff, , $application] = $this->seedReviewableApplication('RT008-2026060011');
-
-        $this->actingAs($staff)
-            ->from(route('rt.applications.show', $application))
-            ->post(route('rt.applications.letter.issue', $application), [])
-            ->assertRedirect(route('rt.applications.show', $application))
-            ->assertSessionHasErrors('letter_number');
+        $this->assertSame(ApplicationStatus::VerifikasiRt, $application->status);
     }
 
     public function test_reject_deletes_application_and_sends_whatsapp(): void
@@ -212,45 +171,16 @@ class RtApplicationReviewActionsTest extends TestCase
             ->assertSee('lw-rt-application-detail', false)
             ->assertSee('Data pemohon', false)
             ->assertSee('Surat Domisili', false)
-            ->assertSee('Terbitkan surat pengantar', false)
-            ->assertSee('Catat nomor surat &amp; kirim notifikasi', false)
-            ->assertSee('Lengkapi berkas', false)
+            ->assertSee('Terima — lanjut susun surat', false)
+            ->assertDontSee('Lengkapi berkas', false)
             ->assertSee('Tolak permohonan', false)
-            ->assertDontSee('Terima — lanjut susun surat', false)
+            ->assertDontSee('Catat nomor surat &amp; kirim notifikasi', false)
             ->assertSee(ApplicationRejectionMessage::template($application), false)
             ->assertDontSee('Ubah status manual', false)
             ->assertDontSee('Opsi lanjutan', false);
     }
 
-    public function test_request_completion_updates_status(): void
-    {
-        [$staff, , $application] = $this->seedReviewableApplication('RT008-2026060002');
-        $notes = 'KK belum jelas, mohon unggah ulang.';
-
-        $this->actingAs($staff)
-            ->from(route('rt.applications.show', $application))
-            ->post(route('rt.applications.request-completion', $application), [
-                'completion_notes' => $notes,
-            ])
-            ->assertRedirect(route('rt.applications.show', $application))
-            ->assertSessionHas('success');
-
-        $application->refresh();
-        $this->assertSame(ApplicationStatus::PerluLengkap, $application->status);
-        $this->assertSame($notes, $application->rejection_reason);
-
-        $log = NotificationLog::query()
-            ->where('application_id', $application->id)
-            ->where('event', 'incomplete')
-            ->latest()
-            ->first();
-
-        $this->assertNotNull($log);
-        $this->assertSame('sent', $log->status);
-        $this->assertStringContainsString($notes, $log->message);
-    }
-
-    public function test_show_verifikasi_rt_shows_tolak_lengkapi_not_terima(): void
+    public function test_show_verifikasi_rt_shows_tolak_not_terima(): void
     {
         [$staff, , $application] = $this->seedReviewableApplication('RT008-2026060099');
         $application->update(['status' => ApplicationStatus::VerifikasiRt]);
@@ -259,10 +189,11 @@ class RtApplicationReviewActionsTest extends TestCase
             ->get(route('rt.applications.show', $application))
             ->assertOk()
             ->assertSee('Keputusan permohonan', false)
-            ->assertSee('Lengkapi berkas', false)
+            ->assertDontSee('Lengkapi berkas', false)
             ->assertSee('Tolak permohonan', false)
             ->assertDontSee('Terima — lanjut susun surat', false)
-            ->assertSee('Terbitkan surat pengantar', false)
+            ->assertSee('Surat pengantar RT', false)
+            ->assertSee('Susun &amp; terbitkan surat', false)
             ->assertDontSee('Zona berbahaya', false)
             ->assertDontSee('Tandai siap diambil', false);
     }

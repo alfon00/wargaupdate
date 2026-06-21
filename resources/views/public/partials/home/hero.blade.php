@@ -7,10 +7,10 @@
         <div class="lw-home-hero-v2-content lw-home-hero-v2-content--modern">
             <p class="lw-home-hero-v2-eyebrow">
                 <span class="lw-hero-eyebrow-dot" aria-hidden="true"></span>
-                Portal warga · {{ $kel['nama'] }}
+                Portal warga
             </p>
             <h1 id="home-hero-title" class="lw-home-hero-v2-title">
-                <span class="lw-home-hero-v2-headline">Layanan Administrasi RT</span>
+                <span class="lw-home-hero-v2-headline">{{ config('kelurahan.portal_nama') }}</span>
                 <span class="lw-home-hero-v2-tagline lw-home-hero-v2-tagline--short">{{ $heroTagline }}</span>
             </h1>
             <div class="lw-home-hero-v2-actions lw-home-hero-v2-actions--modern">

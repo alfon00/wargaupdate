@@ -85,7 +85,7 @@ class SignatureStorage
             return '<p style="height:80px;margin:8px 0;">&nbsp;</p>';
         }
 
-        return '<img src="'.e($dataUri).'" alt="Tanda tangan" style="max-width:200px;max-height:80px;">';
+        return '<img src="'.e($dataUri).'" alt="Tanda tangan">';
     }
 
     public static function toImgTagForPdf(string $absolutePath): string
@@ -101,6 +101,6 @@ class SignatureStorage
 
         $dataUri = 'data:image/png;base64,'.base64_encode($raw);
 
-        return '<img src="'.$dataUri.'" alt="Tanda tangan" style="max-width:200px;max-height:80px;">';
+        return '<img src="'.$dataUri.'" alt="Tanda tangan">';
     }
 }

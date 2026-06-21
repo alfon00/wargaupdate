@@ -6,7 +6,7 @@
 <div class="lw-admin-page">
 @include('admin.partials.page-head', [
     'title' => ($profile->exists ? 'Edit' : 'Tambah').' Profil RT',
-    'lead' => $profile->exists ? 'Perbarui data RT di halaman publik.' : 'Buat entitas RT baru di wilayah kelurahan.',
+    'lead' => $profile->exists ? 'Perbarui data RT di halaman publik.' : 'Buat entitas RT baru untuk wilayah portal.',
 ])
 
 <form method="POST" action="{{ $profile->exists ? route('admin.rt-profiles.update', $profile) : route('admin.rt-profiles.store') }}" class="lw-panel-form lw-panel-form--wide">
@@ -24,7 +24,7 @@
             <input id="rw_number" name="rw_number" value="{{ old('rw_number', $profile->rw_number) }}">
         </div>
         <div class="lw-panel-field">
-            <label for="kelurahan">Kelurahan <span class="lw-form-label-required">*</span></label>
+            <label for="kelurahan">Wilayah administratif <span class="lw-form-label-required">*</span></label>
             <input id="kelurahan" name="kelurahan" value="{{ old('kelurahan', $profile->kelurahan) }}" required>
         </div>
         <div class="lw-panel-field">

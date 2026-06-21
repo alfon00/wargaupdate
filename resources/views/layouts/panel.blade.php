@@ -29,7 +29,7 @@
                         @if(auth()->user()?->isSuperAdmin())
                             <span class="lw-panel-topbar-role">Admin sistem</span>
                         @elseif(auth()->user()?->isKelurahan())
-                            <span class="lw-panel-topbar-role">Kelurahan</span>
+                            <span class="lw-panel-topbar-role">Monitoring</span>
                         @elseif(auth()->user()?->isRtStaff())
                             <span class="lw-panel-topbar-role">RT</span>
                         @endif

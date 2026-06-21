@@ -158,40 +158,6 @@ class PendataanVerificationController extends Controller
             ->with('success', 'Pendataan disetujui. Warga sudah terdata aktif di '.$household->rtProfile?->displayName().'.');
     }
 
-    public function requestCompletion(Request $request, Resident $resident): RedirectResponse
-    {
-        abort_unless($resident->is_head_of_family, 404);
-        $this->abortUnlessOwnsResident($resident);
-
-        $validated = $request->validate([
-            'verification_notes' => ['required', 'string', 'max:2000'],
-        ]);
-
-        $household = $resident->household;
-        if (! $household) {
-            return back()->withErrors(['error' => 'Data KK tidak ditemukan.']);
-        }
-
-        $household->residents()->update([
-            'domicile_status' => DomicileStatus::PerluLengkap,
-            'verification_notes' => $validated['verification_notes'],
-            'verified_at' => null,
-            'verified_by' => auth()->id(),
-        ]);
-
-        $household->update(['status' => 'perlu_lengkap']);
-
-        SendPendataanWhatsApp::dispatchSync(
-            $resident->id,
-            'pendataan_incomplete',
-            $validated['verification_notes']
-        );
-
-        return redirect()
-            ->route('rt.pendataan.index')
-            ->with('success', 'Permintaan melengkapi berkas telah dikirim ke warga via WhatsApp.');
-    }
-
     public function reject(Request $request, Resident $resident): RedirectResponse
     {
         abort_unless($resident->is_head_of_family, 404);

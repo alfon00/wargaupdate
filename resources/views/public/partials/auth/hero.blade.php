@@ -6,13 +6,13 @@
         <div class="lw-profile-hero__inner">
             <p class="lw-profile-hero__eyebrow">
                 <span class="lw-hero-eyebrow-dot" aria-hidden="true"></span>
-                Panel pengurus · {{ $kel['nama'] }}
+                Panel pengurus
             </p>
             <h1 id="auth-hero-heading" class="lw-profile-hero__title">
                 Akses Pengurus RT
             </h1>
             <p class="lw-profile-hero__lead">
-                Masuk dengan akun terdaftar untuk mengelola permohonan surat, verifikasi pendataan, dan data warga di {{ $kel['nama'] }}.
+                Masuk dengan akun terdaftar untuk mengelola permohonan surat, verifikasi pendataan, dan data warga.
             </p>
         </div>
     </div>

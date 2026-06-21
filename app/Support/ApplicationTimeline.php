@@ -26,29 +26,14 @@ class ApplicationTimeline
             [
                 'key' => 'verifikasi',
                 'title' => 'Verifikasi pengurus RT',
-                'desc' => 'Pengurus memeriksa kelengkapan berkas.',
+                'desc' => 'Pengurus memeriksa berkas dan menerima permohonan.',
                 'reached' => self::hasReached($status, ApplicationStatus::VerifikasiRt),
-                'date' => self::hasReached($status, ApplicationStatus::VerifikasiRt) ? $submitted : null,
-            ],
-            [
-                'key' => 'lengkap',
-                'title' => 'Perlu melengkapi berkas',
-                'desc' => $application->rejection_reason ?: 'Menunggu kelengkapan dari pemohon.',
-                'reached' => $status === ApplicationStatus::PerluLengkap,
-                'optional' => $status !== ApplicationStatus::PerluLengkap && ! self::hasReached($status, ApplicationStatus::Disetujui),
-                'date' => null,
-            ],
-            [
-                'key' => 'disetujui',
-                'title' => 'Disetujui / diproses',
-                'desc' => 'Permohonan disetujui pengurus RT.',
-                'reached' => self::hasReached($status, ApplicationStatus::Disetujui),
-                'date' => self::hasReached($status, ApplicationStatus::Disetujui) ? $completed : null,
+                'date' => self::hasReached($status, ApplicationStatus::VerifikasiRt) ? ($application->updated_at ?? $submitted) : null,
             ],
             [
                 'key' => 'siap',
-                'title' => 'Siap diambil',
-                'desc' => 'Surat pengantar dapat diambil di sekretariat RT.',
+                'title' => 'Surat siap',
+                'desc' => 'Surat PDF diterbitkan. Ambil di sekretariat RT atau cek WhatsApp jika pengurus mengirim PDF.',
                 'reached' => $status === ApplicationStatus::SiapDiambil,
                 'date' => $status === ApplicationStatus::SiapDiambil ? $completed : null,
             ],
@@ -78,17 +63,11 @@ class ApplicationTimeline
         $currentKey = match ($status) {
             ApplicationStatus::Diajukan => 'diajukan',
             ApplicationStatus::VerifikasiRt => 'verifikasi',
-            ApplicationStatus::PerluLengkap => 'lengkap',
-            ApplicationStatus::Disetujui => 'disetujui',
-            ApplicationStatus::SiapDiambil => 'siap',
+            ApplicationStatus::SiapDiambil, ApplicationStatus::Disetujui => 'siap',
             default => 'diajukan',
         };
 
         foreach ($definitions as $def) {
-            if (! empty($def['optional']) && ! $def['reached']) {
-                continue;
-            }
-
             $state = 'pending';
             if ($def['reached']) {
                 $state = ($def['key'] === $currentKey) ? 'active' : 'done';
@@ -114,9 +93,8 @@ class ApplicationTimeline
         $order = [
             ApplicationStatus::Diajukan->value => 1,
             ApplicationStatus::VerifikasiRt->value => 2,
-            ApplicationStatus::PerluLengkap->value => 2,
             ApplicationStatus::Disetujui->value => 3,
-            ApplicationStatus::SiapDiambil->value => 4,
+            ApplicationStatus::SiapDiambil->value => 3,
             ApplicationStatus::Ditolak->value => 0,
         ];
 

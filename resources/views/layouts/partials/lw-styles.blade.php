@@ -46,17 +46,8 @@
 .lw-footer-brand-head{display:flex;align-items:center;justify-content:center;gap:.625rem;text-align:left}
 .lw-footer-brand-text{min-width:0;text-align:left}
 .lw-footer-text{margin:0;font-weight:700;font-size:.875rem;color:var(--lw-accent-dark);line-height:1.3;letter-spacing:-.01em}
-.lw-footer-link{color:var(--lw-accent);font-weight:600;text-decoration:none;word-break:break-word;font-size:.75rem;line-height:1.4}
-.lw-footer-link:hover{text-decoration:underline;color:var(--lw-accent-hover)}
 .lw-footer-logo{display:block;width:2.125rem;height:2.125rem;flex-shrink:0;object-fit:contain}
 .lw-footer-secondary{margin:.125rem 0 0;font-size:.75rem;line-height:1.35;color:var(--lw-text-muted)}
-.lw-footer-contact{display:flex;flex-direction:row;align-items:center;gap:.625rem;width:auto;flex:0 1 auto;margin:0;padding:0}
-.lw-footer-contact-item{display:flex;flex-direction:row;align-items:flex-start;gap:.5rem;min-width:0;text-align:left}
-.lw-footer-contact-icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:1.875rem;height:1.875rem;border-radius:9999px;background:#ecfdf5;color:var(--lw-accent)}
-.lw-footer-contact-icon svg{width:1rem;height:1rem}
-.lw-footer-contact-body{display:flex;flex-direction:column;align-items:flex-start;gap:.1rem;min-width:0;text-align:left}
-.lw-footer-contact-label{font-size:.625rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--lw-text-faint)}
-.lw-footer-contact-value{font-size:.75rem;line-height:1.4;color:var(--lw-text-secondary)}
 .lw-footer-bottom{display:flex;flex-direction:column;align-items:center;gap:.375rem;width:100%;padding-top:.5rem;border-top:1px solid rgba(153,246,228,.45);text-align:center}
 .lw-footer-aside{display:flex;justify-content:center;width:100%}
 .lw-footer .lw-social-block--footer{width:auto;margin:0}
@@ -67,8 +58,6 @@
 .lw-footer-copyright{margin:0;padding:0;border:none;font-size:.6875rem;line-height:1.4;color:var(--lw-text-faint);text-align:center;width:100%;max-width:36rem}
 @media(max-width:767px){
 .lw-footer-main{flex-direction:column;gap:.75rem}
-.lw-footer-contact{gap:.5rem}
-.lw-footer-contact-item{align-items:flex-start}
 }
 @media(max-height:500px) and (orientation:landscape){
 .lw-footer{padding:.5rem var(--lw-content-gutter)}
@@ -76,8 +65,6 @@
 .lw-footer-top{gap:.25rem}
 .lw-footer-main{flex-direction:column;align-items:center;gap:.5rem;padding-top:.375rem}
 .lw-footer-brand{max-width:none}
-.lw-footer-contact{align-items:center;gap:.375rem}
-.lw-footer-contact-item{align-items:flex-start;max-width:none}
 .lw-footer-bottom{flex-direction:column;align-items:center;justify-content:center;padding-top:.375rem;gap:.375rem;text-align:center}
 .lw-footer-copyright{text-align:center;font-size:.625rem}
 .lw-footer-aside{justify-content:center;width:100%}
@@ -86,8 +73,6 @@
 .lw-footer{padding:clamp(.75rem,1.5vw,1rem) var(--lw-content-gutter)}
 .lw-footer-main{flex-direction:row;justify-content:center;align-items:center;gap:1rem 1.75rem}
 .lw-footer-brand{max-width:none}
-.lw-footer-contact{align-items:center;max-width:none;gap:.625rem}
-.lw-footer-contact-item{align-items:flex-start;max-width:24rem}
 .lw-footer-bottom{flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-top:.5rem}
 .lw-footer-copyright{text-align:center;max-width:36rem;width:100%}
 .lw-footer-aside{justify-content:center;width:100%}
@@ -880,7 +865,7 @@
 .lw-mt-5{margin-top:1.25rem}
 .lw-pendataan-success-icon{width:3.5rem;height:3.5rem;border-radius:9999px;background:#d1fae5;color:var(--lw-accent);font-size:1.5rem;font-weight:800;display:flex;align-items:center;justify-content:center}
 
-/* ——— Panel pengurus (RT / Kelurahan / Admin) ——— */
+/* ——— Panel pengurus (RT / Monitoring / Admin) ——— */
 .lw-panel-body{margin:0;background:var(--lw-bg-panel);color:var(--lw-text);-webkit-font-smoothing:antialiased}
 .lw-panel-menu-toggle{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
 .lw-panel-layout{display:flex;min-height:100vh;position:relative}
@@ -1570,6 +1555,7 @@ body.lw-rt-doc-modal-open{overflow:hidden}
 .lw-panel-form--in-card{background:transparent;border:0;padding:0;max-width:none}
 .lw-letter-fieldset{margin:0 0 1.25rem;padding:0;border:0}
 .lw-letter-fieldset--signature{border-top:1px solid var(--lw-border-soft);padding-top:1rem}
+.lw-letter-signature-legend{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem;width:100%;padding:0;margin-bottom:.5rem}
 .lw-letter-signature-pad{border:2px dashed var(--lw-border-accent-strong);border-radius:.5rem;background:#fff;width:100%;max-width:20rem}
 .lw-letter-signature-canvas{display:block;width:100%;height:120px}
 .lw-letter-signature-clear{margin-top:.5rem;background:none;border:none;padding:0;cursor:pointer;font-size:.8125rem}
@@ -1650,11 +1636,13 @@ body.lw-rt-doc-modal-open{overflow:hidden}
 @media(min-width:640px){.lw-letter-compose-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .lw-letter-compose-fields .lw-panel-field{margin:0}
 .lw-letter-compose-fields .lw-panel-field:has(textarea){grid-column:1/-1}
-.lw-letter-issue-card{display:flex;flex-direction:column;gap:.75rem}
-.lw-letter-issue-lead{margin:0}
-.lw-letter-issue-status{margin:0;padding:.45rem .75rem;font-size:.8125rem;line-height:1.45;color:#047857;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:.5rem}
-.lw-letter-issue-form{display:flex;flex-direction:column;gap:.75rem}
-.lw-letter-issue-primary-btn{display:block;width:100%;text-align:center}
+.lw-letter-show-card{display:flex;flex-direction:column;gap:.75rem}
+.lw-letter-show-lead{margin:0}
+.lw-letter-show-status{margin:0;padding:.45rem .75rem;font-size:.8125rem;line-height:1.45;color:#047857;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:.5rem}
+.lw-letter-show-links{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .5rem}
+.lw-letter-show-sep{color:#94a3b8}
+.lw-letter-show-primary-btn{display:block;width:100%;text-align:center}
+.lw-letter-show-secondary-btn{display:block;width:100%;text-align:center}
 .lw-letter-preview-empty{margin:0;color:var(--lw-text-muted);font-size:.875rem;text-align:center;padding:2rem 1rem}
 .lw-letter-preview-pdf-wrap{min-height:min(70vh,640px);background:#525659;border-radius:0 0 1rem 1rem;overflow:hidden}
 .lw-letter-preview-pdf{display:block;width:100%;min-height:min(70vh,640px);height:75vh;border:0;background:#525659}
@@ -2122,7 +2110,7 @@ body.lw-printing .lw-panel-table--population{min-width:100%!important;font-size:
 .lw-panel--rt .lw-panel-brand-eyebrow{color:#a7f3d0}
 .lw-panel-body.lw-panel--rt,.lw-panel--rt .lw-panel-main{overflow-x:clip;max-width:100%}
 .lw-panel--rt .lw-panel-content{overflow-x:clip;max-width:100%;min-width:0}
-/* Panel RT & Kelurahan: daftar data warga — toolbar, filter, tabel seragam */
+/* Panel RT & Monitoring: daftar data warga — toolbar, filter, tabel seragam */
 .lw-panel--rt .lw-panel-toolbar,
 .lw-panel--kelurahan .lw-panel-toolbar,
 .lw-panel--rt .lw-rt-list-toolbar,

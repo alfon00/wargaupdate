@@ -42,9 +42,11 @@
 <aside class="lw-panel-sidebar" aria-label="Menu panel pengurus">
     <div class="lw-panel-sidebar-inner">
         <div class="lw-panel-brand">
-            <p class="lw-panel-brand-eyebrow">@if(auth()->user()->isSuperAdmin())Admin sistem @elseif(auth()->user()->isRtStaff())Panel RT @elseif(auth()->user()->isKelurahan())Kelurahan · Monitoring @else Panel pengurus @endif</p>
-            <p class="lw-panel-brand-title">{{ config('kelurahan.portal_nama', 'Layanan Warga RT Inauga') }}</p>
-            <p class="lw-panel-brand-sub">@if($rtProfile){{ $rtProfile->displayName() }} · @endif{{ config('kelurahan.nama') }}</p>
+            <p class="lw-panel-brand-eyebrow">@if(auth()->user()->isSuperAdmin())Admin sistem @elseif(auth()->user()->isRtStaff())Panel RT @elseif(auth()->user()->isKelurahan())Monitoring @else Panel pengurus @endif</p>
+            <p class="lw-panel-brand-title">{{ config('kelurahan.portal_nama', 'Layanan Warga RT') }}</p>
+            @if($rtProfile)
+                <p class="lw-panel-brand-sub">{{ $rtProfile->displayName() }}</p>
+            @endif
             <x-today-date variant="labeled" class="lw-panel-date" />
         </div>
 

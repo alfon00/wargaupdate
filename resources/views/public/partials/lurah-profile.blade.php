@@ -2,7 +2,7 @@
     $kel = config('kelurahan');
     $lurah = \App\Models\KelurahanOfficial::publicLurahArray();
     $lurahPhoto = $lurah['photo'] ?? null;
-    $lurahName = $lurah['nama'] ?? 'Lurah Kelurahan Inauga';
+    $lurahName = $lurah['nama'] ?? 'Lurah';
     $initial = mb_strtoupper(mb_substr(preg_replace('/^[^A-Za-z0-9]+/u', '', $lurahName) ?: 'L', 0, 1));
 
     $instagramUrl = config('kelurahan.sosial.instagram');
@@ -14,7 +14,6 @@
 
 <section class="lw-profile-lurah-card" id="lurah" aria-labelledby="lurah-profile-heading" tabindex="-1">
     <header class="lw-profile-section-head lw-home-section-head">
-        <span class="lw-section-tag">Kelurahan</span>
         <h2 id="lurah-profile-heading" class="lw-section-title lw-mt-2">Profil Lurah</h2>
     </header>
 
@@ -38,7 +37,7 @@
         <div class="lw-profile-lurah-card__content">
             <h3 id="lurah-profile-name" class="lw-profile-lurah-card__name">{{ $lurahName }}</h3>
             <p class="lw-profile-lurah-card__role">
-                {{ $lurah['jabatan'] ?? 'Lurah' }} · {{ $kel['nama'] }}, {{ $kel['distrik'] }}
+                {{ $lurah['jabatan'] ?? 'Lurah' }} · {{ $kel['distrik'] }}
             </p>
 
             @include('public.partials.profile-detail-lurah-vision')

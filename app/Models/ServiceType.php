@@ -35,17 +35,9 @@ class ServiceType extends Model
 
     public function catalogLabel(): string
     {
-        $name = $this->name ?? '';
+        $name = trim($this->name ?? '');
 
-        if (str_contains($name, 'Pengantar')) {
-            return $name;
-        }
-
-        if (str_contains($name, 'Keterangan')) {
-            return (string) preg_replace('/\bKeterangan\b/u', 'Pengantar', $name);
-        }
-
-        return $name !== '' ? $name : 'Surat Pengantar';
+        return $name !== '' ? $name : 'Surat Keterangan';
     }
 
     public function catalogDescription(): string
@@ -54,6 +46,6 @@ class ServiceType extends Model
             return $this->description;
         }
 
-        return 'Surat pengantar dari RT untuk pengurusan di instansi berwenang. Bukan dokumen resmi di portal ini.';
+        return 'Keterangan dari RT untuk pengurusan di instansi berwenang. Bukan dokumen resmi di portal ini.';
     }
 }

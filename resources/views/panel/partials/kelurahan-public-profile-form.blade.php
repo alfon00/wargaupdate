@@ -9,7 +9,7 @@
 <header class="lw-panel-page-head">
     <div>
         <p class="lw-panel-page-eyebrow">Admin sistem · Konten portal</p>
-        <h1 class="lw-panel-page-title">Edit profil Kelurahan</h1>
+        <h1 class="lw-panel-page-title">Edit profil lurah</h1>
         <p class="lw-panel-page-lead">
             Data lurah yang ditampilkan di halaman
             <a href="{{ route('profile.index') }}" class="lw-panel-link" target="_blank" rel="noopener">Profil</a> publik.

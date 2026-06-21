@@ -128,7 +128,6 @@ Route::middleware(['auth', 'role.rt'])->prefix('rt')->name('rt.')->group(functio
     Route::get('pendataan/{resident}/dokumen/{document}/unduh', [PendataanVerificationController::class, 'downloadDocument'])->name('pendataan.document.download');
     Route::post('pendataan/{resident}/setujui', [PendataanVerificationController::class, 'approve'])->name('pendataan.approve');
     Route::post('pendataan/{resident}/tolak', [PendataanVerificationController::class, 'reject'])->name('pendataan.reject');
-    Route::post('pendataan/{resident}/minta-lengkap', [PendataanVerificationController::class, 'requestCompletion'])->name('pendataan.request-completion');
     Route::get('data-warga', [ResidentDataController::class, 'index'])->name('data-warga.index');
     Route::get('data-warga/report', [ResidentDataController::class, 'report'])->name('data-warga.report');
     Route::get('data-warga/create', [ResidentDataController::class, 'create'])->name('data-warga.create');
@@ -149,7 +148,6 @@ Route::middleware(['auth', 'role.rt'])->prefix('rt')->name('rt.')->group(functio
     Route::get('applications/{application}', [RtApplicationController::class, 'show'])->name('applications.show');
     Route::post('applications/{application}/verifikasi', [RtApplicationController::class, 'verify'])->name('applications.verify');
     Route::post('applications/{application}/setujui', [RtApplicationController::class, 'approve'])->name('applications.approve');
-    Route::post('applications/{application}/minta-lengkap', [RtApplicationController::class, 'requestCompletion'])->name('applications.request-completion');
     Route::post('applications/{application}/tolak', [RtApplicationController::class, 'reject'])->name('applications.reject');
     Route::post('applications/{application}/siap-diambil', [RtApplicationController::class, 'markReady'])->name('applications.mark-ready');
     Route::get('applications/{application}/dokumen/{document}/lihat', [RtApplicationController::class, 'viewDocument'])->name('applications.document.view');
@@ -162,8 +160,6 @@ Route::middleware(['auth', 'role.rt'])->prefix('rt')->name('rt.')->group(functio
     Route::post('applications/{application}/surat/draf', [RtApplicationController::class, 'saveLetterDraft'])->name('applications.letter.draft');
     Route::post('applications/{application}/surat/ttd', [RtApplicationController::class, 'saveLetterSignature'])->name('applications.letter.signature');
     Route::post('applications/{application}/surat/pratinjau', [RtApplicationController::class, 'previewLetter'])->name('applications.letter.preview');
-    Route::post('applications/{application}/surat/terbitkan-manual', [RtApplicationController::class, 'issueManualLetter'])->name('applications.letter.issue');
-    Route::post('applications/{application}/surat/kirim-ulang-wa', [RtApplicationController::class, 'resendLetterNotification'])->name('applications.letter.resend');
     Route::post('applications/{application}/surat/terbitkan', [RtApplicationController::class, 'publishLetter'])->name('applications.letter.publish');
     Route::post('applications/{application}/surat/kirim-wa', [RtApplicationController::class, 'sendLetterWhatsApp'])->name('applications.letter.whatsapp');
     Route::post('applications/{application}/letter', [RtApplicationController::class, 'generateLetter'])->name('applications.letter');

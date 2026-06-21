@@ -3,10 +3,12 @@
 return [
 
     'portal_nama' => 'Layanan Warga RT',
+    'portal_hero_tagline' => 'Di Kelurahan Inauga · Kabupaten Mimika',
     'portal_subtitle' => 'Di Kelurahan Inauga · Kabupaten Mimika',
-    'portal_nama_schema' => 'Portal Layanan Warga RT Kelurahan Inauga',
+    'portal_subtitle_nav' => '',
+    'portal_nama_schema' => 'Portal Layanan Warga RT',
 
-    'nama' => 'Kelurahan Inauga',
+    'nama' => '',
     'distrik' => 'Distrik Wania',
     'kabupaten' => 'Kabupaten Mimika',
     'provinsi' => 'Papua Tengah',
@@ -29,7 +31,7 @@ return [
     'portal_apple_touch' => env('PORTAL_APPLE_TOUCH', 'images/brand/apple-touch-rt.png'),
     'hero_beranda_image' => env('KELURAHAN_HERO_BERANDA', 'images/hero/beranda-hero-inauga.png'),
 
-    'penjelasan_wilayah' => 'Seluruh RT dan RW di halaman ini berada di Kelurahan Inauga, Distrik Wania, Kabupaten Mimika, Papua Tengah.',
+    'penjelasan_wilayah' => 'Seluruh RT dan RW di halaman ini berada di Distrik Wania, Papua Tengah.',
 
     'face_match_threshold' => (float) env('FACE_MATCH_THRESHOLD', 0.6),
 
@@ -142,7 +144,7 @@ return [
         ],
         [
             'question' => 'Surat sudah siap, apa yang harus dilakukan?',
-            'answer' => 'Ambil surat fisik di sekretariat RT. Nomor surat tampil di halaman Lacak dan dikirim lewat notifikasi teks WhatsApp setelah RT mencatat surat siap diambil.',
+            'answer' => 'Surat PDF sudah diterbitkan RT. Nomor surat tampil di halaman Lacak dan dikirim lewat notifikasi WhatsApp. Ambil salinan fisik di sekretariat RT bila diperlukan, atau cek WhatsApp jika pengurus mengirim PDF.',
         ],
         [
             'question' => 'Apakah portal ini menerbitkan KTP atau KK?',
@@ -150,20 +152,20 @@ return [
         ],
     ],
 
-    'wa_letter' => "Yth. {nama},\n\nSurat pengantar *{layanan}* Anda telah *diterbitkan* oleh {rt}.\n\n*Nomor surat:* {nomor_surat}\n*NIK:* {nik}\n*No. permohonan:* {no}\n\nSilakan *ambil surat fisik* di sekretariat {rt}.\n\nTerima kasih atas kepercayaan Anda.\n\n— {portal}",
+    'wa_letter' => "Yth. {nama},\n\nSurat pengantar *{layanan}* ({no}) dari {rt} terlampir.\nNomor surat: {nomor_surat}\n\nUnduh surat: {link_surat}\n\n— {portal}",
+
+    'wa_letter_attached' => "Yth. {nama},\n\nSurat pengantar *{layanan}* ({no}) dari {rt} terlampir.\nNomor surat: {nomor_surat}\n\n— {portal}",
 
     'wa_permohonan' => [
         'submitted' => "Yth. {nama},\n\nPermohonan *{layanan}* ({no}) di {rt} telah *diterima* dan *menunggu verifikasi* pengurus RT.\n\nLacak: {url}/lacak\n\n— {portal}",
-        'verified' => "Yth. {nama},\n\nPermohonan *{layanan}* ({no}) di {rt} telah *diverifikasi* oleh pengurus RT dan sedang diproses.\n\nLacak: {url}/lacak\n\n— {portal}",
-        'incomplete' => "Yth. {nama},\n\nPermohonan *{layanan}* ({no}) di {rt} *belum dapat diproses*. Mohon lengkapi berkas/data berikut:\n{catatan}\n\nSilakan hubungi ketua/sekretaris RT atau ajukan ulang melalui portal:\n{url}/layanan\n\nLacak: {url}/lacak\n\n— {portal}",
-        'approved' => "Yth. {nama},\n\nPermohonan *{layanan}* ({no}) di {rt} telah *selesai diproses*.\n\nLacak: {url}/lacak\n\n— {portal}",
+        'verified' => "Yth. {nama},\n\nPermohonan *{layanan}* ({no}) di {rt} telah *diterima* pengurus RT.\nPengurus sedang menyusun surat pengantar.\n\nLacak: {url}/lacak\n\n— {portal}",
+        'approved' => "Yth. {nama},\n\nSurat pengantar *{layanan}* ({no}) di {rt} telah *siap*.\n\nLacak nomor surat: {url}/lacak\nAmbil salinan fisik di sekretariat RT bila diperlukan, atau cek WhatsApp jika pengurus mengirim PDF.\n\n— {portal}",
         'rejected' => "Yth. {nama},\n\nPermohonan *{layanan}* ({no}) di {rt} *ditolak*.\n{catatan}\n\n— {portal}",
     ],
 
     'wa_pendataan' => [
         'submitted' => "Yth. {nama},\n\nData pendaftaran Anda telah diterima {rt} dan *menunggu verifikasi* pengurus.\n\n— {portal}",
         'verified' => "Yth. {nama},\n\nPendaftaran Anda di {rt} Kelurahan Inauga telah *diverifikasi* dan *lengkap*.\nAnda sudah terdata sebagai warga {rt}.\n\nPortal: {url}/layanan\n\n— {portal}",
-        'incomplete' => "Yth. {nama},\n\nPendaftaran di {rt} belum dapat diselesaikan. Mohon lengkapi berkas/data berikut:\n{catatan}\n\nSilakan hubungi sekretaris/ketua RT atau perbarui data:\n{layanan_url}\n\n— {portal}",
         'rejected' => "Yth. {nama},\n\nPengajuan pendataan Anda di {rt} *ditolak*.\n{catatan}\n\nSilakan periksa berkas dan ajukan ulang:\n{layanan_url}\n\n— {portal}",
     ],
 
@@ -178,15 +180,15 @@ return [
     ],
 
     'lurah' => [
-        'jabatan' => 'Lurah Kelurahan Inauga',
+        'jabatan' => 'Lurah',
         'nama' => 'Gerson Rumbarar, S.E.',
         'photo' => 'images/kelurahan/lurah.png',
         'telepon' => null,
         'whatsapp' => null,
         'email' => null,
-        'alamat_kantor' => 'Kantor Kelurahan Inauga, Distrik Wania, Kabupaten Mimika',
+        'alamat_kantor' => 'Distrik Wania',
         'jam_layanan' => 'Senin–Jumat 08.00–14.00 WIT',
-        'visi' => 'Mewujudkan pelayanan kelurahan yang transparan, responsif, dan mendukung kesejahteraan warga Inauga.',
+        'visi' => 'Mewujudkan pelayanan publik yang transparan, responsif, dan mendukung kesejahteraan warga setempat.',
         'misi' => '1. Mengkoordinasikan RT/RW dalam administrasi kependudukan. 2. Memastikan surat pengantar dan layanan publik berjalan tertib. 3. Menjalin sinergi dengan distrik dan pemerintah kabupaten.',
     ],
 

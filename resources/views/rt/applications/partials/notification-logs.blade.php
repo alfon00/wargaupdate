@@ -1,4 +1,4 @@
 @include('rt.partials.whatsapp-notification-logs', [
     'logs' => $notificationLogs,
-    'contextLabel' => 'Riwayat pengiriman notifikasi status ke warga untuk permohonan ini.',
+    'contextLabel' => 'Riwayat notifikasi WhatsApp untuk permohonan ini — termasuk status permohonan dan pengiriman PDF surat.',
 ])

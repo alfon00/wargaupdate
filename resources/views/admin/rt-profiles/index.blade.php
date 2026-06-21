@@ -6,7 +6,7 @@
 <div class="lw-admin-page">
 @include('admin.partials.page-head', [
     'title' => 'Profil RT',
-    'lead' => 'Kelola entitas RT di wilayah Inauga sebelum akun ketua/sekretaris ditautkan.',
+    'lead' => 'Kelola entitas RT di wilayah portal sebelum akun ketua/sekretaris ditautkan.',
 ])
 
 <x-admin.page-toolbar
@@ -29,7 +29,7 @@
 @if($profiles->isEmpty())
     <x-admin.empty-state
         title="Belum ada profil RT"
-        :description="request('q') ? 'Tidak ada RT yang cocok dengan pencarian.' : 'Tambahkan profil RT untuk wilayah kelurahan.'"
+        :description="request('q') ? 'Tidak ada RT yang cocok dengan pencarian.' : 'Tambahkan profil RT untuk wilayah portal.'"
         :action-url="route('admin.rt-profiles.create')"
         action-label="+ Tambah profil RT"
     />

@@ -1,10 +1,10 @@
 @extends('layouts.panel')
 
-@section('title', 'Profil Kelurahan')
+@section('title', 'Profil Lurah')
 
 @section('content')
 @php
-    $lurahName = $lurah['nama'] ?? 'Lurah Kelurahan Inauga';
+    $lurahName = $lurah['nama'] ?? 'Lurah';
     $lurahPhoto = $lurah['photo'] ?? null;
     $initial = mb_strtoupper(mb_substr(preg_replace('/^[^A-Za-z0-9]+/u', '', $lurahName) ?: 'L', 0, 1));
     $kel = config('kelurahan');
@@ -24,9 +24,9 @@
                 @endif
             </div>
             <div class="lw-panel-profile-show-hero__content">
-                <p class="lw-panel-page-eyebrow">Profil Kelurahan · Halaman publik</p>
+                <p class="lw-panel-page-eyebrow">Profil lurah · Halaman publik</p>
                 <h1 class="lw-panel-page-title lw-panel-profile-show-hero__title">{{ $lurahName }}</h1>
-                <p class="lw-panel-profile-show-hero__role">{{ $lurah['jabatan'] ?? 'Lurah' }} · {{ $kel['nama'] }}, {{ $kel['distrik'] }}</p>
+                <p class="lw-panel-profile-show-hero__role">{{ $lurah['jabatan'] ?? 'Lurah' }} · {{ $kel['distrik'] }}</p>
             </div>
         </div>
 
@@ -77,7 +77,7 @@
         </dl>
 
         <div class="lw-panel-profile-show-actions">
-            <a href="{{ route('admin.profile.kelurahan.edit') }}" class="lw-panel-btn">Edit profil kelurahan</a>
+            <a href="{{ route('admin.profile.kelurahan.edit') }}" class="lw-panel-btn">Edit profil lurah</a>
             <a href="{{ route('profile.index') }}" class="lw-panel-btn lw-panel-btn--secondary" target="_blank" rel="noopener">Pratinjau publik</a>
         </div>
     </article>

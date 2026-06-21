@@ -13,6 +13,7 @@ use App\Services\GuestResidentService;
 use App\Services\PermanentDeletionRequestService;
 use App\Services\ResidentFaceReferenceService;
 use App\Services\RtPendataanDocumentUpdateService;
+use App\Services\RtPendataanRegistrationNotifier;
 use App\Support\PhoneNormalizer;
 use App\Support\ResidentLetterProfile;
 use Illuminate\Http\RedirectResponse;
@@ -32,6 +33,7 @@ class ResidentController extends Controller
         private readonly RtPendataanDocumentUpdateService $pendataanDocumentUpdate,
         private readonly ResidentFaceReferenceService $faceReferences,
         private readonly GuestResidentService $guestResidentService,
+        private readonly RtPendataanRegistrationNotifier $pendataanNotifier,
     ) {}
 
     public function create(Request $request): View
@@ -74,6 +76,7 @@ class ResidentController extends Controller
         $rt = $this->requireRtProfile();
         $validated = $this->validateResident($request, $rt);
         $resident = Resident::create($validated);
+        $waLog = $this->pendataanNotifier->notifyAfterRtEntry($resident);
 
         $listQuery = array_filter([
             'filter' => $request->input('filter', 'aktif'),
@@ -84,7 +87,7 @@ class ResidentController extends Controller
 
         return redirect()
             ->route('rt.residents.show', array_merge(['resident' => $resident], $listQuery))
-            ->with('success', 'Data warga berhasil ditambahkan.');
+            ->with('success', 'Data warga berhasil ditambahkan.'.$this->pendataanNotifier->flashSuffix($waLog));
     }
 
     public function show(Request $request, Resident $resident): View

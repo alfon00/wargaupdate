@@ -19,10 +19,7 @@
         ->values();
     $streamHead = $head ?? $household->headResident;
 
-    $needsVerification = $streamHead && in_array($streamHead->domicile_status, [
-        DomicileStatus::MenungguVerifikasi,
-        DomicileStatus::PerluLengkap,
-    ], true);
+    $needsVerification = $streamHead && $streamHead->domicile_status === DomicileStatus::MenungguVerifikasi;
     $collapsible = $collapsible ?? ($isCompact && $documents->count() > 2);
     $collapsibleOpen = $documents->count() <= 2;
     $headingTag = $isCompact ? 'h3' : 'h2';
@@ -39,9 +36,6 @@
                 <strong>{{ $streamHead->domicile_status?->label() }}</strong>
                 — berkas perlu ditinjau di halaman verifikasi.
             </p>
-            @if($streamHead->domicile_status === DomicileStatus::PerluLengkap && filled($streamHead->verification_notes))
-                <p class="lw-rt-doc-verify-banner-notes">{{ Str::limit($streamHead->verification_notes, 120) }}</p>
-            @endif
             <a href="{{ route('rt.pendataan.show', $streamHead) }}" class="lw-panel-btn lw-panel-btn--sm">Buka verifikasi pendataan</a>
         </div>
     @endif

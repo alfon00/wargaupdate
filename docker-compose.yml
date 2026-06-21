@@ -32,6 +32,7 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - ./docker/nginx/ssl-layananwarga.conf:/etc/nginx/conf.d/ssl-layananwarga.conf:ro
       - ./docker/nginx/ssl-waha.conf:/etc/nginx/conf.d/ssl-waha.conf:ro
+      - ./docker/nginx/waha-dashboard-init.html:/etc/nginx/waha-dashboard-init.html:ro
     depends_on:
       - app
       - waha
@@ -61,6 +62,23 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - layananwarga
+
+  waha-bootstrap:
+    image: curlimages/curl:8.12.1
+    restart: "no"
+    depends_on:
+      waha:
+        condition: service_healthy
+    env_file:
+      - ./waha/.env
+    environment:
+      WAHA_INTERNAL_URL: http://waha:3000
+      WAHA_SESSION: default
+    volumes:
+      - ./docker/waha/bootstrap-session.sh:/bootstrap.sh:ro
+    entrypoint: ["/bin/sh", "/bootstrap.sh"]
     networks:
       - layananwarga
 

@@ -26,7 +26,8 @@
     'actions' => '<a href="'.e(route('rt.applications.show', $application)).'" class="lw-panel-link">← Kembali ke permohonan</a>',
 ])
 
-<div id="letter-compose-root" class="lw-letter-compose-page" data-compose-config="@json($composeConfig)">
+<div id="letter-compose-root" class="lw-letter-compose-page"
+    data-compose-config="@json($composeConfig)">
 
 <div class="lw-letter-compose-grid">
     <div class="lw-letter-compose-editor">
@@ -40,17 +41,35 @@
                         Kosong: {{ implode(', ', $missingKopLabels ?? []) }}.</p>
                 </div>
                 @endif
+                @if($hasPublishedPdf)
                 <p class="lw-panel-card-note lw-letter-compose-lead">
-                    @if($hasPublishedPdf)
-                        {{ $application->serviceType->name }} — PDF sudah terbit. Periksa dengan tautan di bawah; terbitkan ulang jika TTD atau data berubah.
-                    @else
-                        {{ $application->serviceType->name }} — periksa data pemohon, lengkapi keperluan, gambar TTD di kanvas, lalu terbitkan PDF.
-                    @endif
+                    PDF sudah terbit — terbitkan ulang jika TTD atau data berubah. Kirim PDF ke warga via tombol WhatsApp di bawah.
                 </p>
+                @endif
 
                 <form method="POST" action="{{ route('rt.applications.letter.publish', $application) }}"
                     class="lw-panel-form lw-panel-form--in-card" data-letter-signature-form id="letter-compose-form">
                     @csrf
+
+                    <fieldset class="lw-form-fieldset lw-letter-fieldset">
+                        <legend class="lw-form-legend">Nomor surat</legend>
+                        <p class="lw-panel-card-note lw-mb-4">
+                            Isi nomor surat yang akan tercetak pada kop. Format usulan sudah terisi otomatis — sesuaikan jika RT memakai penomoran lain.
+                        </p>
+                        <div class="lw-panel-field">
+                            <label for="letter-field-nomor-surat" class="lw-panel-field-label">
+                                Nomor surat <span class="lw-form-label-required">*</span>
+                            </label>
+                            <input type="text" id="letter-field-nomor-surat" name="fields[nomor_surat]"
+                                value="{{ old('fields.nomor_surat', $fieldValues['nomor_surat'] ?? '') }}"
+                                maxlength="120"
+                                class="lw-letter-compose-field-input lw-panel-field-input"
+                                data-letter-field="1" data-required="1" required>
+                            @error('fields.nomor_surat')
+                                <p class="lw-form-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </fieldset>
 
                     <fieldset class="lw-form-fieldset lw-letter-fieldset">
                         <legend class="lw-form-legend">Data pemohon</legend>
@@ -76,8 +95,10 @@
                     @include('rt.applications.partials.letter-compose-service-fields', compact('application', 'fieldValues'))
 
                     <fieldset class="lw-form-fieldset lw-letter-fieldset lw-letter-fieldset--signature">
-                        <legend class="lw-form-legend">Tanda tangan Ketua RT</legend>
-                        <p class="lw-panel-card-note">Gambar tanda tangan di kanvas (mouse atau sentuhan). Tersimpan otomatis saat Anda menggambar.</p>
+                        <legend class="lw-form-legend lw-letter-signature-legend">
+                            <span>Tanda tangan</span>
+                        </legend>
+                        <p class="lw-panel-card-note">Gambar tanda tangan di kanvas.</p>
                         <div class="lw-letter-signature-pad">
                             <canvas id="letter-signature-canvas" class="lw-letter-signature-canvas touch-none"></canvas>
                         </div>
@@ -104,6 +125,9 @@
                             value="{{ old('fields.'.$field['key'], $fieldValues[$field['key']] ?? '') }}"
                             class="draft-field-sync" data-field-key="{{ $field['key'] }}">
                     @endforeach
+                    <input type="hidden" name="fields[nomor_surat]"
+                        value="{{ old('fields.nomor_surat', $fieldValues['nomor_surat'] ?? '') }}"
+                        class="draft-field-sync" data-field-key="nomor_surat">
                     <input type="hidden" name="signature_data" id="draft_signature_data" value="">
                 </form>
 

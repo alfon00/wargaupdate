@@ -14,9 +14,9 @@
     <div class="lw-social-block lw-social-block--{{ $variant }}">
         @if($showHeading)
             <p id="kegiatan-social-heading" class="lw-social-block-label">Media sosial</p>
-            <p class="lw-social-block-lead">Ikuti informasi resmi {{ config('kelurahan.nama') }}. Akun media sosial tiap RT akan ditampilkan di halaman Profil RT.</p>
+            <p class="lw-social-block-lead">Ikuti informasi resmi portal. Akun media sosial tiap RT akan ditampilkan di halaman Profil RT.</p>
         @endif
-        <nav class="lw-footer-social lw-footer-social--{{ $variant }}" aria-label="Media sosial Kelurahan Inauga">
+        <nav class="lw-footer-social lw-footer-social--{{ $variant }}" aria-label="Media sosial portal">
             @foreach($socialLinks as $key => $item)
                 @if(filled($item['url']))
                     <a href="{{ $item['url'] }}"

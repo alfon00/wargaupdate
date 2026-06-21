@@ -141,8 +141,11 @@ class LetterFieldSchema
             'alamat_kantor' => $rt?->alamat_kantor ?? '',
         ]);
 
-        if ($application->generatedLetter?->letter_number) {
-            $defaults['nomor_surat'] = $application->generatedLetter->letter_number;
+        $savedNomor = trim((string) ($saved['nomor_surat'] ?? ''));
+        if ($savedNomor !== '') {
+            $defaults['nomor_surat'] = $savedNomor;
+        } else {
+            $defaults['nomor_surat'] = \App\Services\LetterGeneratorService::suggestLetterNumber($application);
         }
 
         foreach (self::forServiceCode($application->serviceType->code) as $field) {
@@ -199,6 +202,16 @@ class LetterFieldSchema
         }
 
         return $rules;
+    }
+
+    /** @return array<string, list<string>> */
+    public static function letterNumberValidationRules(bool $required = true): array
+    {
+        $rule = $required
+            ? ['required', 'string', 'max:120']
+            : ['nullable', 'string', 'max:120'];
+
+        return ['fields.nomor_surat' => $rule];
     }
 
     public static function logoImgTag(Application $application): string

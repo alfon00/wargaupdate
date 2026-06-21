@@ -23,7 +23,12 @@ class LetterDownloadController extends Controller
         return response()->streamDownload(
             fn () => print(Storage::disk('local')->get($letter->file_path)),
             $filename,
-            ['Content-Type' => 'application/pdf'],
+            [
+                'Content-Type' => 'application/pdf',
+                'Cache-Control' => 'private, no-cache, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0',
+            ],
         );
     }
 }

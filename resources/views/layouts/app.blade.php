@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Beranda') — {{ config('kelurahan.portal_nama') }}</title>
-    <x-site-trust-meta description="Portal layanan surat pengantar RT Kelurahan Inauga, Mimika. Bukan situs Dukcapil, Kemendagri, atau bank." />
+    <x-site-trust-meta description="Portal layanan surat pengantar RT. Bukan situs Dukcapil, Kemendagri, atau bank." />
     @stack('head')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('layouts.partials.lw-styles')

@@ -60,10 +60,6 @@
             <a href="{{ route('rt.applications.letter.print', $application) }}" target="_blank" rel="noopener" class="lw-panel-link">
                 Lihat / cetak PDF
             </a>
-            <span class="lw-letter-compose-pdf-sep" aria-hidden="true">·</span>
-            <a href="{{ route('rt.applications.download', $application) }}" class="lw-panel-link">
-                Unduh PDF
-            </a>
             @if($publishedLetter?->letter_number)
                 <span class="lw-letter-compose-pdf-meta">
                     Nomor <strong>{{ $publishedLetter->letter_number }}</strong>

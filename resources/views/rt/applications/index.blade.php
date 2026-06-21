@@ -7,7 +7,7 @@
 @include('rt.partials.page-head', [
     'eyebrow' => $rt->displayName(),
     'title' => 'Daftar Permohonan',
-    'lead' => 'Verifikasi berkas warga, cetak surat manual di sekretariat RT, catat nomor surat, lalu kirim notifikasi teks WhatsApp dari halaman detail permohonan.',
+    'lead' => 'Terima atau tolak permohonan, susun dan terbitkan surat PDF dengan tanda tangan digital, lalu kirim PDF ke warga via WhatsApp bila diperlukan.',
 ])
 
 <x-rt.list-toolbar :form-action="route('rt.applications.index')">
@@ -57,12 +57,8 @@
                         <td class="lw-rt-col-hide-sm">{{ $app->applicantRtLabel() }}</td>
                         <td><span class="lw-badge {{ $app->status->badgeClass() }}">{{ $app->status->label() }}</span></td>
                         <td class="lw-panel-table-actions">
-                            <a href="{{ route('rt.applications.show', $app) }}" class="lw-panel-btn lw-panel-btn--secondary lw-panel-btn--sm">
-                                @if($app->status->canBeReviewedByRt())
-                                    Verifikasi
-                                @else
-                                    Detail
-                                @endif
+                            <a href="{{ route($app->status->rtListActionRouteName(), $app) }}" class="lw-panel-btn lw-panel-btn--secondary lw-panel-btn--sm">
+                                {{ $app->status->rtListActionLabel() }}
                             </a>
                         </td>
                     </tr>

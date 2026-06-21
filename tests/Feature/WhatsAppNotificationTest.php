@@ -131,32 +131,6 @@ class WhatsAppNotificationTest extends TestCase
         $this->assertStringContainsString($application->application_number, $log->message);
     }
 
-    public function test_request_completion_sends_incomplete_notification(): void
-    {
-        $this->fakeWahaWorking();
-
-        [$staff, $application] = $this->seedApplication('RT008-2026060103');
-        $notes = 'KK belum jelas, mohon unggah ulang.';
-
-        $this->actingAs($staff)
-            ->from(route('rt.applications.show', $application))
-            ->post(route('rt.applications.request-completion', $application), [
-                'completion_notes' => $notes,
-            ])
-            ->assertRedirect(route('rt.applications.show', $application))
-            ->assertSessionHas('success');
-
-        $log = NotificationLog::query()
-            ->where('application_id', $application->id)
-            ->where('event', 'incomplete')
-            ->latest()
-            ->first();
-
-        $this->assertNotNull($log);
-        $this->assertSame('sent', $log->status);
-        $this->assertStringContainsString($notes, $log->message);
-    }
-
     public function test_verify_sends_verified_notification(): void
     {
         $this->fakeWahaWorking();

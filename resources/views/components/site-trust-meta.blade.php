@@ -1,6 +1,6 @@
 @props([
     'canonical' => null,
-    'description' => 'Portal layanan surat pengantar RT Kelurahan Inauga, Mimika. Bukan situs Dukcapil, Kemendagri, atau bank.',
+    'description' => 'Portal layanan surat pengantar RT. Bukan situs Dukcapil, Kemendagri, atau bank.',
 ])
 
 @php
@@ -9,10 +9,10 @@
         '@type' => 'Organization',
         'name' => config('kelurahan.portal_nama_schema'),
         'url' => config('app.url'),
-        'description' => 'Layanan administrasi RT/RW tingkat kelurahan. Bukan situs Dukcapil atau Kemendagri.',
+        'description' => 'Layanan administrasi RT/RW. Bukan situs Dukcapil atau Kemendagri.',
         'areaServed' => [
             '@type' => 'AdministrativeArea',
-            'name' => config('kelurahan.nama').', '.config('kelurahan.distrik').', '.config('kelurahan.kabupaten').', '.config('kelurahan.provinsi'),
+            'name' => config('kelurahan.distrik').', '.config('kelurahan.provinsi'),
         ],
     ];
 @endphp

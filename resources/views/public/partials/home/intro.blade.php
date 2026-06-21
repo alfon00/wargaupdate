@@ -2,7 +2,7 @@
     <div class="lw-container">
     <div class="lw-home-section-head">
         <span class="lw-section-tag">Platform</span>
-        <h2 id="home-intro-heading" class="lw-section-title">Mengenal Platform Layanan RT Inauga</h2>
+        <h2 id="home-intro-heading" class="lw-section-title">Mengenal {{ config('kelurahan.portal_nama') }}</h2>
     </div>
     <p class="lw-home-intro-lead">
         {{ $platformIntroLead }}

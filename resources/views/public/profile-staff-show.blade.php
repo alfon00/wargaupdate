@@ -23,7 +23,7 @@
                 <span class="lw-staff-card-role">{{ $roleLabel }}</span>
                 <h1 class="lw-staff-card-name">{{ $user->name }}</h1>
                 <p class="lw-profile-detail-meta lw-profile-detail-meta--compact lw-mb-0">
-                    {{ $rtProfile->displayName() }} · {{ config('kelurahan.nama') }}
+                    {{ $rtProfile->displayName() }} · {{ config('kelurahan.distrik') }}
                 </p>
                 @if(filled($user->public_bio))
                     <p class="lw-staff-card-bio">{{ $user->public_bio }}</p>

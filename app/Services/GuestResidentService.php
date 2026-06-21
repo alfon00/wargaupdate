@@ -215,12 +215,6 @@ class GuestResidentService
             ]);
         }
 
-        if ($resident->domicile_status === DomicileStatus::PerluLengkap) {
-            throw ValidationException::withMessages([
-                'nik' => 'Data pendataan perlu dilengkapi. Hubungi pengurus RT atau lengkapi berkas pendataan terlebih dahulu.',
-            ]);
-        }
-
         if ($resident->domicile_status?->isArchived()) {
             $label = $resident->domicile_status->label();
             throw ValidationException::withMessages([

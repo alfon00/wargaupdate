@@ -11,16 +11,8 @@
             <h2 id="wilayah-info-heading" class="lw-profile-wilayah__title">Informasi Wilayah</h2>
             <dl class="lw-profile-wilayah__list">
                 <div>
-                    <dt>Kelurahan</dt>
-                    <dd>{{ $kel['nama'] }}</dd>
-                </div>
-                <div>
                     <dt>Distrik</dt>
                     <dd>{{ $kel['distrik'] }}</dd>
-                </div>
-                <div>
-                    <dt>Kabupaten</dt>
-                    <dd>{{ $kel['kabupaten'] }}</dd>
                 </div>
                 <div>
                     <dt>Provinsi</dt>
@@ -29,7 +21,7 @@
             </dl>
             <p class="lw-profile-wilayah__desc">{{ $kel['penjelasan_wilayah'] }}</p>
             @if(empty($kel['maps_embed_url']))
-                <p class="lw-profile-wilayah__map-note">Peta lokasi akan ditampilkan di sini setelah tersedia dari kelurahan.</p>
+                <p class="lw-profile-wilayah__map-note">Peta lokasi akan ditampilkan di sini setelah tersedia.</p>
             @endif
         </div>
     </div>

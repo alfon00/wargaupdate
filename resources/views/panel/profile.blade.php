@@ -5,8 +5,8 @@
 @section('content')
 @php
     $eyebrow = match (true) {
-        $user->isRtStaff() => 'Panel RT · Kelurahan Inauga',
-        $user->isKelurahan() => 'Kelurahan Inauga · Monitoring',
+        $user->isRtStaff() => 'Panel RT',
+        $user->isKelurahan() => 'Monitoring · Panel',
         $user->isSuperAdmin() => 'Admin sistem',
         default => 'Panel pengurus',
     };

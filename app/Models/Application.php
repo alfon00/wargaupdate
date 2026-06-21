@@ -303,7 +303,7 @@ class Application extends Model
 
     public function issuedLetterNumber(): ?string
     {
-        return $this->manualLetterNumber() ?? $this->generatedLetter?->letter_number;
+        return $this->generatedLetter?->letter_number ?? $this->manualLetterNumber();
     }
 
     public function hasIssuedLetter(): bool
@@ -329,7 +329,6 @@ class Application extends Model
     {
         return $query->whereIn('status', [
             ApplicationStatus::Diajukan,
-            ApplicationStatus::PerluLengkap,
             ApplicationStatus::VerifikasiRt,
         ]);
     }

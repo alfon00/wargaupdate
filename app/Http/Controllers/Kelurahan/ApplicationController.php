@@ -119,10 +119,18 @@ class ApplicationController extends Controller
     {
         $safe = str_replace(['"', "\r", "\n"], '', $filename);
 
-        return [
+        $headers = [
             'Content-Type' => $mime,
             'Content-Disposition' => 'inline; filename="'.$safe.'"',
         ];
+
+        if ($mime === 'application/pdf') {
+            $headers['Cache-Control'] = 'private, no-cache, must-revalidate';
+            $headers['Pragma'] = 'no-cache';
+            $headers['Expires'] = '0';
+        }
+
+        return $headers;
     }
 
     public function downloadLetter(Application $application): StreamedResponse

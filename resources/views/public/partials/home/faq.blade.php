@@ -3,7 +3,7 @@
     <div class="lw-home-section-head">
         <span class="lw-section-tag">Panduan</span>
         <h2 id="home-faq-heading" class="lw-section-title">Panduan Penggunaan Layanan</h2>
-        <p class="lw-section-desc">Pertanyaan umum seputar layanan administrasi RT di {{ config('kelurahan.nama') }}.</p>
+        <p class="lw-section-desc">Pertanyaan umum seputar layanan administrasi RT.</p>
     </div>
     <div class="lw-home-faq-list">
         @foreach($homeFaq as $index => $item)

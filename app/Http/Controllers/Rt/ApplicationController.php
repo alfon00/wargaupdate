@@ -110,36 +110,26 @@ class ApplicationController extends Controller
     {
         $this->abortUnlessOwnsApplication($application);
 
+        if (! $application->status->canBeReviewedByRt()) {
+            return back()->withErrors(['error' => 'Permohonan ini tidak dapat diverifikasi pada status saat ini.']);
+        }
+
+        $application->update([
+            'status' => ApplicationStatus::VerifikasiRt,
+            'processed_by' => auth()->id(),
+            'rejection_reason' => null,
+            'completed_at' => null,
+        ]);
+
         return redirect()
-            ->route('rt.applications.show', $application)
-            ->with('info', 'Gunakan formulir terbitkan surat di halaman ini untuk mengirim notifikasi ke warga.');
+            ->route('rt.applications.letter.compose', $application)
+            ->with('success', 'Permohonan diterima. Lanjutkan susun dan tandatangani surat pengantar RT.');
     }
 
     /** @deprecated Use verify() — kept for backward-compatible route name */
     public function approve(Application $application): RedirectResponse
     {
         return $this->verify($application);
-    }
-
-    public function requestCompletion(Request $request, Application $application): RedirectResponse
-    {
-        $this->abortUnlessOwnsApplication($application);
-
-        if (! $application->status->canRequestCompletionByRt()) {
-            return back()->withErrors(['error' => 'Permohonan ini tidak dapat diminta lengkap pada status saat ini.']);
-        }
-
-        $validated = $request->validate([
-            'completion_notes' => ['required', 'string', 'max:2000'],
-        ]);
-
-        $application->update([
-            'status' => ApplicationStatus::PerluLengkap,
-            'rejection_reason' => $validated['completion_notes'],
-            'processed_by' => auth()->id(),
-        ]);
-
-        return back()->with('success', 'Permintaan melengkapi berkas dikirim. Warga menerima notifikasi WhatsApp berisi catatan Anda.');
     }
 
     public function reject(Request $request, Application $application): RedirectResponse
@@ -179,80 +169,6 @@ class ApplicationController extends Controller
         ]);
 
         return back()->with('success', 'Permohonan ditandai siap diambil.');
-    }
-
-    public function issueManualLetter(Request $request, Application $application): RedirectResponse
-    {
-        $this->abortUnlessOwnsApplication($application);
-
-        if (! $application->status->canIssueManualLetter()) {
-            return back()->withErrors(['letter_number' => 'Permohonan tidak dapat diterbitkan pada status saat ini.']);
-        }
-
-        $validated = $request->validate([
-            'letter_number' => ['required', 'string', 'max:100'],
-        ]);
-
-        $letterNumber = trim($validated['letter_number']);
-        $formData = $application->form_data ?? [];
-        $formData['manual_letter'] = [
-            'number' => $letterNumber,
-            'issued_at' => now()->toIso8601String(),
-            'issued_by' => auth()->id(),
-        ];
-
-        $application->updateQuietly([
-            'form_data' => $formData,
-            'status' => ApplicationStatus::SiapDiambil,
-            'processed_by' => auth()->id(),
-            'completed_at' => now(),
-            'rejection_reason' => null,
-        ]);
-
-        $application->refresh();
-
-        return $this->redirectAfterLetterNotification(
-            $application,
-            $this->waha->notifyLetterReady($application, $letterNumber),
-            issued: true,
-        );
-    }
-
-    public function resendLetterNotification(Application $application): RedirectResponse
-    {
-        $this->abortUnlessOwnsApplication($application);
-
-        $letterNumber = $application->manualLetterNumber();
-        if (! $letterNumber) {
-            return back()->withErrors(['letter' => 'Nomor surat manual belum tercatat.']);
-        }
-
-        return $this->redirectAfterLetterNotification(
-            $application,
-            $this->waha->notifyLetterReady($application, $letterNumber),
-            issued: false,
-        );
-    }
-
-    protected function redirectAfterLetterNotification(
-        Application $application,
-        NotificationLog $log,
-        bool $issued,
-    ): RedirectResponse {
-        return match ($log->status) {
-            'sent' => back()->with(
-                'success',
-                $issued
-                    ? 'Surat diterbitkan. Notifikasi WhatsApp terkirim — warga diarahkan mengambil surat di sekretariat RT.'
-                    : 'Notifikasi WhatsApp berhasil dikirim ulang.',
-            ),
-            'skipped' => back()->withErrors([
-                'letter_number' => $log->error_message ?? 'Notifikasi WhatsApp dilewati.',
-            ]),
-            default => back()->withErrors([
-                'letter_number' => $log->error_message ?? 'Gagal mengirim notifikasi WhatsApp.',
-            ]),
-        };
     }
 
     public function updateStatus(Request $request, Application $application): RedirectResponse
@@ -324,13 +240,95 @@ class ApplicationController extends Controller
         return Storage::disk('local')->download($document->file_path, $filename);
     }
 
-    public function composeLetter(Application $application): RedirectResponse
+    public function composeLetter(Application $application): View|RedirectResponse
     {
         $this->abortUnlessOwnsApplication($application);
 
-        return redirect()
-            ->route('rt.applications.show', $application)
-            ->with('info', 'Surat dicetak manual di sekretariat RT. Catat nomor surat dan kirim notifikasi teks WhatsApp di halaman detail permohonan.');
+        if (! $application->status->canGenerateLetter()) {
+            return redirect()
+                ->route('rt.applications.show', $application)
+                ->withErrors(['letter' => 'Verifikasi berkas terlebih dahulu sebelum menyusun surat.']);
+        }
+
+        $application->load(['resident.household.rtProfile', 'assignedRtProfile', 'serviceType', 'generatedLetter']);
+
+        $fieldSchema = LetterFieldSchema::forServiceCode($application->serviceType->code);
+        $fieldValues = LetterFieldSchema::defaultValues($application);
+        $rtProfile = $application->resolvedRtProfile();
+
+        $kopProfileIncomplete = false;
+        $missingKopLabels = [];
+        if ($rtProfile) {
+            $kopFieldLabels = [
+                'kelurahan' => 'Kelurahan',
+                'kecamatan' => 'Kecamatan/distrik',
+                'alamat_kantor' => 'Alamat kantor RT',
+            ];
+            foreach ($kopFieldLabels as $key => $label) {
+                if (! filled($rtProfile->{$key})) {
+                    $missingKopLabels[] = $label;
+                }
+            }
+            $kopProfileIncomplete = $missingKopLabels !== [];
+        }
+
+        $publishedLetter = $application->generatedLetter;
+        $hasPublishedPdf = $publishedLetter
+            && Storage::disk('local')->exists($publishedLetter->file_path);
+
+        $resident = $application->resident;
+        $profileIncomplete = $resident && ! ResidentLetterProfile::isComplete($resident);
+        $missingProfileLabels = $resident ? ResidentLetterProfile::missingLabels($resident) : [];
+
+        $existingSignatureDataUri = null;
+        if ($publishedLetter?->signature_path) {
+            $existingSignatureDataUri = SignatureStorage::toDataUriFromPath($publishedLetter->signature_path);
+        }
+
+        if (! $existingSignatureDataUri) {
+            $draftSignature = $application->form_data['letter']['signature_data'] ?? null;
+            if ($draftSignature && ! SignatureStorage::isBlank($draftSignature)) {
+                $existingSignatureDataUri = $draftSignature;
+            }
+        }
+
+        $canSendLetterWhatsApp = false;
+        $letterWhatsAppBlockReason = null;
+
+        if ($hasPublishedPdf && $publishedLetter) {
+            if (! $publishedLetter->signature_path && ! $publishedLetter->signed_at) {
+                $letterWhatsAppBlockReason = 'Gambar tanda tangan Ketua RT terlebih dahulu.';
+            } elseif (! filled($resident?->whatsappNotificationPhone())) {
+                $letterWhatsAppBlockReason = 'Nomor HP warga belum terdaftar.';
+            } elseif (! $resident->whatsapp_notify) {
+                $letterWhatsAppBlockReason = 'Notifikasi WhatsApp warga nonaktif.';
+            } else {
+                $canSendLetterWhatsApp = true;
+            }
+        }
+
+        $lastLetterWhatsAppLog = NotificationLog::query()
+            ->where('application_id', $application->id)
+            ->where('event', 'letter_sent')
+            ->latest()
+            ->first();
+
+        return view('rt.applications.letter-compose', compact(
+            'application',
+            'fieldSchema',
+            'fieldValues',
+            'rtProfile',
+            'publishedLetter',
+            'hasPublishedPdf',
+            'profileIncomplete',
+            'missingProfileLabels',
+            'kopProfileIncomplete',
+            'missingKopLabels',
+            'existingSignatureDataUri',
+            'canSendLetterWhatsApp',
+            'letterWhatsAppBlockReason',
+            'lastLetterWhatsAppLog',
+        ));
     }
 
     public function lookupLetterResident(Request $request, Application $application): JsonResponse
@@ -409,9 +407,23 @@ class ApplicationController extends Controller
     {
         $this->abortUnlessOwnsApplication($application);
 
-        return redirect()
-            ->route('rt.applications.show', $application)
-            ->with('info', 'Pengiriman PDF via WhatsApp tidak digunakan. Catat nomor surat manual dan kirim notifikasi teks dari halaman detail permohonan.');
+        if (! $application->status->canGenerateLetter()) {
+            return back()->withErrors(['letter' => 'Status permohonan tidak memungkinkan pengiriman surat.']);
+        }
+
+        $log = $this->waha->sendLetterPdf($application);
+
+        return match ($log->status) {
+            'sent' => redirect()
+                ->route('rt.applications.letter.compose', $application)
+                ->with('success', 'Surat PDF berhasil dikirim ke WhatsApp warga.'),
+            'skipped' => redirect()
+                ->route('rt.applications.letter.compose', $application)
+                ->withErrors(['letter' => $log->error_message ?? 'Pengiriman WhatsApp dilewati.']),
+            default => redirect()
+                ->route('rt.applications.letter.compose', $application)
+                ->withErrors(['letter' => $log->error_message ?? 'Gagal mengirim surat via WhatsApp.']),
+        };
     }
 
     public function saveLetterDraft(Request $request, Application $application): RedirectResponse
@@ -426,6 +438,7 @@ class ApplicationController extends Controller
             'fields' => ['required', 'array'],
             'signature_data' => ['nullable', 'string', 'max:500000'],
             ...LetterFieldSchema::validate($application->serviceType->code, $request->input('fields', [])),
+            ...LetterFieldSchema::letterNumberValidationRules(required: false),
         ]);
 
         $letterDraft = array_merge($application->form_data['letter'] ?? [], [
@@ -533,17 +546,56 @@ class ApplicationController extends Controller
     {
         $this->abortUnlessOwnsApplication($application);
 
+        if (! $application->status->canGenerateLetter()) {
+            return back()->withErrors(['letter' => 'Verifikasi berkas terlebih dahulu sebelum menerbitkan surat.']);
+        }
+
+        $validated = $this->validateLetterCompose($request, $application, requireSignature: true);
+
+        if (SignatureStorage::isBlank($validated['signature_data'] ?? null)) {
+            return back()
+                ->withInput()
+                ->withErrors(['signature_data' => 'Tanda tangan wajib diisi pada kanvas sebelum menerbitkan surat.']);
+        }
+
+        try {
+            $this->letters->generate(
+                $application,
+                $validated['fields'],
+                $validated['signature_data'],
+                auth()->id(),
+            );
+        } catch (\Throwable $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['letter' => 'Gagal menerbitkan surat: '.$e->getMessage()]);
+        }
+
+        $formData = $application->form_data ?? [];
+        $formData['letter'] = [
+            'fields' => $validated['fields'],
+            'signed_at' => now()->toIso8601String(),
+            'signed_by' => auth()->id(),
+        ];
+        $application->update(['form_data' => $formData]);
+        $application->refresh();
+        $application->load('generatedLetter');
+
+        $application->updateQuietly([
+            'status' => ApplicationStatus::SiapDiambil,
+            'processed_by' => auth()->id(),
+            'completed_at' => now(),
+        ]);
+
         return redirect()
-            ->route('rt.applications.show', $application)
-            ->with('info', 'Penerbitan surat PDF via portal tidak digunakan. Cetak surat manual di sekretariat RT, lalu catat nomor surat di halaman detail permohonan.');
+            ->route('rt.applications.letter.compose', $application)
+            ->with('success', 'Surat PDF berhasil diterbitkan. Anda dapat mengirim PDF ke warga via WhatsApp dari halaman ini.');
     }
 
-    /** @deprecated Redirect ke detail permohonan (surat manual) */
+    /** @deprecated Redirect ke halaman susun surat */
     public function generateLetter(Application $application): RedirectResponse
     {
-        return redirect()
-            ->route('rt.applications.show', $application)
-            ->with('info', 'Surat dicetak manual di sekretariat RT. Catat nomor surat di halaman detail permohonan.');
+        return redirect()->route('rt.applications.letter.compose', $application);
     }
 
     /**
@@ -581,6 +633,7 @@ class ApplicationController extends Controller
         $rules = [
             'fields' => ['required', 'array'],
             ...LetterFieldSchema::validate($application->serviceType->code, $request->input('fields', [])),
+            ...LetterFieldSchema::letterNumberValidationRules(),
         ];
 
         if ($requireSignature) {
@@ -612,10 +665,18 @@ class ApplicationController extends Controller
     {
         $safe = str_replace(['"', "\r", "\n"], '', $filename);
 
-        return [
+        $headers = [
             'Content-Type' => $mime,
             'Content-Disposition' => 'inline; filename="'.$safe.'"',
         ];
+
+        if ($mime === 'application/pdf') {
+            $headers['Cache-Control'] = 'private, no-cache, must-revalidate';
+            $headers['Pragma'] = 'no-cache';
+            $headers['Expires'] = '0';
+        }
+
+        return $headers;
     }
 
     public function download(Application $application): StreamedResponse

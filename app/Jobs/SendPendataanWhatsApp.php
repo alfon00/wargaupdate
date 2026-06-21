@@ -34,7 +34,7 @@ class SendPendataanWhatsApp implements ShouldQueue
         match ($this->event) {
             'pendataan_submitted' => $waha->notifyPendataanSubmitted($head, $rt),
             'pendataan_verified' => $waha->notifyPendataanVerified($head, $rt),
-            'pendataan_incomplete' => $waha->notifyPendataanIncomplete($head, $rt, $this->notes ?? ''),
+            'pendataan_registered_by_rt' => $waha->notifyPendataanRegisteredByRt($head, $rt),
             'pendataan_rejected' => $waha->notifyPendataanRejected($head, $rt, $this->notes ?? ''),
             default => null,
         };

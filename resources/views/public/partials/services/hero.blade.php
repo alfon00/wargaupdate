@@ -6,10 +6,10 @@
         <div class="lw-profile-hero__inner">
             <p class="lw-profile-hero__eyebrow">
                 <span class="lw-hero-eyebrow-dot" aria-hidden="true"></span>
-                Layanan warga · {{ $kel['nama'] }}
+                Layanan warga
             </p>
             <h1 id="services-hero-heading" class="lw-profile-hero__title">
-                Layanan Administrasi RT
+                {{ config('kelurahan.portal_nama') }}
             </h1>
             <p class="lw-profile-hero__lead">
                 Layanan administrasi RT untuk warga: surat pengantar, pendataan ulang, dan pendataan warga — tanpa login. Pengaduan via halaman Kontak.

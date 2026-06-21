@@ -34,7 +34,7 @@
         </dl>
     @elseif($application->generatedLetter)
         @php $letter = $application->generatedLetter; @endphp
-        <p class="lw-kel-letter-card__note">Arsip surat PDF lama (bukan alur standar). Surat operasional dicetak manual di sekretariat RT.</p>
+        <p class="lw-kel-letter-card__note">Surat PDF diterbitkan RT melalui portal — salinan digital untuk arsip kelurahan.</p>
         <dl class="lw-kel-letter-card__meta lw-mb-3">
             <div class="lw-kel-letter-card__meta-row">
                 <dt>Nomor surat</dt>

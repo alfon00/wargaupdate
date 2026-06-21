@@ -59,7 +59,7 @@
             <legend class="lw-panel-form-legend">Detail kegiatan</legend>
             <div class="lw-panel-field">
                 <label for="lokasi" class="lw-panel-field-label">Lokasi</label>
-                <input id="lokasi" name="lokasi" class="lw-panel-field-input" value="{{ old('lokasi', $publication->lokasi) }}" maxlength="255" placeholder="Contoh: Balai RT, Kantor Kelurahan">
+                <input id="lokasi" name="lokasi" class="lw-panel-field-input" value="{{ old('lokasi', $publication->lokasi) }}" maxlength="255" placeholder="Contoh: Balai RT">
             </div>
             <div class="lw-panel-field lw-panel-field--span2">
                 <label for="foto" class="lw-panel-field-label">Foto dokumentasi</label>

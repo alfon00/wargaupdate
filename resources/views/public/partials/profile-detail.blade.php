@@ -20,7 +20,7 @@
                     RW {{ $rtProfile->rw_number }}
                     <span class="lw-profile-detail-subtitle-sep" aria-hidden="true">·</span>
                 @endif
-                {{ $rtProfile->kelurahan ?: config('kelurahan.nama') }}, {{ config('kelurahan.distrik') }}
+                {{ config('kelurahan.distrik') }}
             </p>
 
             @include('public.partials.profile-detail-rt-vision', ['rtProfile' => $rtProfile])

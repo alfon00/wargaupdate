@@ -6,7 +6,7 @@
         <div class="lw-profile-hero__inner">
             <p class="lw-profile-hero__eyebrow">
                 <span class="lw-hero-eyebrow-dot" aria-hidden="true"></span>
-                Komunikasi warga · {{ $kel['nama'] }}
+                Komunikasi warga
             </p>
             <h1 id="contact-hero-heading" class="lw-profile-hero__title">
                 Pengaduan

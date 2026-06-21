@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Perbaiki dashboard WAHA</title>
+</head>
+<body>
+  <p>Menyetel koneksi dashboard WAHA (instance tunggal)…</p>
+  <script>
+    (function () {
+      var servers = [{
+        id: 'waha_000000000000000001',
+        name: 'WAHA',
+        connection: {
+          url: window.location.origin,
+          key: "f313a0a761f9453c808f9db96297ed3e"
+        }
+      }];
+      localStorage.setItem('servers', JSON.stringify(servers));
+      window.location.replace('/dashboard/');
+    })();
+  </script>
+</body>
+</html>

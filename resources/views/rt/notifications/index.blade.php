@@ -31,7 +31,7 @@
                     <tr>
                         <td>{{ $log->created_at->format('d/m/Y H:i') }}</td>
                         <td class="lw-rt-col-hide-sm">{{ $log->phone }}</td>
-                        <td>{{ $log->event }}</td>
+                        <td>{{ $log->eventLabel() }}</td>
                         <td>
                             @if(strtolower((string) $log->status) === 'sent' || strtolower((string) $log->status) === 'success')
                                 <span class="lw-badge lw-badge--green">Terkirim</span>

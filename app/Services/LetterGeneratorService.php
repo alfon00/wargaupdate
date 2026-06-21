@@ -79,7 +79,9 @@ class LetterGeneratorService
             ->where('is_active', true)
             ->firstOrFail();
 
-        $existingSignaturePath = $application->generatedLetter?->signature_path;
+        $existingLetter = $application->generatedLetter;
+        $existingSignaturePath = $existingLetter?->signature_path;
+
         $merged = $this->mergeFields(
             $application,
             $fields,
@@ -133,7 +135,7 @@ class LetterGeneratorService
             LetterKopFields::forApplication($application),
             $fields,
         );
-        $letterNumber = $this->resolveLetterNumber($application);
+        $letterNumber = $this->resolveLetterNumber($application, $merged);
 
         $merged['nomor_surat'] = $letterNumber;
         $merged['nomor_surat_baris'] = LetterKopFields::nomorSuratBaris(
@@ -160,8 +162,10 @@ class LetterGeneratorService
         return SignatureStorage::toImgTag($signatureDataUri);
     }
 
-    protected function resolveLetterNumber(Application $application): string
+    public static function suggestLetterNumber(Application $application): string
     {
+        $application->loadMissing(['resident.household.rtProfile', 'assignedRtProfile', 'generatedLetter']);
+
         if ($application->generatedLetter?->letter_number) {
             return $application->generatedLetter->letter_number;
         }
@@ -171,6 +175,19 @@ class LetterGeneratorService
         $rtNumber = RtProfile::normalizeRtNumber($rt?->rt_number);
 
         return 'RT'.$rtNumber.'/'.now()->format('m/Y').'/'.str_pad((string) $application->id, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * @param  array<string, string>  $fields
+     */
+    protected function resolveLetterNumber(Application $application, array $fields = []): string
+    {
+        $fromFields = trim((string) ($fields['nomor_surat'] ?? ''));
+        if ($fromFields !== '') {
+            return $fromFields;
+        }
+
+        return self::suggestLetterNumber($application);
     }
 
     /**

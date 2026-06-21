@@ -658,6 +658,9 @@ class RtResidentDataIndexTest extends TestCase
             ->assertSee('lw-panel-page-back', false)
             ->assertSee('/rt/data-warga?filter=aktif&amp;household='.$active->household_id, false)
             ->assertDontSee('Kelola data warga', false)
+            ->assertSee('lw-rt-doc-edit-hint', false)
+            ->assertSee('Berkas identitas anggota dapat diperbarui', false)
+            ->assertSee('scan KK dan lampiran tambahan juga dapat diperbarui', false)
             ->assertDontSee('id="kelola-data-warga"', false)
             ->assertDontSee('data-delete-action="'.route('rt.residents.destroy', $archived).'"', false)
             ->assertDontSee('data-delete-action="'.route('rt.residents.destroy', $active).'"', false)
@@ -729,8 +732,8 @@ class RtResidentDataIndexTest extends TestCase
             ->assertSee('Lampiran berkas', false)
             ->assertSee('enctype="multipart/form-data"', false)
             ->assertSee('name="document_identity"', false)
-            ->assertDontSee('name="document_kk"', false)
-            ->assertDontSee('name="documents[]"', false);
+            ->assertSee('name="document_kk"', false)
+            ->assertSee('name="documents[]"', false);
     }
 
     public function test_resident_edit_page_shows_document_upload_fields(): void
@@ -770,7 +773,7 @@ class RtResidentDataIndexTest extends TestCase
             ->assertOk()
             ->assertSee('lw-rt-edit-documents', false)
             ->assertSee('lw-rt-edit-doc-upload', false)
-            ->assertSee('Unggah berkas baru', false)
+            ->assertSee('Unggah berkas identitas anggota', false)
             ->assertSee('Berkas identitas anggota ini', false)
             ->assertSee('ktp-budi.jpg', false)
             ->assertSee('lw-rt-doc-card-badge', false)
@@ -780,9 +783,38 @@ class RtResidentDataIndexTest extends TestCase
             ->assertSee('name="document_identity"', false)
             ->assertSee('name="remove_identity_document[]"', false)
             ->assertSee('Hapus berkas ini', false)
-            ->assertDontSee('foto-rumah.jpg', false)
-            ->assertDontSee('kk.pdf', false)
-            ->assertDontSee('Ganti scan/foto KK', false);
+            ->assertSee('lw-rt-edit-doc-household', false)
+            ->assertSee('Berkas keluarga (KK &amp; lampiran)', false)
+            ->assertSee('foto-rumah.jpg', false)
+            ->assertSee('kk.pdf', false)
+            ->assertSee('Ganti scan/foto KK (opsional)', false)
+            ->assertSee('name="document_kk"', false)
+            ->assertSee('name="documents[]"', false)
+            ->assertSee('name="remove_household_document[]"', false);
+    }
+
+    public function test_non_head_edit_does_not_show_kk_fields(): void
+    {
+        [$staff, $household, , $archived] = $this->seedHouseholdWithMembers();
+
+        Storage::fake('local');
+
+        PendataanDocument::create([
+            'household_id' => $household->id,
+            'document_type' => 'kk',
+            'file_path' => 'pendataan/rt-'.$household->rt_profile_id.'/household-'.$household->id.'/kk.pdf',
+            'original_name' => 'kk.pdf',
+            'mime_type' => 'application/pdf',
+        ]);
+
+        $this->actingAs($staff)
+            ->get(route('rt.residents.edit', $archived))
+            ->assertOk()
+            ->assertDontSee('lw-rt-edit-doc-household', false)
+            ->assertDontSee('Ganti scan/foto KK', false)
+            ->assertDontSee('name="document_kk"', false)
+            ->assertDontSee('name="documents[]"', false)
+            ->assertDontSee('name="remove_household_document[]"', false);
     }
 
     public function test_resident_edit_page_shows_only_non_head_member_identity_document(): void
@@ -963,6 +995,94 @@ class RtResidentDataIndexTest extends TestCase
             ->assertSessionHasErrors('remove_identity_document');
 
         $this->assertDatabaseHas('pendataan_documents', ['id' => $foreignDoc->id]);
+    }
+
+    public function test_resident_update_replaces_kk_scan(): void
+    {
+        [$staff, $household, $active] = $this->seedHouseholdWithMembers();
+
+        Storage::fake('local');
+
+        $oldKk = PendataanDocument::create([
+            'household_id' => $household->id,
+            'document_type' => 'kk',
+            'file_path' => 'pendataan/rt-'.$household->rt_profile_id.'/household-'.$household->id.'/old-kk.pdf',
+            'original_name' => 'kk-lama.pdf',
+            'mime_type' => 'application/pdf',
+        ]);
+        Storage::disk('local')->put($oldKk->file_path, 'old-kk');
+
+        $this->actingAs($staff)
+            ->put(route('rt.residents.update', $active), array_merge(
+                $this->residentUpdatePayload($household, $active),
+                ['document_kk' => UploadedFile::fake()->create('kk-baru.pdf', 100, 'application/pdf')]
+            ))
+            ->assertRedirect(route('rt.data-warga.index', ['household' => $household->id]));
+
+        $this->assertDatabaseMissing('pendataan_documents', ['id' => $oldKk->id]);
+        $this->assertFalse(Storage::disk('local')->exists($oldKk->file_path));
+
+        $newKk = PendataanDocument::query()
+            ->where('household_id', $household->id)
+            ->where('document_type', 'kk')
+            ->first();
+
+        $this->assertNotNull($newKk);
+        $this->assertSame('kk-baru.pdf', $newKk->original_name);
+        $this->assertTrue(Storage::disk('local')->exists($newKk->file_path));
+    }
+
+    public function test_resident_update_appends_lampiran(): void
+    {
+        [$staff, $household, $active] = $this->seedHouseholdWithMembers();
+
+        Storage::fake('local');
+
+        $this->actingAs($staff)
+            ->put(route('rt.residents.update', $active), array_merge(
+                $this->residentUpdatePayload($household, $active),
+                ['documents' => [
+                    UploadedFile::fake()->create('foto-rumah.jpg', 100, 'image/jpeg'),
+                    UploadedFile::fake()->create('surat-kontrak.pdf', 100, 'application/pdf'),
+                ]]
+            ))
+            ->assertRedirect(route('rt.data-warga.index', ['household' => $household->id]));
+
+        $lampiran = PendataanDocument::query()
+            ->where('household_id', $household->id)
+            ->where('document_type', 'lampiran')
+            ->orderBy('id')
+            ->get();
+
+        $this->assertCount(2, $lampiran);
+        $this->assertSame('foto-rumah.jpg', $lampiran[0]->original_name);
+        $this->assertSame('surat-kontrak.pdf', $lampiran[1]->original_name);
+    }
+
+    public function test_resident_update_deletes_household_lampiran(): void
+    {
+        [$staff, $household, $active] = $this->seedHouseholdWithMembers();
+
+        Storage::fake('local');
+
+        $lampiran = PendataanDocument::create([
+            'household_id' => $household->id,
+            'document_type' => 'lampiran',
+            'file_path' => 'pendataan/rt-'.$household->rt_profile_id.'/household-'.$household->id.'/hapus.jpg',
+            'original_name' => 'hapus-lampiran.jpg',
+            'mime_type' => 'image/jpeg',
+        ]);
+        Storage::disk('local')->put($lampiran->file_path, 'dummy');
+
+        $this->actingAs($staff)
+            ->put(route('rt.residents.update', $active), array_merge(
+                $this->residentUpdatePayload($household, $active),
+                ['remove_household_document' => [$lampiran->id]]
+            ))
+            ->assertRedirect(route('rt.data-warga.index', ['household' => $household->id]));
+
+        $this->assertDatabaseMissing('pendataan_documents', ['id' => $lampiran->id]);
+        $this->assertFalse(Storage::disk('local')->exists($lampiran->file_path));
     }
 
     public function test_resident_update_shows_friendly_error_when_storage_not_writable(): void
@@ -1435,7 +1555,7 @@ class RtResidentDataIndexTest extends TestCase
 
         $log = NotificationLog::query()
             ->where('resident_id', $head->id)
-            ->where('event', 'pendataan_verified')
+            ->where('event', 'pendataan_registered_by_rt')
             ->first();
 
         $this->assertNotNull($log);

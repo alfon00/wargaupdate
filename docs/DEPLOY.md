@@ -90,15 +90,46 @@ curl -I https://layananwarga.my.id/
 
 ## WAHA (WhatsApp)
 
-Notifikasi WhatsApp memakai WAHA. Jika sesi berstatus `SCAN_QR_CODE` atau `FAILED`, restart sesi lalu scan ulang QR di dashboard:
+Notifikasi WhatsApp memakai WAHA (container `container-whatsapp`). Laravel memakai `WAHA_INTERNAL_URL=http://waha:3000` dan `WAHA_API_KEY` (plain) dari `.env` — harus cocok dengan `WAHA_API_KEY_PLAIN` di `waha /.env`.
+
+### Dashboard (`https://wa.layananwarga.my.id/dashboard/`)
+
+WAHA di server ini **instance tunggal** (bukan worker cluster). Jangan menambah `https://wa.layananwarga.my.id` sebagai worker eksternal di dashboard.
+
+**Perbaiki koneksi dashboard (sekali):** buka
+
+`https://wa.layananwarga.my.id/fix-waha-dashboard`
+
+Halaman itu menyetel koneksi lokal (`window.location.origin`) + API key yang benar, lalu mengarahkan ke `/dashboard/`.
+
+Login dashboard: user **`waha`** (password di `waha/.env` → `WAHA_DASHBOARD_PASSWORD`).
+
+Regenerasi file init setelah ganti API key:
 
 ```bash
-# Cek status sesi (dari container app, API key dari .env)
-docker compose exec app php artisan tinker
-# Http::withHeaders(['X-Api-Key' => config('waha.api_key')])->get(config('waha.base_url').'/api/sessions');
+./scripts/waha-sync-dashboard.sh
+docker compose up -d nginx
 ```
 
-Dashboard WAHA: `https://wa.layananwarga.my.id` — scan QR WhatsApp setelah sesi di-restart agar status kembali `WORKING`.
+### Sesi `default` setelah restart container
+
+WAHA Core tidak otomatis menyalakkan sesi. Setelah `docker compose up` jalankan bootstrap (atau start manual):
+
+```bash
+docker compose run --rm waha-bootstrap
+# atau manual:
+docker compose exec app curl -sS -X POST -H "X-Api-Key: $(grep WAHA_API_KEY .env | cut -d= -f2)" http://waha:3000/api/sessions/default/start
+```
+
+Cek status:
+
+```bash
+docker compose exec app curl -sS -H "X-Api-Key: $(grep WAHA_API_KEY .env | cut -d= -f2)" http://waha:3000/api/sessions/default
+```
+
+Harus `"status":"WORKING"`. Jika `"SCAN_QR_CODE"`, buka dashboard dan scan QR WhatsApp.
+
+Jika sesi berstatus `FAILED`, restart container lalu jalankan bootstrap di atas.
 
 ## Verifikasi wajah layanan surat
 

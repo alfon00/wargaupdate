@@ -6,13 +6,13 @@
         <div class="lw-profile-hero__inner">
             <p class="lw-profile-hero__eyebrow">
                 <span class="lw-hero-eyebrow-dot" aria-hidden="true"></span>
-                Kepercayaan warga · {{ $kel['nama'] }}
+                Kepercayaan warga
             </p>
             <h1 id="security-hero-heading" class="lw-profile-hero__title">
                 Keamanan &amp; keaslian situs
             </h1>
             <p class="lw-profile-hero__lead">
-                Panduan singkat agar warga mengakses portal resmi {{ $kel['nama'] }} dengan aman.
+                Panduan singkat agar warga mengakses portal resmi dengan aman.
             </p>
         </div>
     </div>

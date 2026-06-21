@@ -44,7 +44,7 @@
                     </div>
                     <div>
                         <dt>Pengambilan</dt>
-                        <dd>Ambil surat fisik di sekretariat {{ $application->applicantRtLabel() }}.</dd>
+                        <dd>Ambil salinan fisik di sekretariat {{ $application->applicantRtLabel() }} bila diperlukan. Pengurus RT dapat mengirim PDF surat via WhatsApp.</dd>
                     </div>
                 @endif
             </dl>

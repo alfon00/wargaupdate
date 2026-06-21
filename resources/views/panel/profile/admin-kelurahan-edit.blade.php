@@ -1,6 +1,6 @@
 @extends('layouts.panel')
 
-@section('title', 'Edit profil Kelurahan')
+@section('title', 'Edit profil lurah')
 
 @section('content')
 <div class="lw-admin-page">

@@ -99,6 +99,10 @@ class TrackAndLoginHubPageTest extends TestCase
         $response->assertSee('Sesi terenkripsi', false);
         $response->assertSee('Email pengurus', false);
         $response->assertSee('verifikasi pendataan', false);
+        $response->assertSee('pengurus RT atau admin', false);
+        $response->assertSee('Panel RT atau admin', false);
+        $response->assertDontSee('pengurus RT, kelurahan', false);
+        $response->assertDontSee('Panel RT, kelurahan', false);
         $response->assertDontSee('Keamanan akses pengurus', false);
         $response->assertDontSee('Akses Khusus Pengurus RT', false);
         $response->assertDontSee('Username', false);
@@ -236,6 +240,6 @@ class TrackAndLoginHubPageTest extends TestCase
         ])
             ->assertOk()
             ->assertSee($letterNumber, false)
-            ->assertSee('Ambil surat fisik di sekretariat', false);
+            ->assertSee('salinan fisik di sekretariat', false);
     }
 }

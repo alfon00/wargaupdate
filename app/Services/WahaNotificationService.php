@@ -134,14 +134,14 @@ class WahaNotificationService
 
         $resident = $application->resident;
         $letter = $application->generatedLetter;
-        $caption = $this->buildLetterCaption($application);
+        $attachedCaption = $this->buildLetterCaption($application, withDownloadLink: false);
 
         $phone = $resident->whatsappNotificationPhone();
 
         $log = $this->createLog(
             phone: $phone ?? '',
             event: 'letter_sent',
-            message: $caption,
+            message: $attachedCaption,
             residentId: $resident->id,
             context: ['application_id' => $application->id],
         );
@@ -190,17 +190,15 @@ class WahaNotificationService
                     'filename' => $filename,
                     'data' => base64_encode($pdfContent),
                 ],
-                'caption' => $caption,
+                'caption' => $attachedCaption,
             ]);
 
             if ($fileResponse->successful()) {
                 return $this->finalizeLog($log, $fileResponse);
             }
 
-            $downloadUrl = LetterDownloadLink::signedUrl($application);
-            $fallbackText = $downloadUrl
-                ? $caption."\n\nUnduh surat PDF:\n".$downloadUrl
-                : $caption;
+            $fallbackText = $this->buildLetterCaption($application, withDownloadLink: true);
+            $log->update(['message' => $fallbackText]);
 
             $textResponse = $this->postWaha('/api/sendText', [
                 'session' => config('waha.session'),
@@ -227,13 +225,9 @@ class WahaNotificationService
         return $this->sendPendataanMessage($head, $rt, 'verified', 'pendataan_verified');
     }
 
-    public function notifyPendataanIncomplete(Resident $head, RtProfile $rt, string $notes): NotificationLog
+    public function notifyPendataanRegisteredByRt(Resident $head, RtProfile $rt): NotificationLog
     {
-        $message = $this->formatPendataanTemplate('incomplete', $head, $rt, [
-            'catatan' => $notes,
-        ]);
-
-        return $this->sendToResident($head, 'pendataan_incomplete', $message);
+        return $this->sendPendataanMessage($head, $rt, 'registered_by_rt', 'pendataan_registered_by_rt');
     }
 
     public function notifyPendataanRejected(Resident $head, RtProfile $rt, string $notes): NotificationLog
@@ -423,25 +417,36 @@ class WahaNotificationService
         return "Yth. {$name},\n\nSurat pengantar *{$application->serviceType->name}* telah diterbitkan {$rt}.\nNomor surat: {$letterNumber}\n\nSilakan ambil surat fisik di sekretariat {$rt}.\n\n— ".config('kelurahan.portal_nama');
     }
 
-    protected function buildLetterCaption(Application $application): string
+    protected function buildLetterCaption(Application $application, bool $withDownloadLink = true): string
     {
         $resident = $application->resident;
         $rt = $resident->household?->rtProfile?->displayName()
             ?? $application->assignedRtProfile?->displayName()
             ?? 'RT';
 
-        $template = config('kelurahan.wa_letter', '');
+        $templateKey = $withDownloadLink ? 'wa_letter' : 'wa_letter_attached';
+        $template = config("kelurahan.{$templateKey}", '');
 
         if ($template) {
             return $this->replaceTemplate($template, [
                 'nama' => $resident->name,
+                'nik' => $application->applicantNik() ?? '—',
                 'layanan' => $application->serviceType->name,
                 'no' => $application->application_number,
                 'nomor_surat' => $application->generatedLetter?->letter_number ?? $application->application_number,
                 'rt' => $rt,
                 'url' => rtrim(config('app.url'), '/'),
+                'link_surat' => LetterDownloadLink::signedUrl($application)
+                    ?? rtrim(config('app.url'), '/').'/lacak',
                 'portal' => config('kelurahan.portal_nama'),
             ]);
+        }
+
+        if ($withDownloadLink) {
+            $downloadUrl = LetterDownloadLink::signedUrl($application)
+                ?? rtrim(config('app.url'), '/').'/lacak';
+
+            return "Yth. {$resident->name},\n\nSurat pengantar *{$application->serviceType->name}* ({$application->application_number}) dari {$rt} terlampir.\n\nUnduh surat: {$downloadUrl}\n\n— ".config('kelurahan.portal_nama');
         }
 
         return "Yth. {$resident->name},\n\nSurat pengantar *{$application->serviceType->name}* ({$application->application_number}) dari {$rt} terlampir.\n\n— ".config('kelurahan.portal_nama');
@@ -482,7 +487,6 @@ class WahaNotificationService
         return match ($event) {
             'submitted' => "Yth. {$name},\n\nPermohonan *{$replacements['layanan']}* ({$replacements['no']}) di {$rt} telah *diterima* dan menunggu verifikasi.\n\n— {$replacements['portal']}",
             'verified' => "Yth. {$name},\n\nPermohonan *{$replacements['layanan']}* ({$replacements['no']}) telah *diverifikasi* RT.\n\n— {$replacements['portal']}",
-            'incomplete' => "Yth. {$name},\n\nPermohonan *{$replacements['layanan']}* ({$replacements['no']}) perlu dilengkapi:\n{$replacements['catatan']}\n\n— {$replacements['portal']}",
             'approved' => "Yth. {$name},\n\nPermohonan *{$replacements['layanan']}* ({$replacements['no']}) telah *disetujui*.\n\n— {$replacements['portal']}",
             'rejected' => "Yth. {$name},\n\nPermohonan *{$replacements['layanan']}* ({$replacements['no']}) *ditolak*.".($catatan ? "\n{$catatan}" : '')."\n\n— {$replacements['portal']}",
             default => "Update permohonan {$replacements['no']}: {$application->status->label()}",

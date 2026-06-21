@@ -421,36 +421,6 @@ class PendataanWargaTest extends TestCase
         $this->assertStringNotContainsString('/layanan/pendataan-ulang', $log->message);
     }
 
-    public function test_warga_baru_request_completion_whatsapp_uses_pendataan_warga_url(): void
-    {
-        Storage::fake('local');
-        $this->fakeWahaWorking();
-
-        [$rt, $staff] = $this->createRtWithStaff('017');
-
-        $this->post(route('services.pendataan-warga.store'), $this->submitPayload($rt, '3201010101011111', '3201010101011111'))
-            ->assertRedirect(route('services.pendataan-warga.success'));
-
-        $head = Resident::where('nik', '3201010101011111')->first();
-        $this->assertNotNull($head);
-
-        $this->actingAs($staff)
-            ->post(route('rt.pendataan.request-completion', $head), [
-                'verification_notes' => 'Unggah ulang scan KK',
-            ])
-            ->assertRedirect(route('rt.pendataan.index'));
-
-        $log = NotificationLog::query()
-            ->where('resident_id', $head->id)
-            ->where('event', 'pendataan_incomplete')
-            ->latest()
-            ->first();
-
-        $this->assertNotNull($log);
-        $this->assertStringContainsString('/layanan/pendataan-warga', $log->message);
-        $this->assertStringNotContainsString('/layanan/pendataan-ulang', $log->message);
-    }
-
     public function test_warga_baru_show_uses_category_label_in_confirm(): void
     {
         Storage::fake('local');

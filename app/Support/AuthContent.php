@@ -16,12 +16,12 @@ final class AuthContent
 
     public static function formLead(): string
     {
-        return 'Gunakan email dan kata sandi akun pengurus RT, kelurahan, atau admin.';
+        return 'Gunakan email dan kata sandi akun pengurus RT atau admin.';
     }
 
     public static function loginNote(): string
     {
-        return 'Hanya akun pengurus RT, kelurahan, atau admin yang terdaftar. Bukan situs Dukcapil, Kemendagri, atau perbankan.';
+        return 'Hanya akun pengurus RT atau admin yang terdaftar. Bukan situs Dukcapil, Kemendagri, atau perbankan.';
     }
 
     /** @return list<array{title: string, desc: string}> */
@@ -34,7 +34,7 @@ final class AuthContent
             ],
             [
                 'title' => 'Akses sesuai peran',
-                'desc' => 'Panel RT, kelurahan, atau admin — menu disesuaikan peran.',
+                'desc' => 'Panel RT atau admin — menu disesuaikan peran.',
             ],
             [
                 'title' => 'Data terbatas pengurus',

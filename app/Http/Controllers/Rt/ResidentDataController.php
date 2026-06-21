@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Rt;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Rt\Concerns\ResolvesRtProfile;
-use App\Jobs\SendPendataanWhatsApp;
 use App\Models\RtProfile;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\ResidentDataIndexService;
 use App\Services\RtHouseholdRegistrationService;
+use App\Services\RtPendataanRegistrationNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -20,6 +20,7 @@ class ResidentDataController extends Controller
     public function __construct(
         private readonly RtHouseholdRegistrationService $registrationService,
         private readonly ResidentDataIndexService $residentDataIndex,
+        private readonly RtPendataanRegistrationNotifier $pendataanNotifier,
     ) {}
 
     public function create(): View
@@ -40,13 +41,11 @@ class ResidentDataController extends Controller
 
         $head = $result['members']->firstWhere('is_head_of_family', true)
             ?? $result['members']->first();
-        if ($head) {
-            SendPendataanWhatsApp::dispatchSync($head->id, 'pendataan_verified');
-        }
+        $waLog = $head ? $this->pendataanNotifier->notifyAfterRtEntry($head) : null;
 
         $redirect = redirect()
             ->route('rt.data-warga.index', ['household' => $result['household']->id, 'filter' => 'aktif'])
-            ->with('success', 'KK dan '.($result['members']->count()).' anggota berhasil didaftarkan.');
+            ->with('success', 'KK dan '.($result['members']->count()).' anggota berhasil didaftarkan.'.$this->pendataanNotifier->flashSuffix($waLog));
 
         if (! empty($result['face_sync_warning'])) {
             $redirect->with('face_sync_warning', $result['face_sync_warning']);

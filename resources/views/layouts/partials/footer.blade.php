@@ -15,19 +15,16 @@
         <div class="lw-footer-main">
             <div class="lw-footer-brand">
                 <div class="lw-footer-brand-head">
-                    <img src="{{ asset(config('kelurahan.portal_logo')) }}" alt="Layanan Administrasi RT Kelurahan Inauga" class="lw-footer-logo" width="44" height="44" decoding="async">
+                    <img src="{{ asset(config('kelurahan.portal_logo')) }}" alt="{{ config('kelurahan.portal_nama') }}" class="lw-footer-logo" width="44" height="44" decoding="async">
                     <div class="lw-footer-brand-text">
-                        <p class="lw-footer-text">Layanan Administrasi RT</p>
-                        <p class="lw-footer-secondary m-0">Kelurahan Inauga</p>
+                        <p class="lw-footer-text">{{ config('kelurahan.portal_nama') }}</p>
                     </div>
                 </div>
             </div>
-
-            @include('layouts.partials.footer-contact')
         </div>
 
         <div class="lw-footer-bottom">
-            <p class="lw-footer-copyright">© {{ date('Y') }} Layanan Administrasi RT Kelurahan Inauga. Semua hak dilindungi.</p>
+            <p class="lw-footer-copyright">© {{ date('Y') }} {{ config('kelurahan.portal_nama') }}. Semua hak dilindungi.</p>
 
             <div class="lw-footer-aside">
                 @include('layouts.partials.social-links', ['variant' => 'footer', 'showHeading' => false])

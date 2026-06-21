@@ -26,6 +26,10 @@ class PublicPagesLayoutTest extends TestCase
             ->assertOk()
             ->assertDontSee('lw-home-quick-actions', false)
             ->assertDontSee('Mulai dari sini', false)
+            ->assertSee('Layanan Warga RT', false)
+            ->assertDontSee('Inauga', false)
+            ->assertDontSee('Kelurahan', false)
+            ->assertDontSee('Kabupaten Mimika', false)
             ->assertSee('lw-service-hub-grid', false);
     }
 
@@ -66,7 +70,7 @@ class PublicPagesLayoutTest extends TestCase
             ->assertOk()
             ->assertSee('lw-services-hero', false)
             ->assertSee('lw-profile-hero__title', false)
-            ->assertSee('Layanan Administrasi RT', false)
+            ->assertSee('Layanan Warga RT', false)
             ->assertDontSee('class="lw-hero-title-accent"', false)
             ->assertDontSee('Menu layanan', false)
             ->assertDontSee('Katalog &amp; permohonan', false)
@@ -107,7 +111,7 @@ class PublicPagesLayoutTest extends TestCase
     {
         $service = ServiceType::create([
             'code' => 'surat_domisili',
-            'name' => 'Surat Pengantar Domisili',
+            'name' => 'Surat Keterangan Domisili',
             'is_active' => true,
         ]);
 
@@ -167,7 +171,7 @@ class PublicPagesLayoutTest extends TestCase
 
         $service = ServiceType::create([
             'code' => 'surat_domisili',
-            'name' => 'Surat Pengantar Domisili',
+            'name' => 'Surat Keterangan Domisili',
             'required_fields' => ['KK', 'KTP'],
             'is_active' => true,
         ]);
@@ -247,7 +251,7 @@ class PublicPagesLayoutTest extends TestCase
 
         $service = ServiceType::create([
             'code' => 'surat_domisili',
-            'name' => 'Surat Pengantar Domisili',
+            'name' => 'Surat Keterangan Domisili',
             'is_active' => true,
         ]);
 
@@ -266,12 +270,15 @@ class PublicPagesLayoutTest extends TestCase
 
     public function test_disclaimer_appears_in_footer_not_main_banner(): void
     {
-        $disclaimerSnippet = 'Portal RT Kelurahan Inauga — bukan situs Dukcapil';
+        $disclaimerSnippet = 'Portal RT — bukan situs Dukcapil';
 
         $this->get(route('services.index'))
             ->assertOk()
             ->assertSee('lw-footer-disclaimer', false)
-            ->assertSee($disclaimerSnippet, false);
+            ->assertSee($disclaimerSnippet, false)
+            ->assertDontSee('Inauga', false)
+            ->assertDontSee('Kelurahan', false)
+            ->assertDontSee('Kabupaten Mimika', false);
 
         $this->get(route('services.pendataan-ulang'))
             ->assertOk()
@@ -282,16 +289,19 @@ class PublicPagesLayoutTest extends TestCase
 
     public function test_home_footer_shows_trust_and_contact_info(): void
     {
-        $this->get(route('home'))
-            ->assertOk()
+        $response = $this->get(route('home'));
+
+        $response->assertOk()
             ->assertSee('lw-footer-disclaimer', false)
             ->assertSee('Keamanan & keaslian situs', false)
-            ->assertSee('Layanan Administrasi RT', false)
-            ->assertSee('Kelurahan Inauga', false)
-            ->assertSee('lw-footer-contact', false)
-            ->assertSee('Lokasi', false)
-            ->assertDontSee('lw-footer-contact-label">WhatsApp', false)
-            ->assertDontSee('lw-footer-contact-label">Email', false);
+            ->assertSee('Layanan Warga RT', false)
+            ->assertDontSee('lw-footer-contact', false);
+
+        $html = $response->getContent();
+        preg_match('/<footer class="lw-footer"[^>]*>.*?<\/footer>/s', $html, $footer);
+        $this->assertStringNotContainsString('Inauga', $footer[0] ?? '');
+        $this->assertStringNotContainsString('Kelurahan', $footer[0] ?? '');
+        $this->assertStringNotContainsString('Kabupaten Mimika', $footer[0] ?? '');
     }
 
     public function test_profile_page_loads(): void
@@ -303,7 +313,8 @@ class PublicPagesLayoutTest extends TestCase
             ->assertSee('lw-profile-lurah-card', false)
             ->assertSee(config('kelurahan.lurah.nama'), false)
             ->assertSee('lw-profile-wilayah', false)
-            ->assertSee('Profil Kelurahan &amp; RT', false)
+            ->assertSee('Profil &amp; RT', false)
+            ->assertDontSee('Kabupaten Mimika', false)
             ->assertSee('Visi', false)
             ->assertSee('Misi', false)
             ->assertDontSee('id="rt-picker"', false)
@@ -436,9 +447,9 @@ class PublicPagesLayoutTest extends TestCase
     public function test_inner_pages_use_compact_body_class_and_hero(): void
     {
         $innerRoutes = [
-            'profile.index' => 'Profil Kelurahan &amp; RT',
+            'profile.index' => 'Profil &amp; RT',
             'activities.index' => 'Kegiatan &amp; Pengumuman',
-            'services.index' => 'Layanan Administrasi RT',
+            'services.index' => 'Layanan Warga RT',
             'contact.create' => 'Pengaduan',
             'login.hub' => 'Akses Pengurus RT',
         ];
@@ -465,7 +476,7 @@ class PublicPagesLayoutTest extends TestCase
             ->assertDontSee('class="lw-shell lw-page-inner"', false)
             ->assertSee('lw-home-hero-v3-shell', false)
             ->assertSee('lw-home-page', false)
-            ->assertSee('Layanan Administrasi RT', false)
+            ->assertSee('Layanan Warga RT', false)
             ->assertSee('Portal warga ·', false)
             ->assertDontSee('SISTEM LAYANAN WARGA RT', false)
             ->assertSee('Sudah mengajukan?', false)

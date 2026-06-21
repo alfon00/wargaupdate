@@ -12,12 +12,14 @@
 <nav class="lw-nav" aria-label="Navigasi utama">
     <div class="lw-nav-inner">
         <a href="{{ route('home') }}" class="lw-nav-logo-wrap" title="Beranda — {{ config('kelurahan.portal_nama') }}">
-            <img src="{{ asset(config('kelurahan.portal_logo')) }}" alt="{{ config('kelurahan.portal_nama') }} — {{ config('kelurahan.nama') }}" class="lw-nav-portal-icon" width="48" height="48" decoding="async">
+            <img src="{{ asset(config('kelurahan.portal_logo')) }}" alt="{{ config('kelurahan.portal_nama') }}" class="lw-nav-portal-icon" width="48" height="48" decoding="async">
         </a>
 
         <div class="lw-nav-text">
             <a href="{{ route('home') }}" class="lw-nav-title">{{ config('kelurahan.portal_nama') }}</a>
-            <span class="lw-nav-subtitle">{{ config('kelurahan.portal_subtitle') }}</span>
+            @if(filled(config('kelurahan.portal_subtitle_nav')))
+                <span class="lw-nav-subtitle">{{ config('kelurahan.portal_subtitle_nav') }}</span>
+            @endif
         </div>
 
         <input type="checkbox" id="lw-nav-toggle" class="lw-nav-toggle" aria-hidden="true">

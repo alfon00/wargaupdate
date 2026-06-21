@@ -71,7 +71,6 @@ class Resident extends Model
     {
         return $query->whereIn('domicile_status', [
             DomicileStatus::MenungguVerifikasi->value,
-            DomicileStatus::PerluLengkap->value,
         ]);
     }
 

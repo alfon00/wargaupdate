@@ -139,25 +139,6 @@
             </div>
             <button type="submit" class="lw-panel-btn lw-panel-btn--block lw-panel-btn--danger">Tolak pendataan</button>
         </x-rt.sidebar-action-card>
-
-        <x-rt.sidebar-action-card
-            title="Minta lengkapi berkas"
-            note="Warga perlu mengunggah ulang atau melengkapi berkas tertentu."
-            variant="warn"
-            tag="form"
-            method="POST"
-            action="{{ route('rt.pendataan.request-completion', $head) }}">
-            @csrf
-            <div class="lw-panel-field">
-                <label for="verification_notes">Berkas / keterangan yang perlu dilengkapi</label>
-                <textarea id="verification_notes" name="verification_notes" rows="4" required
-                    placeholder="Contoh: Unggah ulang scan KK, KTP anak belum jelas, dll.">{{ old('verification_notes', $head->verification_notes) }}</textarea>
-                @error('verification_notes')
-                <p class="lw-form-error">{{ $message }}</p>
-                @enderror
-            </div>
-            <button type="submit" class="lw-panel-btn lw-panel-btn--block lw-panel-btn--warn">Kirim permintaan lengkapi berkas</button>
-        </x-rt.sidebar-action-card>
     </div>
 </div>
 </div>

@@ -45,14 +45,14 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 </span>
                 <h3 class="lw-home-feature-title">Pengumuman RT</h3>
-                <p class="lw-home-feature-desc">Informasi dan kegiatan terbaru dari RT/Kelurahan.</p>
+                <p class="lw-home-feature-desc">Informasi dan kegiatan terbaru dari RT.</p>
             </a>
         </div>
         <aside class="lw-home-wa-strip" aria-label="Notifikasi WhatsApp">
             <span class="lw-home-wa-strip__icon" aria-hidden="true">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </span>
-            <p class="lw-home-wa-strip__text">Notifikasi teks status layanan dikirim ke WhatsApp warga setelah permohonan diproses — bukan pengiriman berkas PDF.</p>
+            <p class="lw-home-wa-strip__text">Notifikasi status permohonan dikirim ke WhatsApp warga. Setelah surat PDF diterbitkan, pengurus RT dapat mengirim PDF surat via WhatsApp.</p>
         </aside>
     </div>
 </section>

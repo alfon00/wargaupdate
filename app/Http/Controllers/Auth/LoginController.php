@@ -55,6 +55,16 @@ class LoginController extends Controller
             ])->onlyInput('email');
         }
 
+        if ($user->role === UserRole::Kelurahan) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()->withErrors([
+                'email' => 'Akun ini tidak memiliki akses panel pengurus.',
+            ])->onlyInput('email');
+        }
+
         if (! $user->role?->isPengurus()) {
             Auth::logout();
             $request->session()->invalidate();

@@ -7,7 +7,6 @@ enum ApplicationStatus: string
     case Draft = 'draft';
     case Diajukan = 'diajukan';
     case VerifikasiRt = 'verifikasi_rt';
-    case PerluLengkap = 'perlu_lengkap';
     case Disetujui = 'disetujui';
     case Ditolak = 'ditolak';
     case SiapDiambil = 'siap_diambil';
@@ -18,7 +17,6 @@ enum ApplicationStatus: string
             self::Draft => 'Draft',
             self::Diajukan => 'Diajukan',
             self::VerifikasiRt => 'Verifikasi RT',
-            self::PerluLengkap => 'Perlu lengkapi berkas',
             self::Disetujui => 'Disetujui',
             self::Ditolak => 'Ditolak',
             self::SiapDiambil => 'Siap Diambil',
@@ -30,7 +28,6 @@ enum ApplicationStatus: string
         return match ($this) {
             self::Diajukan => 'lw-badge--blue',
             self::VerifikasiRt => 'lw-badge--muted',
-            self::PerluLengkap => 'lw-badge--amber',
             self::Disetujui, self::SiapDiambil => 'lw-badge--green',
             self::Ditolak => 'lw-badge--red',
             default => '',
@@ -42,7 +39,6 @@ enum ApplicationStatus: string
         return match ($this) {
             self::Diajukan => 'submitted',
             self::VerifikasiRt => 'verified',
-            self::PerluLengkap => 'incomplete',
             self::Disetujui, self::SiapDiambil => 'approved',
             self::Ditolak => 'rejected',
             default => null,
@@ -51,7 +47,28 @@ enum ApplicationStatus: string
 
     public function canBeReviewedByRt(): bool
     {
-        return in_array($this, [self::Diajukan, self::PerluLengkap], true);
+        return $this === self::Diajukan;
+    }
+
+    public function needsLetterCompose(): bool
+    {
+        return $this === self::VerifikasiRt;
+    }
+
+    public function rtListActionLabel(): string
+    {
+        return match ($this) {
+            self::Diajukan => 'Verifikasi',
+            self::VerifikasiRt => 'Susun surat',
+            default => 'Detail',
+        };
+    }
+
+    public function rtListActionRouteName(): string
+    {
+        return $this->needsLetterCompose()
+            ? 'rt.applications.letter.compose'
+            : 'rt.applications.show';
     }
 
     public function canAcceptByRt(): bool
@@ -63,15 +80,9 @@ enum ApplicationStatus: string
     {
         return in_array($this, [
             self::Diajukan,
-            self::PerluLengkap,
             self::VerifikasiRt,
             self::Disetujui,
         ], true);
-    }
-
-    public function canRequestCompletionByRt(): bool
-    {
-        return $this->canRejectByRt();
     }
 
     public function showsReviewActionsSection(): bool
@@ -84,14 +95,9 @@ enum ApplicationStatus: string
         return in_array($this, [self::VerifikasiRt, self::Disetujui, self::SiapDiambil], true);
     }
 
-    public function canIssueManualLetter(): bool
+    public function showsLetterSection(): bool
     {
-        return in_array($this, [self::Diajukan, self::VerifikasiRt], true);
-    }
-
-    public function showsManualLetterSection(): bool
-    {
-        return $this->canIssueManualLetter() || $this === self::SiapDiambil;
+        return $this->canGenerateLetter();
     }
 
     public function canMarkReady(): bool

@@ -6,7 +6,6 @@ enum DomicileStatus: string
 {
     case MenungguVerifikasi = 'menunggu_verifikasi';
     case Aktif = 'aktif';
-    case PerluLengkap = 'perlu_lengkap';
     case PindahKeluar = 'pindah_keluar';
     case Meninggal = 'meninggal';
     case Nonaktif = 'nonaktif';
@@ -16,7 +15,6 @@ enum DomicileStatus: string
         return match ($this) {
             self::MenungguVerifikasi => 'Menunggu verifikasi RT',
             self::Aktif => 'Terdata (aktif)',
-            self::PerluLengkap => 'Perlu lengkapi berkas',
             self::PindahKeluar => 'Pindah keluar',
             self::Meninggal => 'Meninggal dunia',
             self::Nonaktif => 'Nonaktif (arsip)',
@@ -28,7 +26,6 @@ enum DomicileStatus: string
         return match ($this) {
             self::MenungguVerifikasi => 'lw-badge--amber',
             self::Aktif => 'lw-badge',
-            self::PerluLengkap => 'lw-badge--amber',
             self::PindahKeluar => 'lw-badge--muted',
             self::Meninggal => 'lw-badge--red',
             self::Nonaktif => 'lw-badge--muted',
@@ -55,7 +52,6 @@ enum DomicileStatus: string
         return [
             self::Aktif->value,
             self::MenungguVerifikasi->value,
-            self::PerluLengkap->value,
         ];
     }
 

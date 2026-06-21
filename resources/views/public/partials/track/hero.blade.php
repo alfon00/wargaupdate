@@ -6,7 +6,7 @@
         <div class="lw-profile-hero__inner">
             <p class="lw-profile-hero__eyebrow">
                 <span class="lw-hero-eyebrow-dot" aria-hidden="true"></span>
-                Pelacakan permohonan · {{ $kel['nama'] }}
+                Pelacakan permohonan
             </p>
             <h1 id="track-hero-heading" class="lw-profile-hero__title">
                 Lacak Permohonan

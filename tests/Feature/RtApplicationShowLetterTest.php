@@ -6,6 +6,7 @@ use App\Enums\ApplicationStatus;
 use App\Enums\DomicileStatus;
 use App\Enums\UserRole;
 use App\Models\Application;
+use App\Models\GeneratedLetter;
 use App\Models\Household;
 use App\Models\LetterTemplate;
 use App\Models\Resident;
@@ -15,6 +16,7 @@ use App\Models\User;
 use App\Support\SuratPengantarTemplate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class RtApplicationShowLetterTest extends TestCase
@@ -87,7 +89,7 @@ class RtApplicationShowLetterTest extends TestCase
             'service_type_id' => $service->id,
             'resident_id' => $resident->id,
             'rt_profile_id' => $profile->id,
-            'status' => ApplicationStatus::Diajukan,
+            'status' => ApplicationStatus::VerifikasiRt,
             'purpose' => 'Keperluan administrasi',
             'submitted_at' => now(),
         ]);
@@ -95,43 +97,53 @@ class RtApplicationShowLetterTest extends TestCase
         return [$staff, $application];
     }
 
-    public function test_show_page_displays_manual_issue_form(): void
+    public function test_show_page_displays_digital_letter_card_with_compose_link(): void
     {
         [$staff, $application] = $this->createIssuableApplication();
 
         $this->actingAs($staff)
             ->get(route('rt.applications.show', $application))
             ->assertOk()
-            ->assertSee('lw-letter-issue-card', false)
-            ->assertSee('Catat nomor surat &amp; kirim notifikasi', false)
-            ->assertSee(route('rt.applications.letter.issue', $application), false)
-            ->assertDontSee('Susun &amp; terbitkan surat', false)
-            ->assertDontSee(route('rt.applications.letter.compose', $application), false);
+            ->assertSee('lw-letter-show-card', false)
+            ->assertSee('surat belum diterbitkan', false)
+            ->assertSee('Susun &amp; terbitkan surat', false)
+            ->assertSee(route('rt.applications.letter.compose', $application), false)
+            ->assertDontSee('gambar tanda tangan Ketua RT', false)
+            ->assertDontSee('Catat nomor surat &amp; kirim notifikasi', false);
     }
 
-    public function test_show_page_displays_issued_status_after_manual_issue(): void
+    public function test_show_page_displays_issued_pdf_status_after_publish(): void
     {
+        Storage::fake('local');
         [$staff, $application] = $this->createIssuableApplication();
-        $letterNumber = 'RT008/SK/06/2026/099';
+        $letterNumber = 'RT008/06/2026/099';
+        $pdfPath = 'letters/test-published.pdf';
+        Storage::disk('local')->put($pdfPath, '%PDF-1.4 test');
+
+        GeneratedLetter::create([
+            'application_id' => $application->id,
+            'letter_template_id' => LetterTemplate::first()->id,
+            'file_path' => $pdfPath,
+            'letter_number' => $letterNumber,
+            'letter_fields' => [],
+            'signature_path' => 'letters/test-signature.png',
+            'signed_at' => now(),
+            'issued_at' => now(),
+        ]);
 
         $application->update([
             'status' => ApplicationStatus::SiapDiambil,
             'completed_at' => now(),
-            'form_data' => [
-                'manual_letter' => [
-                    'number' => $letterNumber,
-                    'issued_at' => now()->toIso8601String(),
-                    'issued_by' => $staff->id,
-                ],
-            ],
         ]);
 
         $this->actingAs($staff)
             ->get(route('rt.applications.show', $application))
             ->assertOk()
-            ->assertSee('lw-letter-issue-status', false)
+            ->assertSee('lw-letter-show-status', false)
             ->assertSee($letterNumber, false)
-            ->assertSee('mengambil surat fisik di sekretariat RT', false)
+            ->assertSee('Lihat / cetak PDF', false)
+            ->assertSee('Susun ulang / kirim WhatsApp', false)
+            ->assertDontSee('Unduh PDF', false)
             ->assertDontSee('Catat nomor surat &amp; kirim notifikasi', false);
     }
 }

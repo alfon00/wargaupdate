@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Support\LetterDownloadLink;
 use App\Support\SuratPengantarTemplate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -103,9 +104,12 @@ class LetterComposeTest extends TestCase
     }
 
     /** @return array<string, string> */
-    private function sampleFields(): array
+    private function sampleFields(?Application $application = null): array
     {
         return [
+            'nomor_surat' => $application
+                ? \App\Services\LetterGeneratorService::suggestLetterNumber($application)
+                : 'RT008/06/2026/0001',
             'nama' => 'Warga Surat',
             'nik' => '3201010101010008',
             'ttl' => 'Timika, 1 Januari 1990',
@@ -122,14 +126,42 @@ class LetterComposeTest extends TestCase
         ];
     }
 
-    public function test_compose_letter_redirects_to_show_with_info(): void
+    public function test_compose_letter_renders_compose_page(): void
     {
         [, $staff, $application] = $this->createLetterReadyApplication();
 
+        $this->withoutVite();
+
         $this->actingAs($staff)
             ->get(route('rt.applications.letter.compose', $application))
-            ->assertRedirect(route('rt.applications.show', $application))
-            ->assertSessionHas('info', 'Surat dicetak manual di sekretariat RT. Catat nomor surat dan kirim notifikasi teks WhatsApp di halaman detail permohonan.');
+            ->assertOk()
+            ->assertSee('Susun &amp; terbitkan surat', false)
+            ->assertSee('letter-compose-root', false)
+            ->assertSee('Nomor surat', false)
+            ->assertSee('name="fields[nomor_surat]"', false)
+            ->assertSee('Tanda tangan', false)
+            ->assertSee('letter-signature-canvas', false);
+    }
+
+    public function test_publish_letter_uses_custom_nomor_surat(): void
+    {
+        Storage::fake('local');
+        [, $staff, $application] = $this->createLetterReadyApplication();
+        $customNumber = 'RT008/SK/06/2026/099';
+
+        $this->actingAs($staff)
+            ->from(route('rt.applications.letter.compose', $application))
+            ->post(route('rt.applications.letter.publish', $application), [
+                'fields' => array_merge($this->sampleFields($application), [
+                    'nomor_surat' => $customNumber,
+                ]),
+                'signature_data' => $this->sampleSignatureDataUri(),
+            ])
+            ->assertRedirect(route('rt.applications.letter.compose', $application))
+            ->assertSessionHas('success');
+
+        $application->refresh();
+        $this->assertSame($customNumber, $application->generatedLetter?->letter_number);
     }
 
     public function test_letter_resident_lookup_by_nik_returns_applicant_fields(): void
@@ -285,22 +317,23 @@ class LetterComposeTest extends TestCase
             ->assertNotFound();
     }
 
-    public function test_publish_letter_redirects_to_show_without_generating_pdf(): void
+    public function test_publish_letter_generates_pdf_and_redirects_to_compose(): void
     {
         Storage::fake('local');
         [, $staff, $application] = $this->createLetterReadyApplication();
 
         $this->actingAs($staff)
-            ->from(route('rt.applications.show', $application))
+            ->from(route('rt.applications.letter.compose', $application))
             ->post(route('rt.applications.letter.publish', $application), [
                 'fields' => $this->sampleFields(),
                 'signature_data' => $this->sampleSignatureDataUri(),
             ])
-            ->assertRedirect(route('rt.applications.show', $application))
-            ->assertSessionHas('info');
+            ->assertRedirect(route('rt.applications.letter.compose', $application))
+            ->assertSessionHas('success');
 
         $application->refresh();
-        $this->assertNull($application->generatedLetter);
+        $this->assertNotNull($application->generatedLetter);
+        $this->assertSame(ApplicationStatus::SiapDiambil, $application->status);
     }
 
     public function test_save_letter_signature_persists_in_form_data(): void
@@ -417,7 +450,7 @@ class LetterComposeTest extends TestCase
             ['service_type_id' => $service->id],
             [
                 'name' => 'Template Usaha',
-                'body_html' => \App\Support\SuratPengantarTemplate::bodyHtmlSku(),
+                'body_html' => \App\Support\SuratPengantarTemplate::bodyHtml(),
                 'is_active' => true,
             ]
         );
@@ -430,50 +463,51 @@ class LetterComposeTest extends TestCase
             ]);
 
         $response->assertOk();
-        $this->assertStringContainsString('SURAT KETERANGAN USAHA', $response->getContent());
+        $this->assertStringContainsString('SURAT PENGANTAR RUKUN TETANGGA', $response->getContent());
     }
 
-    public function test_publish_letter_redirects_without_signature_validation(): void
+    public function test_publish_letter_requires_signature(): void
     {
         [, $staff, $application] = $this->createLetterReadyApplication();
 
         $this->actingAs($staff)
-            ->from(route('rt.applications.show', $application))
+            ->from(route('rt.applications.letter.compose', $application))
             ->post(route('rt.applications.letter.publish', $application), [
                 'fields' => $this->sampleFields(),
                 'signature_data' => '',
             ])
-            ->assertRedirect(route('rt.applications.show', $application))
-            ->assertSessionHas('info')
-            ->assertSessionDoesntHaveErrors('signature_data');
+            ->assertRedirect(route('rt.applications.letter.compose', $application))
+            ->assertSessionHasErrors('signature_data');
     }
 
-    public function test_compose_letter_redirects_for_usaha_application(): void
+    public function test_compose_letter_renders_usaha_application(): void
     {
         [, $staff, $application] = $this->prepareUsahaApplication();
 
+        $this->withoutVite();
+
         $this->actingAs($staff)
             ->get(route('rt.applications.letter.compose', $application))
-            ->assertRedirect(route('rt.applications.show', $application))
-            ->assertSessionHas('info');
+            ->assertOk()
+            ->assertSee('letter-compose-root', false);
     }
 
-    public function test_publish_letter_redirects_for_sku_without_generating_pdf(): void
+    public function test_publish_letter_generates_pdf_for_sku(): void
     {
         Storage::fake('local');
         [, $staff, $application] = $this->prepareUsahaApplication();
 
         $this->actingAs($staff)
-            ->from(route('rt.applications.show', $application))
+            ->from(route('rt.applications.letter.compose', $application))
             ->post(route('rt.applications.letter.publish', $application), [
                 'fields' => array_merge($this->sampleFields(), $this->sampleUsahaFields()),
                 'signature_data' => $this->sampleSignatureDataUri(),
             ])
-            ->assertRedirect(route('rt.applications.show', $application))
-            ->assertSessionHas('info');
+            ->assertRedirect(route('rt.applications.letter.compose', $application))
+            ->assertSessionHas('success');
 
         $application->refresh();
-        $this->assertNull($application->generatedLetter);
+        $this->assertNotNull($application->generatedLetter);
     }
 
     public function test_default_values_prefill_usaha_from_application_form_data(): void
@@ -807,17 +841,21 @@ class LetterComposeTest extends TestCase
             ->assertSee(route('rt.applications.letter.whatsapp', $application, false));
     }
 
-    public function test_send_letter_whatsapp_posts_pdf_via_fonnte(): void
+    public function test_send_letter_whatsapp_posts_pdf_via_waha(): void
     {
         Storage::fake('local');
-        config(['fonnte.token' => 'test-fonnte-token']);
+        config([
+            'waha.api_key' => 'test-waha-key',
+            'waha.base_url' => 'http://waha:3000',
+            'waha.session' => 'default',
+        ]);
 
         Http::fake([
-            'https://api.fonnte.com/send' => Http::response([
-                'status' => true,
-                'id' => ['80367170'],
-                'detail' => 'success! message in queue',
-            ], 200),
+            'http://waha:3000/api/sessions/default' => Http::response([
+                'name' => 'default',
+                'status' => 'WORKING',
+            ]),
+            'http://waha:3000/api/sendFile' => Http::response(['id' => 'wa-msg-pdf-1'], 200),
         ]);
 
         [, $staff, $application] = $this->createLetterReadyApplication();
@@ -837,8 +875,7 @@ class LetterComposeTest extends TestCase
             ->assertSessionHas('success');
 
         Http::assertSent(function ($request) {
-            return str_contains($request->url(), 'api.fonnte.com/send')
-                && $request->hasHeader('Authorization', 'test-fonnte-token');
+            return str_contains($request->url(), '/api/sendFile');
         });
 
         $log = NotificationLog::query()
@@ -848,16 +885,67 @@ class LetterComposeTest extends TestCase
             ->first();
 
         $this->assertNotNull($log);
-        $this->assertStringContainsString('/surat/'.$application->id.'/unduh', $log->message);
-        $this->assertStringContainsString('signature=', $log->message);
-        $this->assertStringNotContainsString('/lacak', $log->message);
+        $this->assertStringNotContainsString('/surat/'.$application->id.'/unduh', $log->message);
+        $this->assertStringNotContainsString('Unduh surat:', $log->message);
+        $this->assertStringContainsString('terlampir', $log->message);
 
         $this->assertDatabaseHas('notification_logs', [
             'application_id' => $application->id,
             'event' => 'letter_sent',
             'status' => 'sent',
-            'whatsapp_message_id' => '80367170',
         ]);
+    }
+
+    public function test_send_letter_whatsapp_fallback_text_includes_download_link_once(): void
+    {
+        Storage::fake('local');
+        config([
+            'waha.api_key' => 'test-waha-key',
+            'waha.base_url' => 'http://waha:3000',
+            'waha.session' => 'default',
+            'app.url' => 'http://localhost',
+        ]);
+
+        Http::fake([
+            'http://waha:3000/api/sessions/default' => Http::response([
+                'name' => 'default',
+                'status' => 'WORKING',
+            ]),
+            'http://waha:3000/api/sendFile' => Http::response(['error' => 'send failed'], 500),
+            'http://waha:3000/api/sendText' => Http::response(['id' => 'wa-msg-text-1'], 200),
+        ]);
+
+        [, $staff, $application] = $this->createLetterReadyApplication();
+
+        $this->actingAs($staff)
+            ->from(route('rt.applications.letter.compose', $application))
+            ->post(route('rt.applications.letter.publish', $application), [
+                'fields' => $this->sampleFields(),
+                'signature_data' => $this->sampleSignatureDataUri(),
+            ])
+            ->assertRedirect(route('rt.applications.letter.compose', $application));
+
+        $this->actingAs($staff)
+            ->from(route('rt.applications.letter.compose', $application))
+            ->post(route('rt.applications.letter.whatsapp', $application))
+            ->assertRedirect(route('rt.applications.letter.compose', $application))
+            ->assertSessionHas('success');
+
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), '/api/sendText');
+        });
+
+        $log = NotificationLog::query()
+            ->where('application_id', $application->id)
+            ->where('event', 'letter_sent')
+            ->latest()
+            ->first();
+
+        $this->assertNotNull($log);
+        $downloadPath = '/surat/'.$application->id.'/unduh';
+        $this->assertStringContainsString($downloadPath, $log->message);
+        $this->assertSame(1, substr_count($log->message, $downloadPath));
+        $this->assertSame(1, substr_count($log->message, 'Unduh surat:'));
     }
 
     public function test_public_letter_download_with_valid_signed_url(): void
@@ -1048,7 +1136,7 @@ class LetterComposeTest extends TestCase
             ['service_type_id' => $service->id],
             [
                 'name' => 'Template Usaha',
-                'body_html' => SuratPengantarTemplate::bodyHtmlSku(),
+                'body_html' => SuratPengantarTemplate::bodyHtml(),
                 'is_active' => true,
             ]
         );
