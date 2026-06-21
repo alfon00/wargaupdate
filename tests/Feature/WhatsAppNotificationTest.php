@@ -150,7 +150,7 @@ class WhatsAppNotificationTest extends TestCase
         $this->assertSame('sent', $log->status);
     }
 
-    public function test_mark_ready_sends_approved_notification(): void
+    public function test_mark_ready_does_not_auto_send_approved_whatsapp(): void
     {
         $this->fakeWahaWorking();
         Storage::fake('local');
@@ -173,14 +173,16 @@ class WhatsAppNotificationTest extends TestCase
             ->post(route('rt.applications.mark-ready', $application))
             ->assertSessionHas('success');
 
+        $application->refresh();
+        $this->assertSame(ApplicationStatus::SiapDiambil, $application->status);
+
         $log = NotificationLog::query()
             ->where('application_id', $application->id)
             ->where('event', 'approved')
             ->latest()
             ->first();
 
-        $this->assertNotNull($log);
-        $this->assertSame('sent', $log->status);
+        $this->assertNull($log);
     }
 
     public function test_reject_sends_template_notification_with_application_number(): void
@@ -486,6 +488,6 @@ class WhatsAppNotificationTest extends TestCase
             ->assertOk()
             ->assertSee('Notifikasi WhatsApp', false)
             ->assertSee('Laporan diterima', false)
-            ->assertSee('Kirim WhatsApp ke pelapor', false);
+            ->assertDontSee('Kirim WhatsApp ke pelapor', false);
     }
 }

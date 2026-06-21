@@ -129,7 +129,7 @@ class LetterFieldSchema
             'nama_usaha' => '',
             'jenis_usaha' => '',
             'alamat_usaha' => $household?->address ?? '',
-            'ketua_rt' => $rt?->ketua_rt ?? $rt?->primaryKetua()?->name ?? '',
+            'ketua_rt' => $rt?->letterKetuaName() ?? '',
             'ketua_rw' => $rt?->ketua_rw ?? '',
             'rt' => $rtLabel,
             'rw' => $rt?->rw_number ?? '',
@@ -230,5 +230,21 @@ class LetterFieldSchema
         $src = e($url);
 
         return '<img src="'.$src.'" alt="Logo RT" style="max-height:64px;max-width:72px">';
+    }
+
+    public static function stampImgTag(Application $application): string
+    {
+        $application->loadMissing(['resident.household.rtProfile', 'assignedRtProfile']);
+        $rt = $application->resolvedRtProfile() ?? $application->resident?->household?->rtProfile;
+        if (! $rt) {
+            return '';
+        }
+
+        $absolutePath = $rt->resolvedStampAbsolutePath();
+        if (! $absolutePath) {
+            return '';
+        }
+
+        return RtStampStorage::toImgTagForPdf($absolutePath);
     }
 }

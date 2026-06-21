@@ -169,7 +169,7 @@ class AdminPanelUiTest extends TestCase
             ->get(route('kelurahan.population.index'))
             ->assertOk()
             ->assertSee('Data warga lengkap', false)
-            ->assertSee('No. KK', false)
+            ->assertSee('No. Kartu Keluarga', false)
             ->assertDontSee('Data Penduduk per RT', false)
             ->assertDontSee('Daftar KK', false);
     }

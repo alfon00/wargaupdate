@@ -19,7 +19,7 @@
 
     @if($hasPendingDeletion)
         <div class="lw-panel-alert lw-panel-alert--warn lw-mb-4" role="status">
-            Pengajuan hapus permanen menunggu persetujuan admin sistem. Data belum dihapus.
+            {{ $resident->deletionBlockReason() }}
         </div>
     @elseif($rejectedDeletion)
         <div class="lw-panel-alert lw-panel-alert--error lw-mb-4" role="status">

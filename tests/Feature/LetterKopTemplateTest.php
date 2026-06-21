@@ -100,9 +100,10 @@ class LetterKopTemplateTest extends TestCase
         $this->assertStringContainsString('DISTRIK WANIA', $html);
         $this->assertStringContainsString('KELURAHAN INAUGA', $html);
         $this->assertStringContainsString('SURAT PENGANTAR RUKUN TETANGGA RT 003', $html);
-        $this->assertStringContainsString('N o m o r', $html);
+        $this->assertStringContainsString('Nomor', $html);
+        $this->assertStringContainsString('ketingkat selanjutnya', $html);
         $this->assertStringContainsString('Times New Roman', $html);
-        $this->assertStringContainsString('RT003/', $html);
+        $this->assertStringContainsString('RT003 /', $html);
         $this->assertStringContainsString('3201010101010003', $html);
         $this->assertStringContainsString('Hormat kami,', $html);
         $this->assertStringContainsString('Pengurus RT 003', $html);

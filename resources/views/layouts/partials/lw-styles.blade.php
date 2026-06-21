@@ -108,6 +108,9 @@
 .lw-panel-btn--ghost{background:transparent;border:1px solid var(--lw-input-border);color:var(--lw-text-body)}
 .lw-panel-btn--ghost.lw-panel-btn--active{background:var(--lw-bg-accent-soft);border-color:#6ee7b7;color:var(--lw-accent)}
 .lw-panel-publication-preview{display:block;object-fit:cover}
+.lw-panel-wa-recipient-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;font-size:.8125rem}
+.lw-panel-wa-recipient-list{max-height:16rem;overflow-y:auto;border:1px solid var(--lw-border-soft,var(--lw-border));border-radius:.75rem;padding:.75rem;display:grid;gap:.5rem;background:var(--lw-bg-card,#fff)}
+.lw-panel-wa-recipient-item.is-disabled{opacity:.55;cursor:not-allowed}
 
 /* Navbar */
 .lw-site-frame .lw-nav{border-radius:var(--lw-frame-radius) var(--lw-frame-radius) 0 0}
@@ -368,7 +371,9 @@
 @media(min-width:640px){.lw-profile-lurah-card{padding:1.75rem 1.5rem}}
 .lw-profile-lurah-card:hover{box-shadow:var(--lw-shadow-md)}
 .lw-profile-lurah-card__body{display:flex;flex-direction:column;align-items:center;text-align:center;gap:1.25rem;margin-top:1.25rem}
-@media(min-width:640px){.lw-profile-lurah-card__body{flex-direction:row;align-items:flex-start;text-align:left;gap:1.75rem}}
+.lw-profile-lurah-card__body--rt-style{max-width:28rem;margin-left:auto;margin-right:auto}
+.lw-profile-lurah-card__header{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;width:100%}
+.lw-profile-lurah-card__body--rt-style .lw-profile-rt-card__photo{margin-bottom:0}
 .lw-profile-lurah-card__photo{flex-shrink:0;width:7.5rem;height:7.5rem;border-radius:9999px;overflow:hidden;border:3px solid var(--lw-border-accent);background:var(--lw-bg-muted);box-shadow:0 4px 16px rgba(15,118,110,.12)}
 .lw-profile-lurah-card__img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top}
 .lw-profile-lurah-card__placeholder{display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:linear-gradient(145deg,var(--lw-bg-muted),var(--lw-bg-subtle));color:var(--lw-accent)}
@@ -378,7 +383,6 @@
 .lw-profile-lurah-card__role{margin:.375rem 0 0;font-size:.875rem;color:var(--lw-text-muted);line-height:1.45}
 .lw-profile-lurah-card__desc{margin:.875rem 0 0;font-size:.9375rem;line-height:1.6;color:var(--lw-text-body)}
 .lw-profile-lurah-card__contacts{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem;margin:1rem 0 0;padding:0;list-style:none}
-@media(min-width:640px){.lw-profile-lurah-card__contacts{justify-content:flex-start}}
 .lw-profile-lurah-card__contact{display:inline-flex;align-items:center;gap:.375rem;padding:.4375rem .75rem;border-radius:9999px;border:1px solid var(--lw-border-soft);background:var(--lw-bg-muted);font-size:.8125rem;font-weight:600;color:var(--lw-accent-text);text-decoration:none;line-height:1.3;transition:background .15s,border-color .15s}
 .lw-profile-lurah-card__contact:hover{background:var(--lw-bg-accent-soft);border-color:var(--lw-border-accent)}
 .lw-profile-lurah-card__contact--static{cursor:default;color:var(--lw-text-secondary)}
@@ -1236,6 +1240,9 @@
 .lw-rt-delete-modal__backdrop{position:absolute;inset:0;background:rgba(15,23,42,.45)}
 .lw-rt-delete-modal__card{position:relative;z-index:1;width:100%;max-width:28rem;background:var(--lw-bg-card);border:1px solid var(--lw-border);border-radius:.75rem;padding:1.25rem;box-shadow:var(--lw-shadow-md)}
 .lw-rt-delete-modal-open{overflow:hidden}
+.lw-rt-applications-settings-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.375rem;min-height:2.75rem;padding-inline:.875rem}
+.lw-rt-settings-badge{position:absolute;top:.35rem;right:.35rem;width:.5rem;height:.5rem;border-radius:999px;background:#d97706;border:2px solid var(--lw-bg-card,#fff)}
+.lw-rt-stamp-settings-modal__card{max-width:32rem}
 .lw-rt-delete-trigger{display:inline-flex}
 .lw-rt-data-kk-table-wrap{margin-bottom:0}
 .lw-rt-data-resident-household-table-wrap{margin-bottom:0}
@@ -1744,8 +1751,8 @@ body.lw-letter-print-preview #letter-preview-document{max-width:none;box-shadow:
 .lw-page-inner .lw-track-divider{margin-top:1rem;padding-top:1rem}
 .lw-page-inner .lw-track-form-card .lw-track-alt summary{font-size:.875rem;padding:.625rem .875rem}
 .lw-page-inner .lw-profile-hero__lead{text-align:left}
-.lw-page-inner .lw-profile-lurah-card__photo{width:6rem;height:6rem}
 .lw-page-inner .lw-profile-lurah-card__body{gap:1rem;margin-top:1rem}
+.lw-page-inner .lw-profile-lurah-card__body--rt-style .lw-profile-rt-card__photo{width:4rem;height:4rem}
 .lw-page-inner .lw-profile-lurah-card__desc{font-size:.875rem}
 .lw-page-inner .lw-profile-lurah-card__role{font-size:.8125rem}
 .lw-page-inner .lw-profile-detail-vision{padding:.875rem 1rem;font-size:.8125rem}

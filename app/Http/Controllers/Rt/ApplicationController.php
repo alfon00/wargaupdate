@@ -16,6 +16,7 @@ use App\Services\WahaNotificationService;
 use App\Support\ApplicationRejectionMessage;
 use App\Support\LetterFieldSchema;
 use App\Support\ResidentLetterProfile;
+use App\Support\RtStampStorage;
 use App\Support\SignatureStorage;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -62,6 +63,36 @@ class ApplicationController extends Controller
         $applications = $query->paginate(20)->withQueryString();
 
         return view('rt.applications.index', compact('applications', 'rt'));
+    }
+
+    public function updateStamp(Request $request): RedirectResponse
+    {
+        $rt = $this->requireRtProfile();
+
+        $request->validate([
+            'stamp' => ['required', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
+        ]);
+
+        $path = RtStampStorage::storeUploadedFile($request->file('stamp'), $rt);
+        $rt->update(['stamp_path' => $path]);
+
+        return redirect()
+            ->route('rt.applications.index')
+            ->with('success', 'Cap resmi RT berhasil diunggah. Cap akan tampil di atas tanda tangan pada surat PDF.');
+    }
+
+    public function destroyStamp(): RedirectResponse
+    {
+        $rt = $this->requireRtProfile();
+
+        if ($rt->stamp_path) {
+            RtStampStorage::deleteStoredPath($rt->stamp_path);
+            $rt->update(['stamp_path' => null]);
+        }
+
+        return redirect()
+            ->route('rt.applications.index')
+            ->with('success', 'Cap resmi RT berhasil dihapus.');
     }
 
     public function destroy(Application $application): RedirectResponse

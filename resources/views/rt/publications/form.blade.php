@@ -82,13 +82,12 @@
     <section class="lw-panel-section lw-mt-4">
         <h2 class="lw-panel-section-title">Notifikasi WhatsApp</h2>
         <p class="lw-panel-card-note lw-mb-3">
-            Kirim pengumuman ke semua warga RT yang mengaktifkan notifikasi WhatsApp.
+            Kirim {{ strtolower($type->label()) }} ke warga RT — semua penerima eligible atau pilih warga tertentu.
         </p>
-        <form method="POST" action="{{ $whatsappRoute }}"
-            onsubmit="return confirm('Kirim notifikasi WhatsApp ke semua warga RT yang mengaktifkan notifikasi?');">
-            @csrf
-            <button type="submit" class="lw-panel-btn lw-panel-btn--secondary">Kirim WhatsApp ke warga</button>
-        </form>
+        @include('rt.publications.partials.whatsapp-broadcast-form', [
+            'whatsappRoute' => $whatsappRoute,
+            'whatsappEligibleResidents' => $whatsappEligibleResidents ?? collect(),
+        ])
         @include('rt.partials.whatsapp-notification-logs', [
             'logs' => $publicationBroadcastLogs,
             'contextLabel' => 'Riwayat broadcast WhatsApp untuk '.strtolower($type->label()).' ini.',

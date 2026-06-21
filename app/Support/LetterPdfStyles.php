@@ -24,7 +24,7 @@ class LetterPdfStyles
             .kop-rule__thin{border-top:1px solid #111;height:0;margin:2px 0 0}
             .doc-title{text-align:center;font-size:12pt;font-weight:700;text-decoration:underline;margin:10px 0 8px;letter-spacing:.03em;text-transform:uppercase}
             .doc-number{text-align:center;margin:0 0 16px;font-size:12pt;font-weight:700}
-            .doc-number-label{letter-spacing:.35em}
+            .doc-number-label{letter-spacing:.08em}
             .body{text-align:justify}
             .opening{margin:0 0 14px;text-indent:0;line-height:1.55}
             .field-table{width:100%;margin:4px 0 10px;border-collapse:collapse}
@@ -51,10 +51,20 @@ class LetterPdfStyles
             .ttd-place-line{text-decoration:underline}
             .ttd-hormat{margin-top:4px}
             .ttd-role{margin-top:2px}
-            .ttd-sign-block{text-align:center;margin:18px auto 8px;line-height:0}
-            .ttd-img{display:block;margin:0 auto;line-height:0}
-            .ttd-img img{max-height:58px;max-width:132px;object-fit:contain}
-            .ttd-nama-paren{margin-top:4px;font-size:12pt;text-decoration:underline}
+            .ttd-sign-block{width:100%;margin:12px auto 0;line-height:0;text-align:center}
+            .ttd-sign-block--with-cap{margin-bottom:0}
+            .ttd-sign-stack{position:relative;width:100%;height:2.9cm;margin:0 auto;overflow:visible}
+            .ttd-sign-stack--with-cap{height:2.9cm;overflow:visible}
+            .ttd-sign-stack .ttd-img{position:absolute;left:0;right:0;bottom:0;text-align:center;line-height:0;z-index:1}
+            .ttd-sign-stack .ttd-img img{display:inline-block;max-width:95%;max-height:2.8cm;width:auto;height:auto;object-fit:contain}
+            .ttd-sign-stack--with-cap .ttd-img img{max-width:98%;max-height:2.2cm}
+            .ttd-sign-stack--with-cap .ttd-cap{position:absolute;top:0;left:50%;margin-left:6px;line-height:0;z-index:2}
+            .ttd-sign-stack--with-cap .ttd-cap img{display:block;max-height:4.2cm;max-width:4.2cm;object-fit:contain}
+            .ttd-sign-placeholder{display:block;width:100%;height:2.8cm}
+            .ttd-sign-stack--with-cap .ttd-sign-placeholder{height:2.2cm}
+            .ttd-nama-paren,.ttd-nama{margin-top:4px;font-size:12pt;font-family:"Times New Roman",Times,serif}
+            .ttd-nama-paren{text-decoration:underline;text-transform:uppercase;letter-spacing:.04em}
+            .ttd-sign-block--with-cap + .ttd-nama-paren,.ttd-sign-block--with-cap + .ttd-nama{margin-top:1cm;line-height:1.45}
 CSS;
     }
 }

@@ -65,22 +65,6 @@
             <button type="submit" class="lw-panel-btn lw-panel-btn--block">Simpan status</button>
         </x-rt.sidebar-action-card>
 
-        <x-rt.sidebar-action-card
-            title="Kirim WhatsApp"
-            note="Kirim ulang konfirmasi atau pembaruan status ke nomor pelapor."
-            tag="form"
-            method="POST"
-            action="{{ route('rt.reports.whatsapp', $report) }}"
-            onsubmit="return confirm('Kirim notifikasi WhatsApp ke {{ $report->phone }}?');">
-            @csrf
-            <button type="submit" class="lw-panel-btn lw-panel-btn--block lw-panel-btn--secondary">
-                Kirim WhatsApp ke pelapor
-            </button>
-            @if(! empty($lastFailedLog))
-                <p class="lw-panel-card-note lw-mb-0">Pengiriman terakhir gagal: {{ $lastFailedLog->error_message }}</p>
-            @endif
-        </x-rt.sidebar-action-card>
-
         @include('rt.partials.instant-delete-zone', [
             'action' => route('rt.reports.destroy', $report),
             'label' => 'Hapus laporan',

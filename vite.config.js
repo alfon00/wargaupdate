@@ -12,6 +12,7 @@ export default defineConfig({
                 'resources/js/letter-signature.js',
                 'resources/js/letter-compose.js',
                 'resources/js/rt-delete-signature.js',
+                'resources/js/rt-applications-settings.js',
                 'resources/js/rt-household-registration.js',
                 'resources/js/pendataan-ulang.js',
                 'resources/js/pendataan-warga.js',

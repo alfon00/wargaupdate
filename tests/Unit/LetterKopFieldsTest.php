@@ -11,7 +11,7 @@ class LetterKopFieldsTest extends TestCase
     {
         $line = LetterKopFields::nomorSuratBaris('RT008/06/2026/0001', '008', '005');
 
-        $this->assertSame('RT008/06/2026/0001', $line);
+        $this->assertSame('RT008 / 06 / 2026 / 0001', $line);
     }
 
     public function test_distrik_and_kelurahan_labels(): void

@@ -1,9 +1,9 @@
 @php
     $kel = config('kelurahan');
     $lurah = \App\Models\KelurahanOfficial::publicLurahArray();
-    $lurahPhoto = $lurah['photo'] ?? null;
     $lurahName = $lurah['nama'] ?? 'Lurah';
     $initial = mb_strtoupper(mb_substr(preg_replace('/^[^A-Za-z0-9]+/u', '', $lurahName) ?: 'L', 0, 1));
+    $kelurahanLabel = filled($kel['nama'] ?? null) ? $kel['nama'] : 'Kelurahan Inauga';
 
     $instagramUrl = config('kelurahan.sosial.instagram');
     $instagramHandle = null;
@@ -14,24 +14,19 @@
 
 <section class="lw-profile-lurah-card" id="lurah" aria-labelledby="lurah-profile-heading" tabindex="-1">
     <header class="lw-profile-section-head lw-home-section-head">
+        <span class="lw-section-tag">Pemerintah Kelurahan</span>
         <h2 id="lurah-profile-heading" class="lw-section-title lw-mt-2">Profil Lurah</h2>
     </header>
 
-    <article class="lw-profile-lurah-card__body">
-        <div class="lw-profile-lurah-card__photo" aria-hidden="true">
-            @if($lurahPhoto)
-                <img src="{{ $lurahPhoto }}"
-                    alt="Foto {{ $lurahName }}"
-                    class="lw-profile-lurah-card__img"
-                    width="128"
-                    height="128"
-                    loading="lazy"
-                    decoding="async">
-            @else
-                <div class="lw-profile-lurah-card__placeholder" role="img" aria-label="Belum ada foto profil {{ $lurahName }}">
-                    <span class="lw-profile-lurah-card__initial">{{ $initial }}</span>
-                </div>
-            @endif
+    <article class="lw-profile-lurah-card__body lw-profile-lurah-card__body--rt-style">
+        <div class="lw-profile-lurah-card__header">
+            <span class="lw-profile-rt-chip">{{ $kelurahanLabel }}</span>
+        </div>
+
+        <div class="lw-profile-rt-card__photo">
+            <div class="lw-profile-rt-card__placeholder" role="img" aria-label="Profil {{ $lurahName }}">
+                <span>{{ $initial }}</span>
+            </div>
         </div>
 
         <div class="lw-profile-lurah-card__content">

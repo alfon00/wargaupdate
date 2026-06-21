@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers\Rt;
 
+use App\Enums\DomicileStatus;
 use App\Enums\RtPublicationType;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendPublicationWhatsApp;
 use App\Models\NotificationLog;
-use App\Services\WahaNotificationService;
+use App\Models\Resident;
 use App\Models\RtProfile;
 use App\Models\RtPublication;
+use App\Services\WahaNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class RtPublicationController extends Controller
@@ -128,17 +131,17 @@ class RtPublicationController extends Controller
         return $this->destroy($publication, RtPublicationType::Pengumuman);
     }
 
-    public function sendWhatsAppKegiatan(RtPublication $publication): RedirectResponse
+    public function sendWhatsAppKegiatan(Request $request, RtPublication $publication): RedirectResponse
     {
-        return $this->sendWhatsApp($publication, RtPublicationType::Kegiatan);
+        return $this->sendWhatsApp($request, $publication, RtPublicationType::Kegiatan);
     }
 
-    public function sendWhatsAppPengumuman(RtPublication $publication): RedirectResponse
+    public function sendWhatsAppPengumuman(Request $request, RtPublication $publication): RedirectResponse
     {
-        return $this->sendWhatsApp($publication, RtPublicationType::Pengumuman);
+        return $this->sendWhatsApp($request, $publication, RtPublicationType::Pengumuman);
     }
 
-    private function sendWhatsApp(RtPublication $publication, RtPublicationType $type): RedirectResponse
+    private function sendWhatsApp(Request $request, RtPublication $publication, RtPublicationType $type): RedirectResponse
     {
         $rt = $this->requireRtProfile();
 
@@ -150,7 +153,28 @@ class RtPublicationController extends Controller
             return $redirect;
         }
 
-        $summary = (new SendPublicationWhatsApp($publication->id))
+        $validated = $request->validate([
+            'recipient_mode' => ['required', Rule::in(['all', 'selected'])],
+            'resident_ids' => ['required_if:recipient_mode,selected', 'array', 'min:1'],
+            'resident_ids.*' => ['integer'],
+        ]);
+
+        $residentIds = null;
+        if ($validated['recipient_mode'] === 'selected') {
+            $eligibleIds = $this->whatsappEligibleResidents($rt)->pluck('id')->map(fn ($id) => (int) $id)->all();
+            $residentIds = collect($validated['resident_ids'] ?? [])
+                ->map(fn ($id) => (int) $id)
+                ->filter(fn (int $id) => in_array($id, $eligibleIds, true))
+                ->unique()
+                ->values()
+                ->all();
+
+            if ($residentIds === []) {
+                return back()->withErrors(['resident_ids' => 'Pilih minimal satu warga dengan nomor WhatsApp valid.']);
+            }
+        }
+
+        $summary = (new SendPublicationWhatsApp($publication->id, $residentIds))
             ->handle(app(WahaNotificationService::class));
 
         $message = sprintf(
@@ -210,6 +234,7 @@ class RtPublicationController extends Controller
             'publication' => $publication,
             'rt' => $rt,
             'publicationBroadcastLogs' => $this->publicationBroadcastLogs($publication),
+            'whatsappEligibleResidents' => $this->whatsappEligibleResidents($rt),
         ]);
     }
 
@@ -332,6 +357,18 @@ class RtPublicationController extends Controller
         return $type === RtPublicationType::Kegiatan
             ? route('rt.kegiatan.index')
             : route('rt.pengumuman.index');
+    }
+
+    /** @return \Illuminate\Support\Collection<int, Resident> */
+    private function whatsappEligibleResidents(RtProfile $rt): \Illuminate\Support\Collection
+    {
+        return Resident::query()
+            ->forRtProfile($rt)
+            ->where('domicile_status', DomicileStatus::Aktif)
+            ->where('whatsapp_notify', true)
+            ->with('household')
+            ->orderBy('name')
+            ->get();
     }
 
     /** @return \Illuminate\Support\Collection<int, NotificationLog> */

@@ -38,9 +38,7 @@ class SkuLetterTemplate
         <td width="50%"></td>
         <td width="50%" class="ttd-right">
             <p>Ketua {{rt}},</p>
-            <div class="ttd-sign-block">
-                <div class="ttd-img">{{ttd_gambar}}</div>
-            </div>
+            {{ttd_tanda_cap}}
             <p class="ttd-nama"><strong>{{ketua_rt}}</strong></p>
         </td>
     </tr>

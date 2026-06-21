@@ -50,7 +50,7 @@ class LetterGeneratorService
         Storage::disk('local')->put($filename, $pdf->output());
 
         $snapshot = collect($merged)
-            ->except(['ttd_gambar', 'nomor_surat', 'tanggal'])
+            ->except(['ttd_gambar', 'cap_rt_gambar', 'ttd_tanda_cap', 'nomor_surat', 'tanggal'])
             ->all();
 
         return GeneratedLetter::updateOrCreate(
@@ -143,8 +143,14 @@ class LetterGeneratorService
             $merged['rt_nomor'] ?? '',
             $merged['rw_nomor'] ?? '',
         );
-        $merged['tanggal'] = now()->translatedFormat('d F Y');
+        $merged['tanggal'] = now()->format('d-m-Y');
         $merged['ttd_gambar'] = $this->resolveSignatureImgTag($signatureDataUri, $signatureFilePath);
+        $merged['cap_rt_gambar'] = $this->resolveStampImgTag($application, $signatureDataUri, $signatureFilePath);
+        $merged['ttd_tanda_cap'] = $this->resolveTtdSignBlock(
+            $application,
+            $signatureDataUri,
+            $signatureFilePath,
+        );
         $merged['logo_rt'] = LetterFieldSchema::logoImgTag($application);
         if (! filled($merged['logo_kop'] ?? null)) {
             $merged['logo_kop'] = LetterKopFields::kopLogoImgTag();
@@ -160,6 +166,43 @@ class LetterGeneratorService
         }
 
         return SignatureStorage::toImgTag($signatureDataUri);
+    }
+
+    protected function resolveStampImgTag(
+        Application $application,
+        ?string $signatureDataUri,
+        ?string $signatureFilePath,
+    ): string {
+        if (! $this->hasSignature($signatureDataUri, $signatureFilePath)) {
+            return '';
+        }
+
+        return LetterFieldSchema::stampImgTag($application);
+    }
+
+    protected function resolveTtdSignBlock(
+        Application $application,
+        ?string $signatureDataUri,
+        ?string $signatureFilePath,
+    ): string {
+        $signature = $this->resolveSignatureImgTag($signatureDataUri, $signatureFilePath);
+        $stamp = $this->resolveStampImgTag($application, $signatureDataUri, $signatureFilePath);
+        $withCap = $stamp !== '' ? ' ttd-sign-stack--with-cap' : '';
+        $blockClass = 'ttd-sign-block'.($stamp !== '' ? ' ttd-sign-block--with-cap' : '');
+
+        return '<div class="'.$blockClass.'"><div class="ttd-sign-stack'.$withCap.'">'
+            .'<div class="ttd-img">'.$signature.'</div>'
+            .($stamp !== '' ? '<div class="ttd-cap">'.$stamp.'</div>' : '')
+            .'</div></div>';
+    }
+
+    protected function hasSignature(?string $signatureDataUri, ?string $signatureFilePath): bool
+    {
+        if ($signatureFilePath && Storage::disk('local')->exists($signatureFilePath)) {
+            return true;
+        }
+
+        return $signatureDataUri && ! SignatureStorage::isBlank($signatureDataUri);
     }
 
     public static function suggestLetterNumber(Application $application): string
@@ -196,7 +239,7 @@ class LetterGeneratorService
     protected function renderTemplate(string $body, array $vars): string
     {
         $content = $body;
-        $htmlKeys = ['ttd_gambar', 'logo_rt', 'logo_kop'];
+        $htmlKeys = ['ttd_gambar', 'cap_rt_gambar', 'ttd_tanda_cap', 'logo_rt', 'logo_kop'];
 
         foreach ($vars as $key => $value) {
             $placeholder = '{{'.$key.'}}';

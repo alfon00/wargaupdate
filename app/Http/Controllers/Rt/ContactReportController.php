@@ -9,7 +9,6 @@ use App\Jobs\SendReportWhatsApp;
 use App\Models\CitizenReport;
 use App\Models\NotificationLog;
 use App\Services\CitizenReportDeletionService;
-use App\Services\WahaNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -21,7 +20,6 @@ class ContactReportController extends Controller
 
     public function __construct(
         protected CitizenReportDeletionService $reportDeletion,
-        protected WahaNotificationService $waha,
     ) {}
 
     public function index(): View
@@ -74,9 +72,7 @@ class ContactReportController extends Controller
             ->limit(10)
             ->get();
 
-        $lastFailedLog = $notificationLogs->firstWhere('status', 'failed');
-
-        return view('rt.reports.show', compact('report', 'notificationLogs', 'lastFailedLog'));
+        return view('rt.reports.show', compact('report', 'notificationLogs'));
     }
 
     public function updateStatus(Request $request, CitizenReport $report): RedirectResponse
@@ -102,29 +98,5 @@ class ContactReportController extends Controller
         }
 
         return back()->with('success', 'Status laporan diperbarui.');
-    }
-
-    public function sendWhatsApp(CitizenReport $report): RedirectResponse
-    {
-        $this->abortUnlessOwnsReport($report);
-
-        $event = $report->status === ReportStatus::Baru
-            ? 'report_submitted'
-            : 'report_status_updated';
-
-        $log = match ($event) {
-            'report_submitted' => $this->waha->notifyReportSubmitted($report),
-            default => $this->waha->notifyReportStatusUpdated($report),
-        };
-
-        if ($log->status === 'sent') {
-            return back()->with('success', 'Notifikasi WhatsApp berhasil dikirim ke pelapor.');
-        }
-
-        if ($log->status === 'skipped') {
-            return back()->withErrors(['whatsapp' => $log->error_message ?? 'Notifikasi WhatsApp dilewati.']);
-        }
-
-        return back()->withErrors(['whatsapp' => $log->error_message ?? 'Gagal mengirim notifikasi WhatsApp.']);
     }
 }

@@ -82,7 +82,7 @@ class SignatureStorage
     public static function toImgTag(?string $dataUri): string
     {
         if (! $dataUri || self::isBlank($dataUri)) {
-            return '<p style="height:80px;margin:8px 0;">&nbsp;</p>';
+            return '<span class="ttd-sign-placeholder">&nbsp;</span>';
         }
 
         return '<img src="'.e($dataUri).'" alt="Tanda tangan">';
@@ -91,12 +91,12 @@ class SignatureStorage
     public static function toImgTagForPdf(string $absolutePath): string
     {
         if (! is_file($absolutePath)) {
-            return '<p style="height:80px;margin:8px 0;">&nbsp;</p>';
+            return '<span class="ttd-sign-placeholder">&nbsp;</span>';
         }
 
         $raw = file_get_contents($absolutePath);
         if ($raw === false || $raw === '') {
-            return '<p style="height:80px;margin:8px 0;">&nbsp;</p>';
+            return '<span class="ttd-sign-placeholder">&nbsp;</span>';
         }
 
         $dataUri = 'data:image/png;base64,'.base64_encode($raw);

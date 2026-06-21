@@ -142,8 +142,9 @@ Route::middleware(['auth', 'role.rt'])->prefix('rt')->name('rt.')->group(functio
     Route::delete('laporan/{report:report_number}', [RtContactReportController::class, 'destroy'])->name('reports.destroy');
     Route::get('laporan/{report:report_number}', [RtContactReportController::class, 'show'])->name('reports.show');
     Route::post('laporan/{report:report_number}/status', [RtContactReportController::class, 'updateStatus'])->name('reports.status');
-    Route::post('laporan/{report:report_number}/kirim-wa', [RtContactReportController::class, 'sendWhatsApp'])->name('reports.whatsapp');
     Route::get('applications', [RtApplicationController::class, 'index'])->name('applications.index');
+    Route::post('applications/cap', [RtApplicationController::class, 'updateStamp'])->name('applications.stamp.update');
+    Route::delete('applications/cap', [RtApplicationController::class, 'destroyStamp'])->name('applications.stamp.destroy');
     Route::delete('applications/{application}', [RtApplicationController::class, 'destroy'])->name('applications.destroy');
     Route::get('applications/{application}', [RtApplicationController::class, 'show'])->name('applications.show');
     Route::post('applications/{application}/verifikasi', [RtApplicationController::class, 'verify'])->name('applications.verify');

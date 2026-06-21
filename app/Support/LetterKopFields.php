@@ -66,14 +66,14 @@ class LetterKopFields
         $segments = array_values(array_filter(explode('/', trim($nomorSurat)), fn (string $part) => $part !== ''));
 
         if (count($segments) >= 4) {
-            return implode('/', array_slice($segments, 0, 4));
+            return implode(' / ', array_slice($segments, 0, 4));
         }
 
         while (count($segments) < 4) {
             $segments[] = str_repeat('.', 8);
         }
 
-        return implode('/', $segments);
+        return implode(' / ', $segments);
     }
 
     public static function kopLogoPlaceholderTag(): string

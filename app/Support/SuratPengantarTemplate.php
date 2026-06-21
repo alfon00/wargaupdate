@@ -49,7 +49,7 @@ HTML;
     {
         return <<<'HTML'
 <h1 class="doc-title">SURAT PENGANTAR RUKUN TETANGGA RT {{rt_nomor}}</h1>
-<p class="doc-number"><span class="doc-number-label">N o m o r</span> : {{nomor_surat_baris}}</p>
+<p class="doc-number"><span class="doc-number-label">Nomor</span> : {{nomor_surat_baris}}</p>
 HTML;
     }
 
@@ -92,7 +92,7 @@ HTML;
 
     public static function closingBlock(?string $text = null): string
     {
-        $closing = $text ?? 'Demikian Surat Pengantar ini kami berikan guna proses kelengkapan selanjutnya.';
+        $closing = $text ?? 'Demikian Surat Pengantar ini kami berikan guna proses ketingkat selanjutnya.';
 
         return <<<HTML
     <p class="closing">{$closing}</p>
@@ -110,9 +110,7 @@ HTML;
             <p class="ttd-place"><span class="ttd-place-line">{{tempat_surat}}, {{tanggal}}</span></p>
             <p class="ttd-hormat">Hormat kami,</p>
             <p class="ttd-role">Pengurus RT {{rt_nomor}}</p>
-            <div class="ttd-sign-block">
-                <div class="ttd-img">{{ttd_gambar}}</div>
-            </div>
+            {{ttd_tanda_cap}}
             <p class="ttd-nama-paren">( {{ketua_rt}} )</p>
         </td>
     </tr>

@@ -29,6 +29,12 @@
         'monitoringMode' => $monitoringMode ?? false,
     ])
 
+    @if($resident->hasPendingDeletionRequest())
+        <div class="lw-panel-alert lw-panel-alert--warn lw-mb-4" role="status">
+            {{ $resident->deletionBlockReason() }}
+        </div>
+    @endif
+
     <section class="lw-rt-unified-kk-section lw-rt-unified-kk-section--member-detail">
         <div class="lw-panel-section-head">
             <h3 class="lw-rt-unified-kk-section-title">Detail anggota: {{ $resident->name }}</h3>

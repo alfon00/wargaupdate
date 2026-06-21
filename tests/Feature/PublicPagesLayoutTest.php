@@ -90,7 +90,7 @@ class PublicPagesLayoutTest extends TestCase
             ->assertSee('Baca persyaratan', false)
             ->assertSee('Verifikasi identitas', false)
             ->assertSee('notifikasi WhatsApp', false)
-            ->assertSee('Ambil surat fisik di sekretariat RT', false)
+            ->assertSee('Ambil salinan fisik di sekretariat RT', false)
             ->assertSee('Lacak status via menu Lacak', false)
             ->assertSee('Pendataan ulang', false)
             ->assertSee('Unggah berkas &amp; verifikasi wajah', false)
@@ -477,7 +477,7 @@ class PublicPagesLayoutTest extends TestCase
             ->assertSee('lw-home-hero-v3-shell', false)
             ->assertSee('lw-home-page', false)
             ->assertSee('Layanan Warga RT', false)
-            ->assertSee('Portal warga ·', false)
+            ->assertSee('Portal warga', false)
             ->assertDontSee('SISTEM LAYANAN WARGA RT', false)
             ->assertSee('Sudah mengajukan?', false)
             ->assertSee('Surat pengantar RT', false)
@@ -610,6 +610,8 @@ class PublicPagesLayoutTest extends TestCase
             'suku' => 'Mee',
             'phone' => '081299900099',
             'whatsapp_notify' => '1',
+            'head_face_descriptor' => $this->sampleFaceDescriptor(),
+            'head_selfie_data' => $this->sampleSelfieDataUri(),
             'members' => [[
                 'name' => 'Warga Success',
                 'nik' => '3201010101010999',
@@ -705,5 +707,16 @@ class PublicPagesLayoutTest extends TestCase
             ->assertDontSee('lw-nav-date', false)
             ->assertDontSee('Hari ini', false)
             ->assertDontSee('Kamis, 11 Juni 2026', false);
+    }
+
+    /** @return array<int, float> */
+    private function sampleFaceDescriptor(): array
+    {
+        return array_map(static fn (int $i) => round($i / 128, 6), range(0, 127));
+    }
+
+    private function sampleSelfieDataUri(): string
+    {
+        return 'data:image/jpeg;base64,'.base64_encode(str_repeat('0', 1200));
     }
 }

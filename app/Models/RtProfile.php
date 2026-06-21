@@ -17,7 +17,7 @@ class RtProfile extends Model
     protected $fillable = [
         'slug', 'rt_number', 'rw_number', 'kelurahan', 'kecamatan', 'kota', 'provinsi',
         'ketua_rt', 'ketua_rw', 'sekretaris_rt', 'alamat_kantor',
-        'visi', 'misi', 'phone', 'whatsapp', 'email', 'jam_layanan', 'logo_path',
+        'visi', 'misi', 'phone', 'whatsapp', 'email', 'jam_layanan', 'logo_path', 'stamp_path',
         'instagram_url', 'facebook_url', 'youtube_url',
     ];
 
@@ -277,6 +277,25 @@ class RtProfile extends Model
         return $this->registeredKetuaUsers()->first();
     }
 
+    public function letterKetuaName(): string
+    {
+        $fromUser = trim($this->primaryKetua()?->name ?? '');
+        $fromProfile = trim($this->ketua_rt ?? '');
+
+        foreach ([$fromUser, $fromProfile] as $candidate) {
+            if ($candidate !== '' && ! $this->isGenericKetuaLabel($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return $fromUser !== '' ? $fromUser : $fromProfile;
+    }
+
+    private function isGenericKetuaLabel(string $name): bool
+    {
+        return (bool) preg_match('/^Ketua\s+RT\b/i', $name);
+    }
+
     public function primarySekretaris(): ?User
     {
         return $this->registeredSekretarisUsers()->first();
@@ -472,5 +491,37 @@ class RtProfile extends Model
     public static function forRtStaffUser(User $user): ?self
     {
         return $user->resolvedRtProfile();
+    }
+
+    public function hasUploadedStamp(): bool
+    {
+        return filled($this->stamp_path)
+            && Storage::disk('public')->exists($this->stamp_path);
+    }
+
+    public function stampUrl(): ?string
+    {
+        if (! $this->hasUploadedStamp()) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->stamp_path);
+    }
+
+    public function resolvedStampAbsolutePath(): ?string
+    {
+        if ($this->hasUploadedStamp()) {
+            return Storage::disk('public')->path($this->stamp_path);
+        }
+
+        $rt = preg_replace('/\D/', '', $this->rt_number ?? '') ?: '000';
+        foreach (['png', 'webp', 'jpg', 'jpeg'] as $ext) {
+            $path = public_path("images/rt/stamps/rt-{$rt}.{$ext}");
+            if (is_file($path)) {
+                return $path;
+            }
+        }
+
+        return null;
     }
 }

@@ -16,6 +16,8 @@ class SendPublicationWhatsApp implements ShouldQueue
 
     public function __construct(
         public int $publicationId,
+        /** @var list<int>|null */
+        public ?array $residentIds = null,
     ) {}
 
     /**
@@ -30,11 +32,16 @@ class SendPublicationWhatsApp implements ShouldQueue
 
         $profileIds = \App\Models\RtProfile::profileIdsForRtNumber($publication->rtProfile->rt_number);
 
-        $residents = Resident::query()
+        $residentsQuery = Resident::query()
             ->whereHas('household', fn ($q) => $q->whereIn('rt_profile_id', $profileIds))
             ->where('domicile_status', DomicileStatus::Aktif)
-            ->where('whatsapp_notify', true)
-            ->get();
+            ->where('whatsapp_notify', true);
+
+        if ($this->residentIds !== null) {
+            $residentsQuery->whereIn('id', $this->residentIds);
+        }
+
+        $residents = $residentsQuery->orderBy('name')->get();
 
         $summary = ['sent' => 0, 'skipped' => 0, 'failed' => 0];
         $sentPhones = [];

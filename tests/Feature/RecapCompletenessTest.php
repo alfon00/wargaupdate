@@ -128,7 +128,7 @@ class RecapCompletenessTest extends TestCase
             ->get(route('kelurahan.population.index'))
             ->assertOk()
             ->assertSee('KK Legacy')
-            ->assertSee('No. KK', false);
+            ->assertSee('No. Kartu Keluarga', false);
     }
 
     public function test_non_head_resident_does_not_require_religion(): void

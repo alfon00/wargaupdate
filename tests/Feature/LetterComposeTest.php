@@ -754,6 +754,25 @@ class LetterComposeTest extends TestCase
         $this->assertStringContainsString('Ketua RT 008', $response->getContent());
     }
 
+    public function test_preview_uses_real_ketua_name_and_times_new_roman_on_ttd_name(): void
+    {
+        [$profile, $staff, $application] = $this->createLetterReadyApplication();
+        $profile->update(['ketua_rt' => 'Ketua RT 008']);
+        $staff->update(['name' => 'Maurissa']);
+
+        $response = $this->actingAs($staff)
+            ->post(route('rt.applications.letter.preview', $application), [
+                'fields' => $this->sampleFields(),
+            ]);
+
+        $response->assertOk();
+        $html = $response->getContent();
+        $this->assertStringContainsString('( Maurissa )', $html);
+        $this->assertStringContainsString('font-family:"Times New Roman",Times,serif', $html);
+        $this->assertStringContainsString('.ttd-nama-paren{text-decoration:underline;text-transform:uppercase', $html);
+        $this->assertStringContainsString('.ttd-sign-stack .ttd-img img{display:inline-block;max-width:95%;max-height:2.8cm', $html);
+    }
+
     public function test_preview_includes_signature_image_in_ttd_area(): void
     {
         [, $staff, $application] = $this->createLetterReadyApplication();
@@ -1169,5 +1188,77 @@ class LetterComposeTest extends TestCase
         imagedestroy($image);
 
         return 'data:image/png;base64,'.base64_encode($png ?: '');
+    }
+
+    private function attachSampleStamp(RtProfile $profile): void
+    {
+        Storage::fake('public');
+
+        $image = imagecreatetruecolor(120, 120);
+        $white = imagecolorallocate($image, 255, 255, 255);
+        $red = imagecolorallocate($image, 180, 0, 0);
+        imagefill($image, 0, 0, $white);
+        imageellipse($image, 60, 60, 100, 100, $red);
+        imagestring($image, 3, 28, 54, 'RT', $red);
+
+        ob_start();
+        imagepng($image);
+        $png = ob_get_clean();
+        imagedestroy($image);
+
+        $path = 'stamps/rt-'.RtProfile::normalizeRtNumber($profile->rt_number).'.png';
+        Storage::disk('public')->put($path, $png ?: '');
+        $profile->update(['stamp_path' => $path]);
+    }
+
+    public function test_preview_includes_rt_stamp_above_signature_when_signed(): void
+    {
+        [$profile, $staff, $application] = $this->createLetterReadyApplication();
+        $this->attachSampleStamp($profile);
+
+        $response = $this->actingAs($staff)
+            ->post(route('rt.applications.letter.preview', $application), [
+                'fields' => $this->sampleFields(),
+                'signature_data' => $this->sampleSignatureDataUri(),
+            ]);
+
+        $response->assertOk();
+        $html = $response->getContent();
+        $this->assertStringContainsString('class="ttd-sign-stack ttd-sign-stack--with-cap"', $html);
+        $this->assertStringContainsString('class="ttd-sign-block ttd-sign-block--with-cap"', $html);
+        $this->assertMatchesRegularExpression('/class="ttd-sign-stack ttd-sign-stack--with-cap"[^>]*>[\s\S]*?class="ttd-img"[\s\S]*?class="ttd-cap"/i', $html);
+        $this->assertMatchesRegularExpression('/class="ttd-cap"[^>]*>[\s\S]*?alt="Cap resmi RT"/i', $html);
+        $this->assertStringContainsString('.ttd-sign-stack--with-cap{height:2.9cm;overflow:visible}', $html);
+        $this->assertStringContainsString('.ttd-sign-stack--with-cap .ttd-cap img{display:block;max-height:4.2cm;max-width:4.2cm', $html);
+    }
+
+    public function test_preview_omits_rt_stamp_without_signature(): void
+    {
+        [$profile, $staff, $application] = $this->createLetterReadyApplication();
+        $this->attachSampleStamp($profile);
+
+        $response = $this->actingAs($staff)
+            ->post(route('rt.applications.letter.preview', $application), [
+                'fields' => $this->sampleFields(),
+            ]);
+
+        $response->assertOk();
+        $html = $response->getContent();
+        $this->assertStringNotContainsString('alt="Cap resmi RT"', $html);
+        $this->assertDoesNotMatchRegularExpression('/<div class="ttd-cap"[^>]*>[\s\S]*?<img/i', $html);
+    }
+
+    public function test_preview_omits_rt_stamp_when_profile_has_no_stamp_file(): void
+    {
+        [, $staff, $application] = $this->createLetterReadyApplication();
+
+        $response = $this->actingAs($staff)
+            ->post(route('rt.applications.letter.preview', $application), [
+                'fields' => $this->sampleFields(),
+                'signature_data' => $this->sampleSignatureDataUri(),
+            ]);
+
+        $response->assertOk();
+        $this->assertStringNotContainsString('alt="Cap resmi RT"', $response->getContent());
     }
 }

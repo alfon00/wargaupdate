@@ -117,7 +117,9 @@ class PublicationWhatsAppTest extends TestCase
         [, $staff, $publication] = $this->seedPublication();
 
         $this->actingAs($staff)
-            ->post(route('rt.pengumuman.whatsapp', $publication))
+            ->post(route('rt.pengumuman.whatsapp', $publication), [
+                'recipient_mode' => 'all',
+            ])
             ->assertRedirect(route('rt.pengumuman.edit', $publication))
             ->assertSessionHas('success');
 
@@ -191,7 +193,9 @@ class PublicationWhatsAppTest extends TestCase
         ]);
 
         $this->actingAs($staff)
-            ->post(route('rt.pengumuman.whatsapp', $publication))
+            ->post(route('rt.pengumuman.whatsapp', $publication), [
+                'recipient_mode' => 'all',
+            ])
             ->assertRedirect(route('rt.pengumuman.edit', $publication))
             ->assertSessionHas('success');
 
@@ -224,6 +228,92 @@ class PublicationWhatsAppTest extends TestCase
             ->get(route('rt.pengumuman.edit', $publication))
             ->assertOk()
             ->assertSee('Kirim WhatsApp ke warga', false)
+            ->assertSee('Semua warga RT dengan notifikasi WhatsApp aktif', false)
+            ->assertSee('Pilih warga tertentu', false)
             ->assertSee('Pengumuman dikirim', false);
+    }
+
+    public function test_publication_broadcast_can_target_selected_residents_only(): void
+    {
+        $this->fakeWahaWorking();
+
+        $profile = RtProfile::create([
+            'rt_number' => '008',
+            'rw_number' => '005',
+            'kelurahan' => 'Kelurahan Inauga',
+            'kecamatan' => 'Distrik Wania',
+            'kota' => 'Kabupaten Mimika',
+            'provinsi' => 'Papua Tengah',
+            'ketua_rt' => 'Ketua RT 008',
+        ]);
+
+        $staff = User::create([
+            'name' => 'Ketua RT 008',
+            'email' => 'pub-select@test.local',
+            'password' => Hash::make('password'),
+            'role' => UserRole::KetuaRt,
+            'rt_profile_id' => $profile->id,
+        ]);
+
+        $householdA = Household::create([
+            'rt_profile_id' => $profile->id,
+            'family_card_number' => '3201010101010401',
+            'address' => 'Jl. Select A',
+            'status' => 'aktif',
+        ]);
+
+        $residentA = Resident::create([
+            'household_id' => $householdA->id,
+            'nik' => '3201010101010401',
+            'name' => 'Warga Terpilih',
+            'phone' => '081234567841',
+            'whatsapp_notify' => true,
+            'is_head_of_family' => true,
+            'domicile_status' => DomicileStatus::Aktif,
+        ]);
+
+        $householdB = Household::create([
+            'rt_profile_id' => $profile->id,
+            'family_card_number' => '3201010101010402',
+            'address' => 'Jl. Select B',
+            'status' => 'aktif',
+        ]);
+
+        Resident::create([
+            'household_id' => $householdB->id,
+            'nik' => '3201010101010402',
+            'name' => 'Warga Lain',
+            'phone' => '081234567842',
+            'whatsapp_notify' => true,
+            'is_head_of_family' => true,
+            'domicile_status' => DomicileStatus::Aktif,
+        ]);
+
+        $publication = RtPublication::create([
+            'rt_profile_id' => $profile->id,
+            'type' => RtPublicationType::Kegiatan,
+            'judul' => 'Kegiatan Kerja Bakti',
+            'ringkasan' => 'Kerja bakti lingkungan.',
+            'tanggal' => now()->toDateString(),
+            'is_published' => true,
+            'published_at' => now(),
+        ]);
+
+        $this->actingAs($staff)
+            ->post(route('rt.kegiatan.whatsapp', $publication), [
+                'recipient_mode' => 'selected',
+                'resident_ids' => [$residentA->id],
+            ])
+            ->assertRedirect(route('rt.kegiatan.edit', $publication))
+            ->assertSessionHas('success');
+
+        $logs = NotificationLog::query()
+            ->forPublication($publication->id)
+            ->get();
+
+        $this->assertCount(1, $logs);
+        $this->assertSame('sent', $logs->first()->status);
+        $this->assertSame('081234567841', $logs->first()->phone);
+        $this->assertSame($residentA->id, $logs->first()->resident_id);
     }
 }
