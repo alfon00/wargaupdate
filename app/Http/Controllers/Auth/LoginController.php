@@ -45,26 +45,6 @@ class LoginController extends Controller
         $request->session()->regenerate();
         $user = $request->user();
 
-        if ($user->role === UserRole::Warga) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            return back()->withErrors([
-                'email' => 'Akun warga tidak dapat masuk di sini. Gunakan Lacak permohonan.',
-            ])->onlyInput('email');
-        }
-
-        if ($user->role === UserRole::Kelurahan) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            return back()->withErrors([
-                'email' => 'Akun ini tidak memiliki akses panel pengurus.',
-            ])->onlyInput('email');
-        }
-
         if (! $user->role?->isPengurus()) {
             Auth::logout();
             $request->session()->invalidate();

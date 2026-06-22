@@ -5,7 +5,7 @@
 @section('content')
 <div class="lw-rt-page lw-rt-data-page">
 @include('kelurahan.partials.page-head', [
-    'eyebrow' => 'Monitoring · Data warga',
+    'eyebrow' => 'Panel Kelurahan · Data warga',
     'title' => 'Data warga lengkap',
     'lead' => 'Daftar warga seluruh RT — mode baca saja. Filter per RT atau status domisili.',
 ])

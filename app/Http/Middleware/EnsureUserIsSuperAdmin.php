@@ -10,8 +10,8 @@ class EnsureUserIsSuperAdmin
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user()?->isSuperAdmin()) {
-            abort(403, 'Akses hanya untuk admin sistem.');
+        if (! $request->user()?->isKelurahan()) {
+            abort(403, 'Akses hanya untuk akun kelurahan.');
         }
 
         return $next($request);

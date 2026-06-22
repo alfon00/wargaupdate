@@ -12,7 +12,7 @@
         $rtProfile !== null => \App\Models\Application::forRtProfile($rtProfile)
             ->pendingRtSidebar()
             ->count(),
-        auth()->user()->isKelurahan(), auth()->user()->isSuperAdmin() => \App\Models\Application::pendingRtSidebar()->count(),
+        auth()->user()->isKelurahan() => \App\Models\Application::pendingRtSidebar()->count(),
         default => 0,
     };
     $newReports = match (true) {
@@ -23,14 +23,14 @@
         default => 0,
     };
 
-    $rtStaffWithoutProfile = auth()->user()->isSuperAdmin()
+    $rtStaffWithoutProfile = auth()->user()->isKelurahan()
         ? \App\Models\User::query()
             ->whereIn('role', [\App\Enums\UserRole::KetuaRt, \App\Enums\UserRole::SekretarisRt])
             ->whereNull('rt_profile_id')
             ->count()
         : 0;
 
-    $pendingDeletionRequests = auth()->user()->isSuperAdmin()
+    $pendingDeletionRequests = auth()->user()->isKelurahan()
         ? \App\Models\PermanentDeletionRequest::query()->pending()->count()
         : 0;
 
@@ -42,7 +42,7 @@
 <aside class="lw-panel-sidebar" aria-label="Menu panel pengurus">
     <div class="lw-panel-sidebar-inner">
         <div class="lw-panel-brand">
-            <p class="lw-panel-brand-eyebrow">@if(auth()->user()->isSuperAdmin())Admin sistem @elseif(auth()->user()->isRtStaff())Panel RT @elseif(auth()->user()->isKelurahan())Monitoring @else Panel pengurus @endif</p>
+            <p class="lw-panel-brand-eyebrow">{{ auth()->user()->role?->panelEyebrow() ?? 'Panel pengurus' }}</p>
             <p class="lw-panel-brand-title">{{ config('kelurahan.portal_nama', 'Layanan Warga RT') }}</p>
             @if($rtProfile)
                 <p class="lw-panel-brand-sub">{{ $rtProfile->displayName() }}</p>
@@ -113,52 +113,6 @@
                     </a>
                 </div>
             @elseif(auth()->user()->isKelurahan())
-                <a href="{{ route('kelurahan.dashboard') }}" class="{{ $linkClass(request()->routeIs('kelurahan.dashboard')) }}">
-                    <span class="lw-panel-nav-link-inner">
-                        <svg class="lw-panel-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                        Dashboard
-                    </span>
-                </a>
-                <div class="lw-panel-nav-group">
-                    <p class="lw-panel-nav-group-label">Monitoring</p>
-                    <a href="{{ route('kelurahan.applications.index') }}" class="{{ $linkClass(request()->routeIs('kelurahan.applications.*')) }}">
-                        <span class="lw-panel-nav-link-inner">
-                            <svg class="lw-panel-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-                            Permohonan
-                        </span>
-                        @if($pendingApps > 0)
-                            <span class="lw-panel-badge lw-panel-badge--muted">{{ $pendingApps }}</span>
-                        @endif
-                    </a>
-                </div>
-                <div class="lw-panel-nav-group">
-                    <p class="lw-panel-nav-group-label">Publikasi</p>
-                    <a href="{{ route('kelurahan.kegiatan.index') }}" class="{{ $linkClass(request()->routeIs('kelurahan.kegiatan.*') || request()->routeIs('kelurahan.pengumuman.*')) }}">
-                        <span class="lw-panel-nav-link-inner">
-                            <svg class="lw-panel-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                            Kegiatan &amp; pengumuman
-                        </span>
-                    </a>
-                </div>
-                <div class="lw-panel-nav-group">
-                    <p class="lw-panel-nav-group-label">Data</p>
-                    <a href="{{ route('kelurahan.population.index') }}" class="{{ $linkClass(request()->routeIs('kelurahan.population.*')) }}">
-                        <span class="lw-panel-nav-link-inner">
-                            <svg class="lw-panel-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                            Data warga lengkap
-                        </span>
-                    </a>
-                    <a href="{{ route('kelurahan.reports.index') }}" class="{{ $linkClass(request()->routeIs('kelurahan.reports.*')) }}">
-                        <span class="lw-panel-nav-link-inner">
-                            <svg class="lw-panel-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                            Laporan warga
-                        </span>
-                        @if($newReports > 0)
-                            <span class="lw-panel-badge">{{ $newReports }}</span>
-                        @endif
-                    </a>
-                </div>
-            @elseif(auth()->user()->isSuperAdmin())
                 <a href="{{ route('admin.dashboard') }}" class="{{ $linkClass(request()->routeIs('admin.dashboard')) }}">
                     <span class="lw-admin-nav-link-inner">
                         <svg class="lw-admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -166,7 +120,7 @@
                     </span>
                 </a>
                 <div class="lw-admin-nav-group">
-                    <p class="lw-admin-nav-group-label">Monitoring operasional</p>
+                    <p class="lw-admin-nav-group-label">Monitoring wilayah</p>
                     <a href="{{ route('kelurahan.applications.index') }}" class="{{ $linkClass(request()->routeIs('kelurahan.applications.*')) }}">
                         <span class="lw-admin-nav-link-inner">
                             <svg class="lw-admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
@@ -181,6 +135,15 @@
                             <svg class="lw-admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                             Data warga lengkap
                         </span>
+                    </a>
+                    <a href="{{ route('kelurahan.reports.index') }}" class="{{ $linkClass(request()->routeIs('kelurahan.reports.*')) }}">
+                        <span class="lw-admin-nav-link-inner">
+                            <svg class="lw-admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            Laporan warga
+                        </span>
+                        @if($newReports > 0)
+                            <span class="lw-panel-badge">{{ $newReports }}</span>
+                        @endif
                     </a>
                 </div>
                 <div class="lw-admin-nav-group">
@@ -230,7 +193,7 @@
 
         <div class="lw-panel-user">
             <a href="{{ auth()->user()->profileRoute() }}"
-               class="lw-panel-user-link{{ request()->routeIs('admin.profile*', 'rt.profile', 'kelurahan.profile') ? ' lw-panel-user-link--active' : '' }}"
+               class="lw-panel-user-link{{ request()->routeIs('admin.profile*', 'rt.profile') ? ' lw-panel-user-link--active' : '' }}"
                aria-label="Profil saya">
                 <img src="{{ auth()->user()->avatarUrl() }}" alt="" class="lw-panel-user-avatar" width="36" height="36">
                 <div class="lw-panel-user-meta">

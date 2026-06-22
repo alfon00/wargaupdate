@@ -8,7 +8,7 @@
     <section class="lw-kel-pop-toolbar lw-kel-no-print">
         <div class="lw-kel-pop-toolbar-head">
             @include('kelurahan.partials.page-head', [
-                'eyebrow' => 'Monitoring · Rekap',
+                'eyebrow' => 'Panel Kelurahan · Rekap',
                 'title' => 'Data Penduduk per RT',
                 'lead' => 'Satu baris = satu KK · warga aktif · komposisi usia opsional.',
             ])

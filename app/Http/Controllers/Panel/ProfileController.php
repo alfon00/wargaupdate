@@ -21,7 +21,7 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->isSuperAdmin()) {
+        if ($user->isKelurahan()) {
             return redirect()->route('admin.profile');
         }
 
@@ -32,7 +32,7 @@ class ProfileController extends Controller
 
     public function indexAdmin(): View
     {
-        abort_unless(auth()->user()?->isSuperAdmin(), 403);
+        abort_unless(auth()->user()?->isKelurahan(), 403);
 
         $user = auth()->user();
         $lurah = KelurahanOfficial::publicLurahArray();
@@ -45,7 +45,7 @@ class ProfileController extends Controller
 
     public function showAccount(): View
     {
-        abort_unless(auth()->user()?->isSuperAdmin(), 403);
+        abort_unless(auth()->user()?->isKelurahan(), 403);
 
         return view('panel.profile.admin-account-show', [
             'user' => auth()->user(),
@@ -54,7 +54,7 @@ class ProfileController extends Controller
 
     public function editAccount(): View
     {
-        abort_unless(auth()->user()?->isSuperAdmin(), 403);
+        abort_unless(auth()->user()?->isKelurahan(), 403);
 
         return view('panel.profile.admin-account-edit', [
             'user' => auth()->user(),
@@ -63,7 +63,7 @@ class ProfileController extends Controller
 
     public function showKelurahan(): View
     {
-        abort_unless(auth()->user()?->isSuperAdmin(), 403);
+        abort_unless(auth()->user()?->isKelurahan(), 403);
 
         return view('panel.profile.admin-kelurahan-show', [
             'lurah' => KelurahanOfficial::publicLurahArray(),
@@ -72,7 +72,7 @@ class ProfileController extends Controller
 
     public function editKelurahan(): View
     {
-        abort_unless(auth()->user()?->isSuperAdmin(), 403);
+        abort_unless(auth()->user()?->isKelurahan(), 403);
 
         return view('panel.profile.admin-kelurahan-edit', [
             'lurahOfficial' => KelurahanOfficial::lurah(),
@@ -155,11 +155,11 @@ class ProfileController extends Controller
 
         app(SyncUserPublicProfile::class)->sync($user->fresh());
 
-        $redirectRoute = $user->isSuperAdmin()
+        $redirectRoute = $user->isKelurahan()
             ? route('admin.profile.account.show')
             : $user->profileRoute();
 
-        $message = $user->isSuperAdmin()
+        $message = $user->isKelurahan()
             ? 'Profil akun berhasil diperbarui.'
             : 'Profil berhasil diperbarui dan disinkronkan ke halaman Profil publik.';
 
@@ -168,7 +168,7 @@ class ProfileController extends Controller
 
     public function updateKelurahanPublicProfile(Request $request): RedirectResponse
     {
-        abort_unless($request->user()?->isSuperAdmin(), 403);
+        abort_unless($request->user()?->isKelurahan(), 403);
 
         $validated = $request->validate([
             'jabatan' => ['required', 'string', 'max:255'],
@@ -216,7 +216,7 @@ class ProfileController extends Controller
 
     public function destroyKelurahanPublicPhoto(Request $request): RedirectResponse
     {
-        abort_unless($request->user()?->isSuperAdmin(), 403);
+        abort_unless($request->user()?->isKelurahan(), 403);
 
         $official = KelurahanOfficial::lurah();
 
@@ -241,7 +241,7 @@ class ProfileController extends Controller
             app(SyncUserPublicProfile::class)->sync($user->fresh());
         }
 
-        $redirectRoute = $user->isSuperAdmin()
+        $redirectRoute = $user->isKelurahan()
             ? route('admin.profile.account.edit')
             : $user->profileRoute();
 

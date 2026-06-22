@@ -11,7 +11,7 @@
     $canDelete = $resident->canBePermanentlyDeleted();
     $deleteReason = $resident->deletionBlockReason();
     $isArchived = $resident->domicile_status?->isArchived() ?? false;
-    $deleteConfirm = 'Ajukan hapus permanen data '.$resident->name.'? Data akan dihapus setelah admin sistem menyetujui.';
+    $deleteConfirm = 'Ajukan hapus permanen data '.$resident->name.'? Data akan dihapus setelah admin kelurahan menyetujui.';
 @endphp
 
 <section id="kelola-data-warga" aria-labelledby="rt-resident-manage-title">
@@ -32,8 +32,8 @@
 
     @include('rt.partials.delete-danger-zone', [
         'description' => $isArchived
-            ? 'Ajukan penghapusan permanen data arsip ke admin sistem. Memerlukan tanda tangan Ketua RT.'
-            : 'Ajukan penghapusan permanen ke admin sistem. Memerlukan tanda tangan Ketua RT.',
+            ? 'Ajukan penghapusan permanen data arsip ke admin kelurahan. Memerlukan tanda tangan Ketua RT.'
+            : 'Ajukan penghapusan permanen ke admin kelurahan. Memerlukan tanda tangan Ketua RT.',
         'label' => $isArchived ? 'Ajukan hapus arsip permanen' : 'Ajukan hapus permanen',
         'confirm' => $deleteConfirm,
         'action' => route('rt.residents.destroy', $resident),

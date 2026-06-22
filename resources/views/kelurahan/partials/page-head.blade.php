@@ -1,6 +1,6 @@
 <x-panel.page-head
     :title="$title"
-    :eyebrow="$eyebrow ?? 'Monitoring'"
+    :eyebrow="$eyebrow ?? 'Panel Kelurahan'"
     :lead="$lead ?? null"
 >
     @isset($actions)

@@ -199,7 +199,7 @@ class Resident extends Model
     public function deletionBlockReason(): ?string
     {
         if ($this->hasPendingDeletionRequest()) {
-            return 'Pengajuan hapus permanen sedang menunggu persetujuan admin sistem.';
+            return 'Pengajuan hapus permanen sedang menunggu persetujuan admin kelurahan.';
         }
 
         return app(\App\Services\RtResidentDeletionService::class)->canDeleteResident($this)['reason'];

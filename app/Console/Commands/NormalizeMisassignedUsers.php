@@ -33,14 +33,14 @@ class NormalizeMisassignedUsers extends Command
 
         foreach ($candidates as $user) {
             $this->line(sprintf(
-                '- %s (%s) → super_admin, rt_profile_id = null',
+                '- %s (%s) → kelurahan, rt_profile_id = null',
                 $user->email,
                 $user->name
             ));
 
             if (! $dryRun) {
                 $user->update([
-                    'role' => UserRole::SuperAdmin,
+                    'role' => UserRole::Kelurahan,
                     'rt_profile_id' => null,
                 ]);
             }

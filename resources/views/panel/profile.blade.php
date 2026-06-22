@@ -6,8 +6,7 @@
 @php
     $eyebrow = match (true) {
         $user->isRtStaff() => 'Panel RT',
-        $user->isKelurahan() => 'Monitoring · Panel',
-        $user->isSuperAdmin() => 'Admin sistem',
+        $user->isKelurahan() => $user->role->label(),
         default => 'Panel pengurus',
     };
     $linkedRt = $user->isRtStaff() ? $user->resolvedRtProfile() : null;

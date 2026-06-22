@@ -1,8 +1,8 @@
 @php
     $title = $title ?? 'Zona berbahaya';
-    $description = $description ?? 'Mengajukan penghapusan permanen ke admin sistem. Memerlukan tanda tangan Ketua RT dan persetujuan admin.';
+    $description = $description ?? 'Mengajukan penghapusan permanen ke admin kelurahan. Memerlukan tanda tangan Ketua RT dan persetujuan admin kelurahan.';
     $label = $label ?? 'Ajukan hapus permanen';
-    $confirm = $confirm ?? 'Ajukan hapus permanen? Data akan dihapus setelah admin sistem menyetujui.';
+    $confirm = $confirm ?? 'Ajukan hapus permanen? Data akan dihapus setelah admin kelurahan menyetujui.';
 @endphp
 
 <section class="lw-panel-danger-zone lw-mt-6" aria-labelledby="rt-delete-danger-title">

@@ -152,8 +152,12 @@ class PanelUiTest extends TestCase
 
         $this->actingAs($kelurahan)
             ->get(route('kelurahan.dashboard'))
+            ->assertRedirect(route('admin.dashboard'));
+
+        $this->actingAs($kelurahan)
+            ->get(route('admin.dashboard'))
             ->assertOk()
-            ->assertSee('Dashboard Monitoring')
+            ->assertSee('Dashboard operasional')
             ->assertSee('Laporan warga terbaru')
             ->assertSee('lw-kel-page', false);
 
@@ -172,10 +176,10 @@ class PanelUiTest extends TestCase
     public function test_admin_panel_still_renders_after_shared_components(): void
     {
         $admin = User::create([
-            'name' => 'Admin Sistem',
-            'email' => 'super-admin@test.local',
+            'name' => 'Admin Kelurahan',
+            'email' => 'kelurahan-admin@test.local',
             'password' => Hash::make('password'),
-            'role' => UserRole::SuperAdmin,
+            'role' => UserRole::Kelurahan,
         ]);
 
         $this->actingAs($admin)
@@ -220,10 +224,10 @@ class PanelUiTest extends TestCase
         ]);
 
         $this->actingAs($kelurahan)
-            ->get(route('kelurahan.dashboard'))
+            ->get(route('admin.dashboard'))
             ->assertOk()
             ->assertDontSee('lw-panel-nav-group-label">Akun', false)
             ->assertSee('lw-panel-user-link', false)
-            ->assertSee(route('kelurahan.profile'), false);
+            ->assertSee(route('admin.profile'), false);
     }
 }

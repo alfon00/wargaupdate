@@ -11,7 +11,7 @@
 
 @include('kelurahan.partials.page-head', [
     'title' => $type->label(),
-    'lead' => 'Monitoring '.strtolower($type->label()).' dari seluruh RT — hanya baca.',
+    'lead' => 'Memantau '.strtolower($type->label()).' dari seluruh RT — hanya baca.',
     'actions' => '<a href="'.route('activities.index').'" target="_blank" rel="noopener" class="lw-panel-btn lw-panel-btn--secondary lw-panel-btn--sm">Lihat di portal</a>',
 ])
 

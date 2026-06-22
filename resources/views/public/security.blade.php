@@ -19,7 +19,7 @@
 
             <h3 class="lw-security-subheading">Panduan praktis</h3>
             <ul class="lw-security-list">
-                <li>Form login hanya di <a href="{{ route('login.hub') }}" class="lw-inline-link">/akses-pengurus</a> untuk pengurus RT dan admin.</li>
+                <li>Form login hanya di <a href="{{ route('login.hub') }}" class="lw-inline-link">/akses-pengurus</a> untuk pengurus RT dan kelurahan.</li>
                 <li>Warga mengajukan surat dan pendataan di <a href="{{ route('services.index') }}" class="lw-inline-link">/layanan</a> tanpa login.</li>
                 <li>Laporkan halaman mencurigakan atau kendala portal melalui <a href="{{ route('contact.create') }}" class="lw-inline-link">formulir Kontak &amp; laporan</a>.</li>
                 <li>Pastikan alamat di bilah alamat browser adalah <strong>layananwarga.my.id</strong> sebelum mengisi data.</li>

@@ -10,8 +10,8 @@ class EnsureUserIsKelurahan
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user()?->isKelurahan() && ! $request->user()?->isSuperAdmin()) {
-            abort(403, 'Akses hanya untuk petugas kelurahan.');
+        if (! $request->user()?->isKelurahan()) {
+            abort(403, 'Akses hanya untuk akun kelurahan.');
         }
 
         return $next($request);

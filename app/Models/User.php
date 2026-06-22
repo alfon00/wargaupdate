@@ -84,22 +84,6 @@ class User extends Authenticatable
         return $this->role?->isKelurahan() ?? false;
     }
 
-    public function isSuperAdmin(): bool
-    {
-        return $this->role?->isSuperAdmin() ?? false;
-    }
-
-    public function isWarga(): bool
-    {
-        return $this->role === UserRole::Warga;
-    }
-
-    /** @deprecated Use isRtStaff() or isSuperAdmin() */
-    public function isStaff(): bool
-    {
-        return $this->role?->isStaff() ?? false;
-    }
-
     public function canManageApplications(): bool
     {
         return $this->isRtStaff();
@@ -114,9 +98,7 @@ class User extends Authenticatable
     {
         return match ($this->role) {
             UserRole::KetuaRt, UserRole::SekretarisRt => route('rt.dashboard'),
-            UserRole::Kelurahan => route('kelurahan.dashboard'),
-            UserRole::SuperAdmin => route('admin.dashboard'),
-            UserRole::Warga => route('portal.dashboard'),
+            UserRole::Kelurahan => route('admin.dashboard'),
             default => route('home'),
         };
     }
@@ -125,8 +107,7 @@ class User extends Authenticatable
     {
         return match ($this->role) {
             UserRole::KetuaRt, UserRole::SekretarisRt => route('rt.profile'),
-            UserRole::Kelurahan => route('kelurahan.profile'),
-            UserRole::SuperAdmin => route('admin.profile'),
+            UserRole::Kelurahan => route('admin.profile'),
             default => route('home'),
         };
     }
@@ -135,8 +116,7 @@ class User extends Authenticatable
     {
         return match ($this->role) {
             UserRole::KetuaRt, UserRole::SekretarisRt => route('rt.profile.update'),
-            UserRole::Kelurahan => route('kelurahan.profile.update'),
-            UserRole::SuperAdmin => route('admin.profile.update'),
+            UserRole::Kelurahan => route('admin.profile.update'),
             default => route('home'),
         };
     }
@@ -145,8 +125,7 @@ class User extends Authenticatable
     {
         return match ($this->role) {
             UserRole::KetuaRt, UserRole::SekretarisRt => route('rt.profile.avatar.destroy'),
-            UserRole::Kelurahan => route('kelurahan.profile.avatar.destroy'),
-            UserRole::SuperAdmin => route('admin.profile.avatar.destroy'),
+            UserRole::Kelurahan => route('admin.profile.avatar.destroy'),
             default => route('home'),
         };
     }

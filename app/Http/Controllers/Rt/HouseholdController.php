@@ -103,7 +103,7 @@ class HouseholdController extends Controller
                 'kategori' => request('kategori'),
                 'household' => $household->id,
             ]))
-            ->with('success', 'Pengajuan hapus permanen KK dikirim ke admin sistem. Data belum dihapus sampai disetujui.');
+            ->with('success', 'Pengajuan hapus permanen KK dikirim ke admin kelurahan. Data belum dihapus sampai disetujui.');
     }
 
     /** @return array<string, mixed> */

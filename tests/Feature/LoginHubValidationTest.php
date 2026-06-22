@@ -23,10 +23,10 @@ class LoginHubValidationTest extends TestCase
         ]);
     }
 
-    public function test_kelurahan_account_cannot_login_via_hub(): void
+    public function test_kelurahan_account_can_login_via_hub(): void
     {
         User::create([
-            'name' => 'Monitoring Kelurahan',
+            'name' => 'Petugas Kelurahan',
             'email' => 'kelurahan-login@test.local',
             'password' => Hash::make('password'),
             'role' => UserRole::Kelurahan,
@@ -36,9 +36,9 @@ class LoginHubValidationTest extends TestCase
             'email' => 'kelurahan-login@test.local',
             'password' => 'password',
         ])
-            ->assertSessionHasErrors('email');
+            ->assertRedirect(route('admin.dashboard'));
 
-        $this->assertGuest();
+        $this->assertAuthenticated();
     }
 }
 

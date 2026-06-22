@@ -6,7 +6,7 @@
 <div class="lw-admin-page">
 @include('admin.partials.page-head', [
     'title' => 'Pengguna',
-    'lead' => 'Buat akun pengurus dan tautkan ketua/sekretaris RT ke profil RT yang sesuai.',
+    'lead' => 'Buat akun pengurus RT atau kelurahan, lalu tautkan ketua/sekretaris RT ke profil RT yang sesuai.',
 ])
 
 <x-admin.page-toolbar
@@ -38,7 +38,7 @@
 @if($users->isEmpty())
     <x-admin.empty-state
         title="Belum ada pengguna ditemukan"
-        :description="request()->hasAny(['q', 'role']) ? 'Coba ubah kata kunci atau reset filter.' : 'Buat akun pengurus pertama untuk panel RT dan kelurahan.'"
+        :description="request()->hasAny(['q', 'role']) ? 'Coba ubah kata kunci atau reset filter.' : 'Buat akun pengurus RT atau kelurahan pertama.'"
         :action-url="route('admin.users.create')"
         action-label="+ Tambah pengguna"
     />

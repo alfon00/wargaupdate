@@ -47,13 +47,13 @@ class PermanentDeletionRequestTest extends TestCase
         return [$staff, $profile, $household];
     }
 
-    private function createSuperAdmin(): User
+    private function createKelurahanUser(): User
     {
         return User::create([
-            'name' => 'Admin Sistem',
+            'name' => 'Admin Kelurahan',
             'email' => 'super-admin-delete-req@test.local',
             'password' => Hash::make('password'),
-            'role' => UserRole::SuperAdmin,
+            'role' => UserRole::Kelurahan,
         ]);
     }
 
@@ -117,7 +117,7 @@ class PermanentDeletionRequestTest extends TestCase
     public function test_admin_approve_deletes_resident(): void
     {
         [$staff, , $household] = $this->seedRtWithHousehold();
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $member = Resident::create([
             'household_id' => $household->id,
@@ -156,7 +156,7 @@ class PermanentDeletionRequestTest extends TestCase
     public function test_admin_reject_keeps_resident(): void
     {
         [$staff, , $household] = $this->seedRtWithHousehold();
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $member = Resident::create([
             'household_id' => $household->id,
@@ -263,14 +263,14 @@ class PermanentDeletionRequestTest extends TestCase
         $this->actingAs($staff)
             ->get(route('rt.residents.show', $member))
             ->assertOk()
-            ->assertSee('menunggu persetujuan admin sistem', false)
-            ->assertSee('Pengajuan hapus permanen sedang menunggu persetujuan admin sistem.', false);
+            ->assertSee('menunggu persetujuan admin kelurahan', false)
+            ->assertSee('Pengajuan hapus permanen sedang menunggu persetujuan admin kelurahan.', false);
     }
 
     public function test_admin_deletion_index_defaults_to_pending_and_supports_filters(): void
     {
         [$staff, $profile, $household] = $this->seedRtWithHousehold();
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         PermanentDeletionRequest::create([
             'request_number' => 'DEL-RT008-202606100001',

@@ -13,13 +13,13 @@ class AdminPanelUiTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function createSuperAdmin(): User
+    private function createKelurahanUser(): User
     {
         return User::create([
-            'name' => 'Admin Sistem',
-            'email' => 'super-admin@test.local',
+            'name' => 'Admin Kelurahan',
+            'email' => 'kelurahan-admin@test.local',
             'password' => Hash::make('password'),
-            'role' => UserRole::SuperAdmin,
+            'role' => UserRole::Kelurahan,
         ]);
     }
 
@@ -38,7 +38,7 @@ class AdminPanelUiTest extends TestCase
 
     public function test_admin_pages_render_for_super_admin(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $dashboard = $this->actingAs($admin)
             ->get(route('admin.dashboard'))
@@ -53,7 +53,7 @@ class AdminPanelUiTest extends TestCase
             ->assertSee('Jenis kelamin')
             ->assertSee('Monografi kependudukan')
             ->assertSee('Tingkat Pendidikan', false)
-            ->assertSee('Monitoring operasional', false)
+            ->assertSee('Monitoring wilayah', false)
             ->assertSee('Permohonan surat', false)
             ->assertSee('Data warga lengkap', false)
             ->assertSee('lw-admin-page', false);
@@ -101,7 +101,7 @@ class AdminPanelUiTest extends TestCase
 
     public function test_user_search_filters_by_name_or_email(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
         User::create([
             'name' => 'Budi Santoso',
             'email' => 'budi@example.test',
@@ -124,7 +124,7 @@ class AdminPanelUiTest extends TestCase
 
     public function test_user_index_delete_button_shows_hapus_not_role_label(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
         User::create([
             'name' => 'Sekretaris Contoh',
             'email' => 'sekretaris@example.test',
@@ -142,7 +142,7 @@ class AdminPanelUiTest extends TestCase
 
     public function test_rt_profile_search_filters_by_rt_number(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
         $this->createRtProfile('008', 'Ketua Delapan');
         $this->createRtProfile('009', 'Ketua Sembilan');
 
@@ -155,7 +155,7 @@ class AdminPanelUiTest extends TestCase
 
     public function test_super_admin_can_access_kelurahan_monitoring_routes(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $this->actingAs($admin)
             ->get(route('kelurahan.dashboard'))
@@ -185,7 +185,7 @@ class AdminPanelUiTest extends TestCase
 
         $this->actingAs($kelurahan)
             ->get(route('kelurahan.dashboard'))
-            ->assertOk();
+            ->assertRedirect(route('admin.dashboard'));
 
         $this->actingAs($kelurahan)
             ->get(route('kelurahan.applications.index'))

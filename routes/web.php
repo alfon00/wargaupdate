@@ -6,8 +6,6 @@ use App\Http\Controllers\Admin\RtProfileController as AdminRtProfileController;
 use App\Http\Controllers\Admin\ServiceTypeController as AdminServiceTypeController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Citizen\ApplicationController as CitizenApplicationController;
-use App\Http\Controllers\Citizen\PortalController;
 use App\Http\Controllers\Kelurahan\ApplicationController as KelurahanApplicationController;
 use App\Http\Controllers\Kelurahan\ContactReportController as KelurahanContactReportController;
 use App\Http\Controllers\Kelurahan\DashboardController as KelurahanDashboardController;
@@ -107,18 +105,6 @@ Route::post('/keluar', [LoginController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
 
-Route::middleware(['auth', 'citizen'])->prefix('portal')->name('portal.')->group(function () {
-    Route::get('/', PortalController::class)->name('dashboard');
-});
-
-Route::middleware(['auth', 'citizen'])->prefix('portal/permohonan')->name('citizen.applications.')->group(function () {
-    Route::get('/', [CitizenApplicationController::class, 'index'])->name('index');
-    Route::get('/baru', [CitizenApplicationController::class, 'create'])->name('create');
-    Route::post('/', [CitizenApplicationController::class, 'store'])->name('store');
-    Route::get('/{application}', [CitizenApplicationController::class, 'show'])->name('show');
-    Route::get('/{application}/unduh', [CitizenApplicationController::class, 'download'])->name('download');
-});
-
 Route::middleware(['auth', 'role.rt'])->prefix('rt')->name('rt.')->group(function () {
     Route::get('/', RtDashboardController::class)->name('dashboard');
     Route::get('pendataan', [PendataanVerificationController::class, 'index'])->name('pendataan.index');
@@ -204,9 +190,6 @@ Route::middleware(['auth', 'role.kelurahan'])->prefix('kelurahan')->name('kelura
     Route::get('laporan', [KelurahanContactReportController::class, 'index'])->name('reports.index');
     Route::get('laporan/{report:report_number}', [KelurahanContactReportController::class, 'show'])->name('reports.show');
     Route::post('laporan/{report:report_number}/status', [KelurahanContactReportController::class, 'updateStatus'])->name('reports.status');
-    Route::get('profil', [PanelProfileController::class, 'edit'])->name('profile');
-    Route::put('profil', [PanelProfileController::class, 'update'])->name('profile.update');
-    Route::delete('profil/foto', [PanelProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
 });
 
 Route::middleware(['auth', 'role.admin'])->prefix('admin')->name('admin.')->group(function () {

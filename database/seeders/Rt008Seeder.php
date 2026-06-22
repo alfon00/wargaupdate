@@ -83,14 +83,5 @@ class Rt008Seeder extends Seeder
             'role' => UserRole::KetuaRt,
             'phone' => '081234567890',
         ]);
-
-        User::create([
-            'name' => 'Warga Contoh',
-            'email' => 'warga@layananwarga.my.id',
-            'password' => Hash::make('WargaDemo!'),
-            'role' => UserRole::Warga,
-            'phone' => '081234567890',
-            'resident_id' => $resident->id,
-        ]);
     }
 }

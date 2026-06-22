@@ -5,7 +5,7 @@
 @section('content')
 <div class="lw-admin-page">
 @include('admin.partials.page-head', [
-    'eyebrow' => 'Admin sistem · '.config('kelurahan.nama'),
+    'eyebrow' => 'Panel Kelurahan · '.config('kelurahan.nama'),
     'title' => 'Dashboard operasional',
     'lead' => 'Ringkasan data warga, permohonan, dan monitoring kependudukan seluruh RT. Mode baca saja — status tidak dapat diubah dari panel ini.',
 ])

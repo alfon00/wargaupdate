@@ -41,13 +41,13 @@ class RtDashboardAnalyticsTest extends TestCase
         ]);
     }
 
-    private function createSuperAdmin(): User
+    private function createKelurahanUser(): User
     {
         return User::create([
-            'name' => 'Admin Sistem',
+            'name' => 'Admin Kelurahan',
             'email' => 'super-admin-analytics@test.local',
             'password' => Hash::make('password'),
-            'role' => UserRole::SuperAdmin,
+            'role' => UserRole::Kelurahan,
         ]);
     }
 
@@ -134,7 +134,7 @@ class RtDashboardAnalyticsTest extends TestCase
     public function test_admin_dashboard_shows_analytics_widgets_with_data(): void
     {
         $profile = $this->createRtProfile();
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
         $household = Household::create([
             'rt_profile_id' => $profile->id,
             'family_card_number' => '3201010101010002',
@@ -186,7 +186,7 @@ class RtDashboardAnalyticsTest extends TestCase
 
     public function test_admin_dashboard_shows_empty_analytics_when_no_residents(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $this->actingAs($admin)
             ->get(route('admin.dashboard'))
@@ -200,7 +200,7 @@ class RtDashboardAnalyticsTest extends TestCase
     public function test_admin_dashboard_shows_partial_gender_empty_when_gender_missing(): void
     {
         $profile = $this->createRtProfile();
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
         $household = Household::create([
             'rt_profile_id' => $profile->id,
             'family_card_number' => '3201010101010005',
@@ -225,7 +225,7 @@ class RtDashboardAnalyticsTest extends TestCase
     public function test_admin_dashboard_shows_education_empty_when_all_unclassified(): void
     {
         $profile = $this->createRtProfile();
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
         $household = Household::create([
             'rt_profile_id' => $profile->id,
             'family_card_number' => '3201010101010006',
@@ -297,7 +297,7 @@ class RtDashboardAnalyticsTest extends TestCase
     public function test_admin_dashboard_monograph_table_renders_full_table(): void
     {
         $profile = $this->createRtProfile('008');
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
         $household = Household::create([
             'rt_profile_id' => $profile->id,
             'family_card_number' => '3201010101010004',

@@ -71,16 +71,6 @@ class KelurahanPublicationTest extends TestCase
         ]);
     }
 
-    private function createSuperAdmin(): User
-    {
-        return User::create([
-            'name' => 'Admin Sistem',
-            'email' => 'super-admin-pub@test.local',
-            'password' => Hash::make('password'),
-            'role' => UserRole::SuperAdmin,
-        ]);
-    }
-
     public function test_kelurahan_can_monitor_kegiatan_from_all_rt(): void
     {
         [$rtA, $rtB, $kegiatanA, $kegiatanB] = $this->seedPublications();
@@ -100,7 +90,7 @@ class KelurahanPublicationTest extends TestCase
     public function test_super_admin_can_monitor_kegiatan(): void
     {
         $this->seedPublications();
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $this->actingAs($admin)
             ->get(route('kelurahan.kegiatan.index'))
@@ -140,7 +130,7 @@ class KelurahanPublicationTest extends TestCase
 
     public function test_admin_sidebar_includes_kegiatan_menu_link(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $this->actingAs($admin)
             ->get(route('admin.dashboard'))
@@ -154,7 +144,7 @@ class KelurahanPublicationTest extends TestCase
         $kelurahan = $this->createKelurahanUser();
 
         $this->actingAs($kelurahan)
-            ->get(route('kelurahan.dashboard'))
+            ->get(route('admin.dashboard'))
             ->assertOk()
             ->assertSee('Kegiatan &amp; pengumuman', false)
             ->assertSee(route('kelurahan.kegiatan.index'), false);

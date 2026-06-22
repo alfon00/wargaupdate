@@ -21,7 +21,7 @@ class UserController extends Controller
     public function index(): View
     {
         $query = User::query()
-            ->where('role', '!=', UserRole::Warga)
+            ->whereIn('role', array_map(fn (UserRole $role) => $role->value, UserRole::pengurusCases()))
             ->with('rtProfile')
             ->latest();
 
@@ -39,8 +39,7 @@ class UserController extends Controller
 
         $users = $query->paginate(20)->withQueryString();
 
-        $roles = collect(UserRole::cases())
-            ->reject(fn (UserRole $r) => $r === UserRole::Warga)
+        $roles = collect(UserRole::pengurusCases())
             ->mapWithKeys(fn (UserRole $r) => [$r->value => $r->label()]);
 
         return view('admin.users.index', compact('users', 'roles'));
@@ -51,6 +50,10 @@ class UserController extends Controller
         return view('admin.users.form', [
             'user' => new User,
             'roles' => $this->assignableRoles(),
+            'roleGroups' => $this->assignableRoleGroups(),
+            'roleDescriptions' => collect(UserRole::pengurusCases())
+                ->mapWithKeys(fn (UserRole $role) => [$role->value => $role->description()])
+                ->all(),
             'rtProfiles' => RtProfile::inauga()->orderBy('rt_number')->get(),
         ]);
     }
@@ -72,6 +75,10 @@ class UserController extends Controller
         return view('admin.users.form', [
             'user' => $user,
             'roles' => $this->assignableRoles(),
+            'roleGroups' => $this->assignableRoleGroups(),
+            'roleDescriptions' => collect(UserRole::pengurusCases())
+                ->mapWithKeys(fn (UserRole $role) => [$role->value => $role->description()])
+                ->all(),
             'rtProfiles' => RtProfile::inauga()->orderBy('rt_number')->get(),
         ]);
     }
@@ -98,8 +105,8 @@ class UserController extends Controller
             return redirect()->route('admin.users.index')->withErrors(['delete' => 'Anda tidak dapat menghapus akun yang sedang digunakan.']);
         }
 
-        if ($user->role === UserRole::SuperAdmin && User::where('role', UserRole::SuperAdmin)->count() <= 1) {
-            return redirect()->route('admin.users.index')->withErrors(['delete' => 'Tidak dapat menghapus satu-satunya admin sistem.']);
+        if ($user->role === UserRole::Kelurahan && User::where('role', UserRole::Kelurahan)->count() <= 1) {
+            return redirect()->route('admin.users.index')->withErrors(['delete' => 'Tidak dapat menghapus satu-satunya akun kelurahan.']);
         }
 
         if ($user->avatar_path && Storage::disk('public')->exists($user->avatar_path)) {
@@ -114,9 +121,29 @@ class UserController extends Controller
     /** @return array<string, string> */
     private function assignableRoles(): array
     {
-        return collect(UserRole::cases())
-            ->reject(fn (UserRole $role) => $role === UserRole::Warga)
+        return collect(UserRole::pengurusCases())
+            ->sortBy(fn (UserRole $role) => match ($role) {
+                UserRole::KetuaRt => 1,
+                UserRole::SekretarisRt => 2,
+                UserRole::Kelurahan => 3,
+            })
             ->mapWithKeys(fn (UserRole $role) => [$role->value => $role->label()])
+            ->all();
+    }
+
+    /** @return array<string, array<string, string>> */
+    private function assignableRoleGroups(): array
+    {
+        return collect(UserRole::pengurusCases())
+            ->groupBy(fn (UserRole $role) => $role->accountGroup())
+            ->map(fn ($roles) => $roles
+                ->sortBy(fn (UserRole $role) => match ($role) {
+                    UserRole::KetuaRt => 1,
+                    UserRole::SekretarisRt => 2,
+                    UserRole::Kelurahan => 3,
+                })
+                ->mapWithKeys(fn (UserRole $role) => [$role->value => $role->label()])
+                ->all())
             ->all();
     }
 

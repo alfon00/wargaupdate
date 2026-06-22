@@ -1,5 +1,5 @@
 @php
-    $eyebrow = $eyebrow ?? 'Admin sistem';
+    $eyebrow = $eyebrow ?? 'Panel Kelurahan';
     $lead = $lead ?? null;
     $row = $row ?? false;
     $buttonUrl = $buttonUrl ?? null;

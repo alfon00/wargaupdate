@@ -6,7 +6,7 @@
 <div class="lw-admin-page">
 @include('admin.partials.page-head', [
     'title' => ($user->exists ? 'Edit' : 'Tambah').' Pengguna',
-    'lead' => $user->exists ? 'Perbarui data akun pengurus.' : 'Buat akun baru untuk panel pengurus.',
+    'lead' => $user->exists ? 'Perbarui data akun pengurus RT atau kelurahan.' : 'Buat akun pengurus RT (ketua/sekretaris) atau kelurahan.',
 ])
 
 <form method="POST" action="{{ $user->exists ? route('admin.users.update', $user) : route('admin.users.store') }}" class="lw-panel-form lw-panel-form--wide">
@@ -50,10 +50,15 @@
         <div class="lw-panel-field">
             <label for="role">Peran <span class="lw-form-label-required">*</span></label>
             <select id="role" name="role" required>
-                @foreach($roles as $value => $roleLabel)
-                    <option value="{{ $value }}" @selected(old('role', $user->role?->value) === $value)>{{ $roleLabel }}</option>
+                @foreach($roleGroups as $groupLabel => $groupRoles)
+                    <optgroup label="{{ $groupLabel }}">
+                        @foreach($groupRoles as $value => $roleLabel)
+                            <option value="{{ $value }}" @selected(old('role', $user->role?->value) === $value)>{{ $roleLabel }}</option>
+                        @endforeach
+                    </optgroup>
                 @endforeach
             </select>
+            <p id="role-description" class="lw-panel-field-hint"></p>
         </div>
         <div class="lw-panel-field" id="rt-profile-field" hidden>
             <label for="rt_profile_id">Profil RT <span class="lw-form-label-required">*</span></label>
@@ -63,7 +68,7 @@
                     <option value="{{ $rt->id }}" @selected(old('rt_profile_id', $user->rt_profile_id) == $rt->id)>{{ $rt->displayName() }} — RW {{ $rt->rw_number ?: '—' }}</option>
                 @endforeach
             </select>
-            <p class="lw-panel-field-hint">Wajib untuk Ketua/Sekretaris RT agar profil panel tersinkron ke halaman Profil publik.</p>
+            <p class="lw-panel-field-hint">Wajib untuk akun Ketua RT atau Sekretaris RT agar profil panel tersinkron ke halaman Profil publik.</p>
         </div>
     </fieldset>
 
@@ -91,13 +96,18 @@ document.addEventListener('DOMContentLoaded', function () {
     var roleSelect = document.getElementById('role');
     var rtField = document.getElementById('rt-profile-field');
     var rtSelect = document.getElementById('rt_profile_id');
+    var roleDescription = document.getElementById('role-description');
     var rtRoles = ['ketua_rt', 'sekretaris_rt'];
+    var roleDescriptions = @json($roleDescriptions);
     function toggleRt() {
         var show = rtRoles.indexOf(roleSelect.value) !== -1;
         rtField.hidden = !show;
         rtSelect.required = show;
         if (!show) {
             rtSelect.value = '';
+        }
+        if (roleDescription) {
+            roleDescription.textContent = roleDescriptions[roleSelect.value] || '';
         }
     }
     roleSelect.addEventListener('change', toggleRt);

@@ -92,8 +92,7 @@ class RecapCompletenessTest extends TestCase
                 'religion' => 'Kristen',
                 'occupation' => 'Karyawan swasta',
             ])
-            ->assertRedirect(route('rt.residents.show', [
-                'resident' => Resident::where('name', 'Kepala Lengkap')->value('id'),
+            ->assertRedirect(route('rt.data-warga.index', [
                 'filter' => 'aktif',
                 'household' => $household->id,
             ]))
@@ -140,8 +139,7 @@ class RecapCompletenessTest extends TestCase
                 'household_id' => $household->id,
                 'name' => 'Anak KK',
             ])
-            ->assertRedirect(route('rt.residents.show', [
-                'resident' => Resident::where('name', 'Anak KK')->value('id'),
+            ->assertRedirect(route('rt.data-warga.index', [
                 'filter' => 'aktif',
                 'household' => $household->id,
             ]))
@@ -176,8 +174,7 @@ class RecapCompletenessTest extends TestCase
                 'relationship_to_head' => 'Anak',
                 'nik' => '3201010101010011',
             ])
-            ->assertRedirect(route('rt.residents.show', [
-                'resident' => Resident::where('name', 'Anak Baru')->value('id'),
+            ->assertRedirect(route('rt.data-warga.index', [
                 'filter' => 'aktif',
                 'household' => $household->id,
             ]))

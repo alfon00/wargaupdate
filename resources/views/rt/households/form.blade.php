@@ -61,9 +61,9 @@
 
     @if($household->exists)
         @include('rt.partials.delete-danger-zone', [
-            'description' => 'Mengajukan penghapusan permanen kartu keluarga dan semua anggota ke admin sistem. Memerlukan tanda tangan Ketua RT.',
+            'description' => 'Mengajukan penghapusan permanen kartu keluarga dan semua anggota ke admin kelurahan. Memerlukan tanda tangan Ketua RT.',
             'label' => 'Hapus KK permanen',
-            'confirm' => 'Ajukan hapus permanen kartu keluarga '.$household->family_card_number.' beserta semua anggota? Data akan dihapus setelah admin sistem menyetujui.',
+            'confirm' => 'Ajukan hapus permanen kartu keluarga '.$household->family_card_number.' beserta semua anggota? Data akan dihapus setelah admin kelurahan menyetujui.',
             'action' => route('rt.households.destroy', $household),
             'hidden' => [],
             'enabled' => $household->canBePermanentlyDeleted(),

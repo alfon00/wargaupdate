@@ -64,7 +64,7 @@
                             @csrf
 
                             <div class="lw-form-field">
-                                <label for="email" class="lw-form-label">Email pengurus <span class="lw-form-label-required">*</span></label>
+                                <label for="email" class="lw-form-label">Email pengurus RT atau kelurahan <span class="lw-form-label-required">*</span></label>
                                 <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus
                                     autocomplete="username" class="lw-form-input" placeholder="nama@contoh.com">
                             </div>

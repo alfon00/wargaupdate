@@ -14,13 +14,13 @@ class AdminKelurahanProfileTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function createSuperAdmin(string $email = 'super-admin@test.local'): User
+    private function createKelurahanUser(string $email = 'kelurahan-admin@test.local'): User
     {
         return User::create([
-            'name' => 'Admin Sistem',
+            'name' => 'Admin Kelurahan',
             'email' => $email,
             'password' => Hash::make('password'),
-            'role' => UserRole::SuperAdmin,
+            'role' => UserRole::Kelurahan,
         ]);
     }
 
@@ -47,7 +47,7 @@ class AdminKelurahanProfileTest extends TestCase
 
     public function test_admin_profile_hub_shows_profile_cards_not_edit_form(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $this->actingAs($admin)
             ->get(route('admin.profile'))
@@ -63,7 +63,7 @@ class AdminKelurahanProfileTest extends TestCase
 
     public function test_kelurahan_show_page_has_edit_button(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $this->actingAs($admin)
             ->get(route('admin.profile.kelurahan.show'))
@@ -74,7 +74,7 @@ class AdminKelurahanProfileTest extends TestCase
 
     public function test_kelurahan_edit_page_shows_form(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $this->actingAs($admin)
             ->get(route('admin.profile.kelurahan.edit'))
@@ -87,7 +87,7 @@ class AdminKelurahanProfileTest extends TestCase
 
     public function test_super_admin_can_update_kelurahan_public_profile(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $this->actingAs($admin)
             ->put(route('admin.profile.kelurahan.update'), [
@@ -142,7 +142,7 @@ class AdminKelurahanProfileTest extends TestCase
 
     public function test_kelurahan_update_rejects_invalid_phone(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $this->actingAs($admin)
             ->from(route('admin.profile.kelurahan.edit'))

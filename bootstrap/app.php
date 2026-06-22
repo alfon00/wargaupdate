@@ -17,7 +17,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'role.rt' => \App\Http\Middleware\EnsureUserIsRtStaff::class,
             'role.kelurahan' => \App\Http\Middleware\EnsureUserIsKelurahan::class,
             'role.admin' => \App\Http\Middleware\EnsureUserIsSuperAdmin::class,
-            'citizen' => \App\Http\Middleware\EnsureUserIsCitizen::class,
         ]);
 
         $middleware->redirectGuestsTo(fn () => route('login.hub'));

@@ -11,7 +11,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('layouts.partials.lw-styles')
 </head>
-<body class="lw-panel-body lw-panel-theme @if(auth()->user()?->isRtStaff()) lw-panel--rt @elseif(auth()->user()?->isKelurahan()) lw-panel--kelurahan @elseif(auth()->user()?->isSuperAdmin()) lw-panel--admin @endif">
+<body class="lw-panel-body lw-panel-theme @if(auth()->user()?->isRtStaff()) lw-panel--rt @elseif(auth()->user()?->isKelurahan()) lw-panel--kelurahan @endif">
     <div class="lw-panel-layout">
         <input type="checkbox" id="lw-panel-menu-toggle" class="lw-panel-menu-toggle" aria-hidden="true">
         <label for="lw-panel-menu-toggle" class="lw-panel-backdrop" aria-label="Tutup menu"></label>
@@ -26,10 +26,8 @@
                 <div class="lw-panel-topbar-center">
                     <p class="lw-panel-topbar-title">
                         @yield('title', 'Panel')
-                        @if(auth()->user()?->isSuperAdmin())
-                            <span class="lw-panel-topbar-role">Admin sistem</span>
-                        @elseif(auth()->user()?->isKelurahan())
-                            <span class="lw-panel-topbar-role">Monitoring</span>
+                        @if(auth()->user()?->isKelurahan())
+                            <span class="lw-panel-topbar-role">{{ auth()->user()->role->label() }}</span>
                         @elseif(auth()->user()?->isRtStaff())
                             <span class="lw-panel-topbar-role">RT</span>
                         @endif

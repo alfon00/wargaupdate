@@ -13,19 +13,19 @@ class AdminUserEmailTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function createSuperAdmin(): User
+    private function createKelurahanUser(): User
     {
         return User::create([
-            'name' => 'Admin Sistem',
+            'name' => 'Admin Kelurahan',
             'email' => 'admin@layananwarga.my.id',
             'password' => Hash::make('password'),
-            'role' => UserRole::SuperAdmin,
+            'role' => UserRole::Kelurahan,
         ]);
     }
 
     public function test_create_form_shows_fixed_email_suffix(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $this->actingAs($admin)
             ->get(route('admin.users.create'))
@@ -38,7 +38,7 @@ class AdminUserEmailTest extends TestCase
 
     public function test_store_composes_staff_email_from_local_part(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $this->actingAs($admin)
             ->post(route('admin.users.store'), [
@@ -58,7 +58,7 @@ class AdminUserEmailTest extends TestCase
 
     public function test_store_normalizes_local_part_to_lowercase(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $this->actingAs($admin)
             ->post(route('admin.users.store'), [
@@ -76,7 +76,7 @@ class AdminUserEmailTest extends TestCase
 
     public function test_store_rejects_duplicate_local_part(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         User::create([
             'name' => 'Existing',
@@ -99,7 +99,7 @@ class AdminUserEmailTest extends TestCase
 
     public function test_store_rejects_invalid_local_part(): void
     {
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $this->actingAs($admin)
             ->from(route('admin.users.create'))

@@ -170,10 +170,10 @@ class ApplicationOrphanTest extends TestCase
     {
         [$staff, $profile, $household] = $this->seedRtWithHousehold();
         $admin = User::create([
-            'name' => 'Admin Sistem',
+            'name' => 'Admin Kelurahan',
             'email' => 'super-admin-orphan@test.local',
             'password' => Hash::make('password'),
-            'role' => UserRole::SuperAdmin,
+            'role' => UserRole::Kelurahan,
         ]);
 
         $resident = Resident::create([

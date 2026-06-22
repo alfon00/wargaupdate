@@ -65,9 +65,9 @@
 </article>
 
 @include('rt.partials.delete-danger-zone', [
-    'description' => 'Mengajukan penghapusan permanen ke admin sistem. Memerlukan tanda tangan Ketua RT dan persetujuan admin.',
+    'description' => 'Mengajukan penghapusan permanen ke admin kelurahan. Memerlukan tanda tangan Ketua RT dan persetujuan admin.',
     'label' => 'Hapus warga permanen',
-    'confirm' => 'Ajukan hapus permanen data '.$resident->name.'? Data akan dihapus setelah admin sistem menyetujui.',
+    'confirm' => 'Ajukan hapus permanen data '.$resident->name.'? Data akan dihapus setelah admin kelurahan menyetujui.',
     'action' => route('rt.residents.destroy', $resident),
     'hidden' => [],
     'enabled' => $resident->canBePermanentlyDeleted(),

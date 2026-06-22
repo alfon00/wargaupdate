@@ -6,7 +6,7 @@
 <div class="lw-admin-page">
     <header class="lw-panel-page-head">
         <div>
-            <p class="lw-panel-page-eyebrow">Admin sistem</p>
+            <p class="lw-panel-page-eyebrow">Panel Kelurahan</p>
             <h1 class="lw-panel-page-title">Profil</h1>
             <p class="lw-panel-page-lead">Kelola profil akun admin dan profil lurah yang ditampilkan di halaman publik.</p>
         </div>

@@ -9,10 +9,10 @@
                 Panel pengurus
             </p>
             <h1 id="auth-hero-heading" class="lw-profile-hero__title">
-                Akses Pengurus RT
+                Akses Pengurus RT &amp; Kelurahan
             </h1>
             <p class="lw-profile-hero__lead">
-                Masuk dengan akun terdaftar untuk mengelola permohonan surat, verifikasi pendataan, dan data warga.
+                Masuk dengan akun terdaftar pengurus RT atau kelurahan untuk mengelola permohonan surat, verifikasi pendataan, dan data warga.
             </p>
         </div>
     </div>

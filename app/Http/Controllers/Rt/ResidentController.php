@@ -226,7 +226,7 @@ class ResidentController extends Controller
 
         return redirect()
             ->route('rt.residents.show', $showParams)
-            ->with('success', 'Pengajuan hapus permanen dikirim ke admin sistem. Data belum dihapus sampai disetujui.');
+            ->with('success', 'Pengajuan hapus permanen dikirim ke admin kelurahan. Data belum dihapus sampai disetujui.');
     }
 
     /** @return array<string, mixed> */

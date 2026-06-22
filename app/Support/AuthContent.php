@@ -11,17 +11,17 @@ final class AuthContent
 
     public static function introLead(): string
     {
-        return 'Akses panel untuk mengelola permohonan surat, verifikasi pendataan, dan data warga — hanya untuk pengurus terdaftar.';
+        return 'Akses panel untuk pengurus RT atau kelurahan — mengelola permohonan surat, verifikasi pendataan, dan data warga.';
     }
 
     public static function formLead(): string
     {
-        return 'Gunakan email dan kata sandi akun pengurus RT atau admin.';
+        return 'Gunakan email dan kata sandi akun pengurus RT atau kelurahan.';
     }
 
     public static function loginNote(): string
     {
-        return 'Hanya akun pengurus RT atau admin yang terdaftar. Bukan situs Dukcapil, Kemendagri, atau perbankan.';
+        return 'Hanya akun pengurus RT atau kelurahan yang terdaftar. Bukan situs Dukcapil, Kemendagri, atau perbankan.';
     }
 
     /** @return list<array{title: string, desc: string}> */
@@ -34,7 +34,7 @@ final class AuthContent
             ],
             [
                 'title' => 'Akses sesuai peran',
-                'desc' => 'Panel RT atau admin — menu disesuaikan peran.',
+                'desc' => 'Panel RT atau kelurahan — menu disesuaikan peran akun.',
             ],
             [
                 'title' => 'Data terbatas pengurus',

@@ -169,16 +169,6 @@ class KelurahanApplicationDetailTest extends TestCase
         ]);
     }
 
-    private function createSuperAdmin(): User
-    {
-        return User::create([
-            'name' => 'Admin Sistem',
-            'email' => 'super-admin-detail@test.local',
-            'password' => Hash::make('password'),
-            'role' => UserRole::SuperAdmin,
-        ]);
-    }
-
     public function test_kelurahan_application_index_shows_manual_letter_without_print_link(): void
     {
         [, $application] = $this->createManualLetterApplication();
@@ -305,7 +295,7 @@ class KelurahanApplicationDetailTest extends TestCase
     public function test_super_admin_can_view_kelurahan_application_detail(): void
     {
         [, $staff, $application] = $this->createPublishedLetterApplication();
-        $admin = $this->createSuperAdmin();
+        $admin = $this->createKelurahanUser();
 
         $this->actingAs($admin)
             ->get(route('kelurahan.applications.show', $application))

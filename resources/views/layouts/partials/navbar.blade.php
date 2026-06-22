@@ -36,13 +36,9 @@
                     </a>
                 @endforeach
 
-                @auth
-                    @if(auth()->user()->isWarga())
-                        <a href="{{ route('portal.dashboard') }}" class="lw-nav-link">Portal Warga</a>
-                    @endif
-                @else
+                @guest
                     <a href="{{ route('login.hub') }}" class="lw-nav-cta {{ request()->routeIs('login.hub') ? 'lw-nav-cta-active' : '' }}">Akses Pengurus</a>
-                @endauth
+                @endguest
             </div>
         </div>
     </div>

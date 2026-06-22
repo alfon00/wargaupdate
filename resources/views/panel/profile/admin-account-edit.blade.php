@@ -10,7 +10,7 @@
 
     <header class="lw-panel-page-head">
         <div>
-            <p class="lw-panel-page-eyebrow">Admin sistem</p>
+            <p class="lw-panel-page-eyebrow">Panel Kelurahan</p>
             <h1 class="lw-panel-page-title">Edit profil akun</h1>
             <p class="lw-panel-page-lead">Ubah foto profil, nama, email untuk masuk, dan kata sandi akun Anda.</p>
         </div>
