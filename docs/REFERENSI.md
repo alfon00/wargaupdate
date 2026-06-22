@@ -2,7 +2,9 @@
 
 Dokumen acuan untuk pengembangan **Layanan Warga RT-008** (`layananwarga.my.id`).
 
-Ringkasan sistem untuk tugas akhir: [RINGKASAN-SISTEM.md](RINGKASAN-SISTEM.md) (termasuk diagram alur §13: warga, pengurus, layanan, WAHA).
+Naskah tugas akhir lengkap: [LAPORAN-TUGAS-AKHIR.md](LAPORAN-TUGAS-AKHIR.md) (BAB I–V + lampiran).
+
+Ringkasan sistem teknis: [RINGKASAN-SISTEM.md](RINGKASAN-SISTEM.md) (termasuk diagram alur §13: warga, pengurus, layanan, WAHA).
 
 ## Dasar hukum
 

@@ -41,7 +41,7 @@ Permasalahan yang ditangani sistem ini:
 4. **Pemrosesan surat manual di RT** — pengurus RT memverifikasi berkas, mencetak surat fisik di sekretariat, lalu mencatat nomor surat di portal
 5. **Transparansi status layanan** — warga melacak permohonan tanpa login melalui **nomor permohonan** (halaman Lacak)
 6. **Notifikasi real-time** — pembaruan status dikirim sebagai pesan teks via WhatsApp (WAHA), bukan pengiriman berkas PDF
-7. **Publikasi informasi** — kegiatan dan pengumuman RT/Kelurahan dapat diakses publik di satu halaman
+7. **Publikasi informasi** — kegiatan dan pengumuman RT dapat diakses publik di satu halaman
 
 ---
 
@@ -51,9 +51,8 @@ Permasalahan yang ditangani sistem ini:
 
 - Portal publik untuk warga (tanpa akun wajib): beranda, layanan, profil, pengaduan, lacak, kegiatan & pengumuman, keamanan
 - Halaman **Keamanan** (`/keamanan`) — keaslian situs, panduan akses pengurus, penegasan layanan gratis
-- Halaman **Akses Pengurus** (`/akses-pengurus`) — login Ketua RT, Sekretaris RT, Kelurahan, Admin
+- Halaman **Akses Pengurus** (`/akses-pengurus`) — login Ketua RT, Sekretaris RT, Admin
 - Panel pengurus RT (Ketua RT, Sekretaris RT)
-- Panel Kelurahan (monitoring agregat)
 - Panel Admin Sistem (manajemen pengguna, profil RT, katalog layanan)
 - Penyimpanan berkas privat (KK, KTP, dokumen permohonan)
 - Pencatatan nomor surat manual dan notifikasi pengambilan surat fisik
@@ -66,6 +65,7 @@ Permasalahan yang ditangani sistem ini:
 - Generasi atau unduhan surat PDF oleh portal (surat dicetak manual di sekretariat RT)
 - Pengiriman berkas surat PDF via WhatsApp
 - Integrasi langsung ke database Dukcapil/SIAK
+- Panel monitoring Kelurahan (bukan aktor dalam lingkup sistem)
 - Pembayaran online, OTP pembayaran, atau transaksi finansial
 
 ---
@@ -76,12 +76,10 @@ Permasalahan yang ditangani sistem ini:
 flowchart LR
     Warga[Warga_masyarakat]
     RT[Ketua_dan_Sekretaris_RT]
-    Kel[Kelurahan]
     Admin[Admin_sistem]
 
     Warga -->|Ajukan_layanan_lacak| Portal[Portal_publik]
     RT -->|Verifikasi_kelola| PanelRT[Panel_RT]
-    Kel -->|Monitoring| PanelKel[Panel_Kelurahan]
     Admin -->|Konfigurasi| PanelAdmin[Panel_Admin]
 ```
 
@@ -89,7 +87,6 @@ flowchart LR
 |---|---|---|
 | **Warga** | Mengajukan pendataan, surat, pengaduan; melacak status | Portal publik (tanpa login untuk sebagian besar layanan) |
 | **Ketua RT / Sekretaris RT** | Verifikasi pendataan, proses permohonan, catat nomor surat manual, kelola data warga | Panel `/rt` |
-| **Kelurahan** | Monitoring permohonan, data penduduk, laporan pengaduan | Panel `/kelurahan` |
 | **Admin Sistem** | Manajemen akun pengurus, profil RT, jenis layanan | Panel `/admin` |
 
 ---
@@ -110,9 +107,9 @@ Navigasi utama: **Beranda**, **Profil**, **Kegiatan & Pengumuman**, **Layanan**,
 | **Pendataan ulang** (`/layanan/pendataan-ulang`) | Warga terdata: verifikasi NIK kepala KK + RT + HP, unggah ulang scan KK dan KTP/KIA tiap anggota |
 | **Pengaduan** (`/kontak`) | Formulir pengaduan lingkungan dan laporan/kendala layanan (bukan layanan terpisah di hub layanan) |
 | **Lacak permohonan** (`/lacak`) | Cek status surat pengantar dengan **nomor permohonan**; tampil nomor surat saat siap diambil; FAQ pelacakan |
-| **Kegiatan & Pengumuman** (`/kegiatan`) | Informasi kegiatan dan pengumuman RT/Kelurahan dalam satu halaman |
+| **Kegiatan & Pengumuman** (`/kegiatan`) | Informasi kegiatan dan pengumuman RT dalam satu halaman |
 | **Keamanan** (`/keamanan`) | Portal resmi layananwarga.my.id; bukan Dukcapil/bank; layanan gratis; login pengurus hanya di `/akses-pengurus` |
-| **Akses Pengurus** (`/akses-pengurus`) | Halaman login pengurus RT, kelurahan, dan admin (warga tidak perlu akun untuk layanan utama) |
+| **Akses Pengurus** (`/akses-pengurus`) | Halaman login pengurus RT dan admin (warga tidak perlu akun untuk layanan utama) |
 
 ### 6.2 Panel Pengurus RT
 
@@ -128,17 +125,9 @@ Navigasi utama: **Beranda**, **Profil**, **Kegiatan & Pengumuman**, **Layanan**,
 
 > **Catatan operasional:** Alur susun/terbitkan surat PDF via portal tidak dipakai. Route compose/publish PDF di kode masih ada tetapi di-redirect ke detail permohonan dengan pesan informasi; standar operasional adalah cetak manual di sekretariat RT lalu pencatatan nomor surat di panel.
 
-### 6.3 Panel Kelurahan
+### 6.3 Panel Admin
 
-- Monitoring permohonan surat seluruh RT (nomor surat manual; surat fisik di sekretariat RT — bukan PDF di portal)
-- Akses data penduduk agregat
-- Monitoring laporan pengaduan
-- Akses kegiatan dan pengumuman
-- Arsip `GeneratedLetter` hanya untuk data surat PDF lama (legacy), bukan alur standar
-
-### 6.4 Panel Admin
-
-- Manajemen pengguna (Ketua RT, Sekretaris, Kelurahan)
+- Manajemen pengguna (Ketua RT, Sekretaris)
 - Manajemen profil RT (nomor RT, slug, wilayah)
 - Konfigurasi katalog jenis layanan surat
 - Persetujuan penghapusan permanen data
@@ -245,7 +234,7 @@ Surat pengantar dicetak manual di sekretariat RT, bukan dihasilkan oleh sistem w
 - HTTPS wajib (HSTS)
 - Content Security Policy (CSP)
 - Berkas sensitif disimpan di disk privat, diakses hanya pengurus login
-- Middleware role-based access (`role.rt`, `role.kelurahan`, `role.admin`)
+- Middleware role-based access (`role.rt`, `role.admin`)
 - Rate limiting pada endpoint publik sensitif
 - Header anti-cache untuk halaman HTML dinamis
 
@@ -267,7 +256,7 @@ Surat pengantar dicetak manual di sekretariat RT, bukan dihasilkan oleh sistem w
 | `CitizenReport` | Laporan/pengaduan warga |
 | `RtPublication` | Kegiatan dan pengumuman |
 | `NotificationLog` | Log notifikasi WhatsApp |
-| `User` | Akun pengurus (RT, Kelurahan, Admin) |
+| `User` | Akun pengurus (RT, Admin) |
 
 ---
 
@@ -291,7 +280,7 @@ Untuk bagian **hasil/kontribusi** tugas akhir, poin-poin berikut dapat digunakan
 
 > **Rumusan Masalah.** Bagaimana merancang dan mengimplementasikan portal layanan administrasi RT berbasis web yang mampu (1) memfasilitasi pengajuan dan pelacakan permohonan surat pengantar, (2) mengelola pendataan warga beserta lampiran dokumen identitas, (3) melakukan verifikasi identitas pemohon, dan (4) mendukung pengurus RT dalam memproses permohonan secara efisien?
 
-> **Tujuan.** (1) Membangun portal layanan warga RT yang dapat diakses melalui web browser. (2) Mengimplementasikan modul pendataan warga, permohonan surat pengantar, pelacakan status, dan pengaduan masyarakat. (3) Mengintegrasikan verifikasi identitas (NIK/RT/HP untuk surat; verifikasi wajah untuk pendataan warga) serta notifikasi teks WhatsApp pada alur layanan. (4) Menyediakan panel pengurus RT dan Kelurahan untuk verifikasi, pencatatan surat manual, dan monitoring data.
+> **Tujuan.** (1) Membangun portal layanan warga RT yang dapat diakses melalui web browser. (2) Mengimplementasikan modul pendataan warga, permohonan surat pengantar, pelacakan status, dan pengaduan masyarakat. (3) Mengintegrasikan verifikasi identitas (NIK/RT/HP untuk surat; verifikasi wajah untuk pendataan warga) serta notifikasi teks WhatsApp pada alur layanan. (4) Menyediakan panel pengurus RT dan admin sistem untuk verifikasi, pencatatan surat manual, dan konfigurasi layanan.
 
 > **Batasan.** Sistem ini **bukan** layanan resmi Dukcapil dan **tidak** menerbitkan KK, KTP, atau SKTM resmi. Sistem **tidak** menghasilkan surat PDF — surat dicetak manual di sekretariat RT. Layanan portal **gratis** untuk warga dan tidak meminta pembayaran, transfer, OTP pembayaran, kartu kredit, atau PIN bank. Sistem difokuskan pada layanan administrasi tingkat RT di Kelurahan Inauga, Kabupaten Mimika, Papua Tengah.
 
@@ -346,18 +335,7 @@ flowchart TD
 
 Surat dicetak di sekretariat RT; portal mencatat nomor dan kirim notifikasi teks.
 
-### 13.3 Aktivitas Kelurahan
-
-```mermaid
-flowchart TD
-    A([Login_kelurahan]) --> B[Dashboard]
-    B --> C[Lihat_permohonan_dan_data_warga]
-    C --> D[Monitoring_pengaduan_dan_publikasi]
-```
-
-Panel monitoring — tidak memproses permohonan surat.
-
-### 13.4 Aktivitas Admin Sistem
+### 13.3 Aktivitas Admin Sistem
 
 ```mermaid
 flowchart TD
@@ -367,7 +345,7 @@ flowchart TD
     B --> E[Persetujuan_hapus_data]
 ```
 
-### 13.5 Alur Layanan (tiga layanan utama)
+### 13.4 Alur Layanan (tiga layanan utama)
 
 ```mermaid
 flowchart TD
@@ -378,7 +356,7 @@ flowchart TD
 
 **Surat:** wajib sudah terdata. **Pendataan ulang:** warga terdata. **Pendataan warga:** keluarga baru + selfie kepala KK.
 
-### 13.6 Integrasi WhatsApp Gateway (WAHA)
+### 13.5 Integrasi WhatsApp Gateway (WAHA)
 
 ```mermaid
 flowchart TD
@@ -392,11 +370,11 @@ flowchart TD
 
 Hanya pesan teks (`/api/sendText`), bukan PDF. Beberapa event diproses via queue worker. Template di [`config/kelurahan.php`](../config/kelurahan.php).
 
-### 13.7 Saran diagram tambahan untuk naskah TA
+### 13.6 Saran diagram tambahan untuk naskah TA
 
 | Prioritas | Diagram / materi | Kegunaan di naskah |
 |---|---|---|
-| Tinggi | Use Case Diagram (4 aktor: Warga, RT, Kelurahan, Admin) | BAB analisis kebutuhan |
+| Tinggi | Use Case Diagram (3 aktor: Warga, RT, Admin) | BAB analisis kebutuhan |
 | Tinggi | ERD dari model di `app/Models/` | BAB desain database |
 | Tinggi | Diagram deployment (Docker: nginx, app, mysql, queue, waha) | BAB implementasi & infrastruktur |
 | Sedang | DFD Level 0 & 1 (portal, panel, WAHA, storage) | BAB analisis sistem |
@@ -408,11 +386,12 @@ Hanya pesan teks (`/api/sendText`), bukan PDF. Beberapa event diproses via queue
 | Rendah | Kuesioner SUS / wawancara pengurus RT | BAB evaluasi |
 | Rendah | Tabel perbandingan benchmark (lihat [REFERENSI.md](REFERENSI.md)) | BAB latar belakang |
 
-**Tips penyajian:** Di naskah utama cukup 2–3 diagram representatif (misalnya §13.1 Warga, §13.5 Layanan, §13.6 WAHA); sisanya sebagai lampiran.
+**Tips penyajian:** Di naskah utama cukup 2–3 diagram representatif (misalnya §13.1 Warga, §13.4 Layanan, §13.5 WAHA); sisanya sebagai lampiran.
 
 ---
 
 ## Dokumen terkait
 
+- [LAPORAN-TUGAS-AKHIR.md](LAPORAN-TUGAS-AKHIR.md) — naskah tugas akhir lengkap BAB I–V + lampiran
 - [DEPLOY.md](DEPLOY.md) — prosedur deploy dan operasional server
 - [REFERENSI.md](REFERENSI.md) — referensi hukum dan benchmark layanan serupa

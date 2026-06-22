@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <title>Panduan Demo Portal ke Pengurus RT</title>
+    <style>
+        @page { size: A4 portrait; margin: 2cm 2.2cm; }
+        body { font-family: "DejaVu Sans", sans-serif; font-size: 11pt; line-height: 1.5; color: #111; }
+        h1 { font-size: 18pt; margin: 0 0 6px; color: #0f766e; }
+        h2 { font-size: 13pt; margin: 18px 0 8px; color: #115e59; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+        h3 { font-size: 11.5pt; margin: 14px 0 6px; color: #134e4a; }
+        p { margin: 0 0 8px; }
+        ul, ol { margin: 4px 0 10px; padding-left: 20px; }
+        li { margin-bottom: 4px; }
+        .meta { font-size: 10pt; color: #555; margin-bottom: 16px; }
+        .box { background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; padding: 12px 14px; margin: 12px 0; }
+        .box-warn { background: #fff7ed; border: 1px solid #fdba74; border-radius: 6px; padding: 10px 14px; margin: 12px 0; font-size: 10.5pt; }
+        .box strong { color: #0f766e; }
+        .tips { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 6px; padding: 10px 14px; margin-top: 14px; font-size: 10.5pt; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10.5pt; }
+        th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top; }
+        th { background: #ecfdf5; }
+        .muted { color: #555; font-size: 10pt; }
+        .footer { margin-top: 24px; font-size: 9pt; color: #666; text-align: center; border-top: 1px solid #ddd; padding-top: 10px; }
+    </style>
+</head>
+<body>
+
+<h1>Panduan Demo Portal ke Pengurus RT</h1>
+<p class="meta"><strong>Layanan Warga RT</strong> · layananwarga.my.id · Juni 2026</p>
+
+<p>Dokumen ini merangkum pertanyaan dan alur demo portal untuk pengurus RT. Fokusnya bukan teknis, melainkan <strong>apakah portal membantu alur kerja harian RT</strong>.</p>
+
+<h2>Aktor dalam Sistem (ruang lingkup demo)</h2>
+
+<table>
+    <thead>
+        <tr><th>Aktor</th><th>Peran</th><th>Didemo?</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>Warga</strong></td><td>Mengajukan surat, pendataan, pengaduan, lacak status — tanpa login</td><td>Contoh pengajuan &amp; lacak</td></tr>
+        <tr><td><strong>Ketua RT</strong></td><td>Verifikasi permohonan, susun &amp; terbitkan surat PDF, kelola data warga, kegiatan, laporan</td><td>Ya (utama)</td></tr>
+        <tr><td><strong>Sekretaris RT</strong></td><td>Sama seperti Ketua RT sesuai akun yang diberikan admin</td><td>Opsional</td></tr>
+        <tr><td><strong>Admin sistem</strong></td><td>Setup akun pengurus, profil RT, katalog layanan</td><td>Tidak (hanya jelaskan singkat)</td></tr>
+        <tr><td><strong>Petugas / panel Kelurahan</strong></td><td>—</td><td><strong>Tidak digunakan</strong></td></tr>
+    </tbody>
+</table>
+
+<div class="box-warn">
+    <strong>Catatan:</strong> Operasional harian portal hanya melibatkan <strong>warga ↔ pengurus RT</strong>. Tidak ada panel kelurahan yang dipakai dalam alur layanan surat, pendataan, atau pengaduan. Profil lurah di halaman publik hanya informasi wilayah, bukan aktor proses layanan.
+</div>
+
+<h2>1. Pembuka (±5 menit)</h2>
+<p><em>Tujuan: pahami kondisi RT sekarang sebelum demo.</em></p>
+<ul>
+    <li>Saat ini permohonan surat dari warga ditangani bagaimana? (WhatsApp, datang langsung, kertas?)</li>
+    <li>Berapa lama dari warga mengajuan sampai surat siap?</li>
+    <li>Bagian mana yang paling merepotkan: verifikasi berkas, tulis surat, TTD, cap/stempel, atau kabari warga?</li>
+    <li>Siapa yang mengerjakan: Ketua RT, Sekretaris, atau bergantian?</li>
+</ul>
+
+<h2>2. Demo Permohonan Surat (fokus utama)</h2>
+<p><em>Portal menerbitkan surat pengantar RT dalam bentuk PDF dengan TTD digital dan cap RT.</em></p>
+
+<h3>Alur yang ditunjukkan</h3>
+<ol>
+    <li><strong>Warga</strong> mengajukan via portal (verifikasi NIK, RT, nomor HP) + unggah KK/KTP</li>
+    <li><strong>RT</strong> terima atau tolak permohonan (tolak → notifikasi WhatsApp ke warga)</li>
+    <li><strong>RT</strong> susun surat: nomor surat, data pemohon (terisi otomatis), keperluan</li>
+    <li><strong>RT</strong> gambar TTD di kanvas; unggah cap RT via Pengaturan (jika belum ada)</li>
+    <li><strong>RT</strong> preview PDF → terbitkan surat</li>
+    <li>Notifikasi WhatsApp otomatis ke warga; PDF dapat dikirim ulang via WhatsApp bila perlu</li>
+    <li>Salinan fisik tetap dapat diambil di sekretariat RT</li>
+</ol>
+
+<h3>Jenis surat yang tersedia</h3>
+<p class="muted">Domisili · SKTM (tidak mampu) · Usaha (SKU) · Pengantar KK · Pengantar KTP · Pengantar SKCK · Umum</p>
+
+<h3>Pertanyaan ke RT saat demo surat</h3>
+<ul>
+    <li>Apakah alur <strong>terima → susun → TTD → terbitkan PDF</strong> sudah sesuai cara kerja RT?</li>
+    <li>Kop surat, nomor surat (format <em>RTxxx / … / tahun</em>), tanggal, dan teks penutup — sudah mirip surat RT yang dipakai?</li>
+    <li>Posisi dan ukuran <strong>TTD + cap/stempel</strong> di PDF — sudah layak dipakai resmi?</li>
+    <li>Nama Ketua RT di bagian TTD — sudah benar (bukan label generik “Ketua RT …”)?</li>
+    <li>Setelah PDF terbit, warga cukup terima via WhatsApp atau wajib ambil salinan fisik?</li>
+    <li>Apakah perlu terbitkan ulang jika ada salah ketik, atau cukup sekali terbit?</li>
+    <li>Jenis surat mana yang paling sering diajukan dan layak jadi <strong>pilot pertama</strong>?</li>
+</ul>
+
+<h2>3. Demo Pendataan &amp; Data Warga</h2>
+<ul>
+    <li>Verifikasi warga baru / pendataan ulang — lebih mudah atau lebih ribet dari manual?</li>
+    <li>Data warga di panel RT — sudah lengkap untuk administrasi?</li>
+    <li>Sekretaris RT perlu akses penuh atau cukup Ketua saja?</li>
+</ul>
+
+<h2>4. Demo Kegiatan, Pengumuman &amp; WhatsApp</h2>
+<ul>
+    <li>Kirim ke <strong>semua warga</strong> vs <strong>pilih warga tertentu</strong> — mana yang lebih sering dipakai?</li>
+    <li>Isi notifikasi WhatsApp — sudah jelas untuk warga?</li>
+</ul>
+
+<h2>5. Demo Laporan / Pengaduan Warga</h2>
+<ul>
+    <li>Status <strong>sedang ditindak</strong> dan <strong>selesai</strong> — sesuai alur RT?</li>
+    <li>Notifikasi WhatsApp otomatis saat status disimpan — sudah cukup?</li>
+</ul>
+
+<h2>6. Penutup — Pertanyaan Keputusan</h2>
+<ul>
+    <li>Fitur mana yang <strong>paling berguna</strong> minggu depan?</li>
+    <li>Fitur mana yang <strong>belum bisa dipakai</strong> (terutama format/layout surat)?</li>
+    <li>RT siap go-live untuk jenis surat apa dulu?</li>
+    <li>Siapa <strong>operator utama</strong> (Ketua/Sekretaris)?</li>
+    <li>Perlu pelatihan singkat (30–60 menit)?</li>
+</ul>
+
+<div class="box">
+    <strong>3 pertanyaan kunci</strong> (jika waktu singkat):
+    <ol style="margin:8px 0 0; padding-left:18px;">
+        <li>“Alur surat tadi — sudah bisa dipakai untuk surat resmi RT?”</li>
+        <li>“Bagian surat PDF mana yang masih perlu disesuaikan (kop, TTD, cap, nomor)?”</li>
+        <li>“Kalau live minggu depan, surat apa yang jadi pilot pertama?”</li>
+    </ol>
+</div>
+
+<h2>Alur Demo yang Disarankan (±20 menit)</h2>
+<table>
+    <thead>
+        <tr><th>Langkah</th><th>Menu / Fitur</th><th>Perhatian saat demo</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>1</td><td>Login panel RT</td><td>Akun Ketua RT terhubung ke profil RT yang benar</td></tr>
+        <tr><td>2</td><td>Permohonan surat</td><td>Terima/tolak; cek lampiran KK/KTP warga</td></tr>
+        <tr><td>3</td><td>Susun &amp; terbitkan surat</td><td>Nomor surat, preview PDF, TTD kanvas, cap RT</td></tr>
+        <tr><td>4</td><td>Cetak / WhatsApp PDF</td><td>Notifikasi otomatis + kirim PDF ke warga</td></tr>
+        <tr><td>5</td><td>Lacak permohonan (warga)</td><td>Warga cek status &amp; nomor surat tanpa login</td></tr>
+        <tr><td>6</td><td>Kegiatan / pengumuman</td><td>Broadcast semua warga atau pilih tertentu</td></tr>
+        <tr><td>7</td><td>Laporan warga</td><td>Ubah status → notifikasi otomatis ke pelapor</td></tr>
+    </tbody>
+</table>
+
+<div class="tips">
+    <strong>Tips sesi demo:</strong> Gunakan contoh nyata (mis. surat domisili RT 008). Pastikan cap RT sudah diunggah via <em>Pengaturan</em> di menu Permohonan. Biarkan Ketua RT <strong>klik sendiri</strong>. Catat masukan surat: cocok / perlu revisi / belum bisa dipakai. Akhiri dengan kesepakatan <strong>jenis surat pilot</strong> dan tanggal go-live.
+</div>
+
+<div class="footer">
+    Layanan Warga RT — Portal surat pengantar &amp; layanan administrasi warga · Bukan situs Dukcapil/Kemendagri · Panel kelurahan tidak digunakan
+</div>
+
+</body>
+</html>

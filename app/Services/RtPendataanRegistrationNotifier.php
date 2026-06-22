@@ -16,13 +16,39 @@ class RtPendataanRegistrationNotifier
         $resident->loadMissing(['household.rtProfile']);
         $head = $resident->headOfHousehold() ?? $resident;
         $head->loadMissing(['household.rtProfile']);
-        $rt = $head->household?->rtProfile;
+        $rt = $resident->household?->rtProfile ?? $head->household?->rtProfile;
 
         if (! $rt) {
             return null;
         }
 
-        return $this->waha->notifyPendataanRegisteredByRt($head, $rt);
+        $recipient = $this->resolveNotificationRecipient($resident, $head);
+        $registeredMember = ($recipient && $recipient->is($head) && ! $resident->is_head_of_family)
+            ? $resident
+            : null;
+
+        return $this->waha->notifyPendataanRegisteredByRt(
+            $recipient ?? $head,
+            $rt,
+            $registeredMember,
+        );
+    }
+
+    protected function resolveNotificationRecipient(Resident $resident, Resident $head): ?Resident
+    {
+        if ($resident->is_head_of_family && filled($resident->whatsappNotificationPhone())) {
+            return $resident;
+        }
+
+        if (! $resident->is_head_of_family && filled($head->whatsappNotificationPhone())) {
+            return $head;
+        }
+
+        if (! $resident->is_head_of_family && filled($resident->whatsappNotificationPhone())) {
+            return $resident;
+        }
+
+        return null;
     }
 
     public function flashSuffix(?NotificationLog $log): string

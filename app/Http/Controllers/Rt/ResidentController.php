@@ -86,7 +86,7 @@ class ResidentController extends Controller
         ], fn ($value) => filled($value));
 
         return redirect()
-            ->route('rt.residents.show', array_merge(['resident' => $resident], $listQuery))
+            ->route('rt.data-warga.index', $listQuery)
             ->with('success', 'Data warga berhasil ditambahkan.'.$this->pendataanNotifier->flashSuffix($waLog));
     }
 

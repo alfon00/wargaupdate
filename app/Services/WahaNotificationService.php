@@ -225,9 +225,15 @@ class WahaNotificationService
         return $this->sendPendataanMessage($head, $rt, 'verified', 'pendataan_verified');
     }
 
-    public function notifyPendataanRegisteredByRt(Resident $head, RtProfile $rt): NotificationLog
+    public function notifyPendataanRegisteredByRt(Resident $recipient, RtProfile $rt, ?Resident $registeredMember = null): NotificationLog
     {
-        return $this->sendPendataanMessage($head, $rt, 'registered_by_rt', 'pendataan_registered_by_rt');
+        $detail = ($registeredMember && ! $registeredMember->is_head_of_family)
+            ? "Anggota *{$registeredMember->name}* telah ditambahkan ke Kartu Keluarga Anda.\n\n"
+            : "Anda sudah terdata sebagai warga aktif.\n\n";
+
+        return $this->sendPendataanMessage($recipient, $rt, 'registered_by_rt', 'pendataan_registered_by_rt', [
+            'detail' => $detail,
+        ]);
     }
 
     public function notifyPendataanRejected(Resident $head, RtProfile $rt, string $notes): NotificationLog
@@ -273,9 +279,22 @@ class WahaNotificationService
         ]);
     }
 
-    protected function sendPendataanMessage(Resident $head, RtProfile $rt, string $templateKey, string $event): NotificationLog
+    /** @param  array<string, string>  $extra */
+    protected function sendPendataanMessage(Resident $head, RtProfile $rt, string $templateKey, string $event, array $extra = []): NotificationLog
     {
-        $message = $this->formatPendataanTemplate($templateKey, $head, $rt);
+        $message = $this->formatPendataanTemplate($templateKey, $head, $rt, $extra);
+
+        if (! filled(trim($message))) {
+            $log = $this->createLog(
+                phone: $head->whatsappNotificationPhone() ?? '',
+                event: $event,
+                message: '',
+                residentId: $head->id,
+            );
+            $log->update(['status' => 'failed', 'error_message' => 'Template pesan WhatsApp kosong']);
+
+            return $log;
+        }
 
         return $this->sendToResident($head, $event, $message);
     }

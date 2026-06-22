@@ -1560,6 +1560,37 @@ class RtResidentDataIndexTest extends TestCase
 
         $this->assertNotNull($log);
         $this->assertSame('sent', $log->status);
+        $this->assertNotSame('', trim($log->message ?? ''));
+        $this->assertStringContainsString('dicatat', $log->message);
+    }
+
+    public function test_rt_add_member_sends_whatsapp_to_head(): void
+    {
+        $this->fakeWahaWorking();
+
+        [$staff, $household, $head] = array_slice($this->seedHouseholdWithMembers(), 0, 3);
+        $head->update(['phone' => '081234567899']);
+
+        $this->actingAs($staff)
+            ->post(route('rt.residents.store'), [
+                'household_id' => $household->id,
+                'name' => 'Anak Baru',
+                'relationship_to_head' => 'Anak',
+                'filter' => 'aktif',
+            ])
+            ->assertRedirect(route('rt.data-warga.index', [
+                'filter' => 'aktif',
+                'household' => $household->id,
+            ]));
+
+        $log = NotificationLog::query()
+            ->where('resident_id', $head->id)
+            ->where('event', 'pendataan_registered_by_rt')
+            ->first();
+
+        $this->assertNotNull($log);
+        $this->assertSame('sent', $log->status);
+        $this->assertStringContainsString('Anak Baru', $log->message);
     }
 
     public function test_rt_rejects_duplicate_family_card_number(): void

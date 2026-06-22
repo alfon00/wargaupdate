@@ -167,6 +167,7 @@ return [
         'submitted' => "Yth. {nama},\n\nData pendaftaran Anda telah diterima {rt} dan *menunggu verifikasi* pengurus.\n\n— {portal}",
         'verified' => "Yth. {nama},\n\nPendaftaran Anda di {rt} Kelurahan Inauga telah *diverifikasi* dan *lengkap*.\nAnda sudah terdata sebagai warga {rt}.\n\nPortal: {url}/layanan\n\n— {portal}",
         'rejected' => "Yth. {nama},\n\nPengajuan pendataan Anda di {rt} *ditolak*.\n{catatan}\n\nSilakan periksa berkas dan ajukan ulang:\n{layanan_url}\n\n— {portal}",
+        'registered_by_rt' => "Yth. {nama},\n\nData kependudukan di {rt} telah *dicatat* oleh pengurus RT.\n{detail}Portal: {url}/layanan\n\n— {portal}",
     ],
 
     'wa_laporan' => [
