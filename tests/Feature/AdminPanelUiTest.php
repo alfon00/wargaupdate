@@ -53,17 +53,18 @@ class AdminPanelUiTest extends TestCase
             ->assertSee('Jenis kelamin')
             ->assertSee('Monografi kependudukan')
             ->assertSee('Tingkat Pendidikan', false)
-            ->assertSee('Monitoring wilayah', false)
-            ->assertSee('Permohonan surat', false)
-            ->assertSee('Data warga lengkap', false)
+            ->assertSee('lw-panel-nav', false)
+            ->assertSee('Permohonan', false)
+            ->assertSee('Data warga', false)
             ->assertSee('lw-admin-page', false);
 
-        $dashboard->assertDontSee('Pengguna per peran', false)
+        $dashboard->assertDontSee('Monitoring wilayah', false)
+            ->assertDontSee('lw-panel-topnav', false)
             ->assertDontSee('Pengguna terbaru', false)
             ->assertDontSee('Perlu perhatian', false)
             ->assertDontSee('Profil Lurah', false)
             ->assertDontSee('lw-admin-nav-group-label">Akun', false)
-            ->assertSee('lw-panel-user-link', false)
+            ->assertSee('lw-panel-user-info', false)
             ->assertSee(route('admin.profile'), false);
 
         $this->actingAs($admin)
@@ -90,7 +91,7 @@ class AdminPanelUiTest extends TestCase
 
         $this->actingAs($admin)
             ->get('/admin/lurah')
-            ->assertNotFound();
+            ->assertRedirect('/kelurahan/lurah');
 
         $this->actingAs($admin)
             ->get(route('admin.deletion-requests.index'))
@@ -126,18 +127,18 @@ class AdminPanelUiTest extends TestCase
     {
         $admin = $this->createKelurahanUser();
         User::create([
-            'name' => 'Sekretaris Contoh',
-            'email' => 'sekretaris@example.test',
+            'name' => 'Ketua Contoh',
+            'email' => 'ketua@example.test',
             'password' => Hash::make('password'),
-            'role' => UserRole::SekretarisRt,
+            'role' => UserRole::KetuaRt,
         ]);
 
         $this->actingAs($admin)
             ->get(route('admin.users.index'))
             ->assertOk()
-            ->assertSee('Sekretaris RT', false)
+            ->assertSee('Ketua RT', false)
             ->assertSee('>Hapus</button>', false)
-            ->assertDontSee('lw-panel-table-link--danger">Sekretaris RT</button>', false);
+            ->assertDontSee('lw-panel-table-link--danger">Ketua RT</button>', false);
     }
 
     public function test_rt_profile_search_filters_by_rt_number(): void
@@ -158,8 +159,8 @@ class AdminPanelUiTest extends TestCase
         $admin = $this->createKelurahanUser();
 
         $this->actingAs($admin)
-            ->get(route('kelurahan.dashboard'))
-            ->assertRedirect(route('admin.dashboard'));
+            ->get(route('admin.dashboard'))
+            ->assertOk();
 
         $this->actingAs($admin)
             ->get(route('kelurahan.applications.index'))
@@ -184,8 +185,8 @@ class AdminPanelUiTest extends TestCase
         ]);
 
         $this->actingAs($kelurahan)
-            ->get(route('kelurahan.dashboard'))
-            ->assertRedirect(route('admin.dashboard'));
+            ->get(route('admin.dashboard'))
+            ->assertOk();
 
         $this->actingAs($kelurahan)
             ->get(route('kelurahan.applications.index'))
@@ -204,7 +205,7 @@ class AdminPanelUiTest extends TestCase
         ]);
 
         $this->actingAs($staff)
-            ->get(route('kelurahan.dashboard'))
+            ->get(route('admin.dashboard'))
             ->assertForbidden();
 
         $this->actingAs($staff)

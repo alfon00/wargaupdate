@@ -1,6 +1,6 @@
 # SOP singkat: Arsip warga (pindah / meninggal)
 
-Panduan operasional untuk Ketua/Sekretaris RT menggunakan portal Layanan Warga.
+Panduan operasional untuk Ketua RT menggunakan portal Layanan Warga.
 
 ## Prinsip
 

@@ -16,7 +16,7 @@ class RtProfile extends Model
 {
     protected $fillable = [
         'slug', 'rt_number', 'rw_number', 'kelurahan', 'kecamatan', 'kota', 'provinsi',
-        'ketua_rt', 'ketua_rw', 'sekretaris_rt', 'alamat_kantor',
+        'ketua_rt', 'ketua_rw', 'alamat_kantor',
         'visi', 'misi', 'phone', 'whatsapp', 'email', 'jam_layanan', 'logo_path', 'stamp_path',
         'instagram_url', 'facebook_url', 'youtube_url',
     ];
@@ -44,11 +44,11 @@ class RtProfile extends Model
         });
     }
 
-    /** Hanya RT yang sudah punya akun Ketua atau Sekretaris terdaftar di portal. */
+    /** Hanya RT yang sudah punya akun Ketua terdaftar di portal. */
     public function scopeWithRegisteredStaff(Builder $query): Builder
     {
         return $query->whereHas('users', fn ($q) => $q
-            ->whereIn('role', [UserRole::KetuaRt, UserRole::SekretarisRt])
+            ->where('role', UserRole::KetuaRt)
             ->whereNotNull('rt_profile_id')
             ->whereColumn('users.rt_profile_id', 'rt_profiles.id'));
     }
@@ -57,6 +57,72 @@ class RtProfile extends Model
     public function scopeCanonicalInauga(Builder $query): Builder
     {
         return $query->inauga()->whereIn('id', static::canonicalProfileIdsForInauga());
+    }
+
+    /** @return list<int> */
+    public static function inaugaRtNumberRange(): array
+    {
+        $min = max(1, (int) config('kelurahan.rt_profile_range.min', 1));
+        $max = max($min, (int) config('kelurahan.rt_profile_range.max', 16));
+
+        return range($min, $max);
+    }
+
+    public static function baselineInaugaProfile(): ?self
+    {
+        $baselineId = static::canonicalProfileIdForRtNumber('001');
+
+        return $baselineId ? static::find($baselineId) : static::inauga()->orderBy('id')->first();
+    }
+
+    /** Buat profil RT Inauga yang belum ada (RT 001–016 secara default). */
+    public static function ensureInaugaRtProfilesExist(): void
+    {
+        $missing = [];
+        foreach (static::inaugaRtNumberRange() as $num) {
+            $rtNumber = static::normalizeRtNumber((string) $num);
+            if (! static::canonicalProfileIdForRtNumber($rtNumber)) {
+                $missing[] = $rtNumber;
+            }
+        }
+
+        if ($missing === []) {
+            return;
+        }
+
+        $baseline = static::baselineInaugaProfile();
+        $kelurahan = filled($baseline?->kelurahan) ? $baseline->kelurahan : 'Kelurahan Inauga';
+
+        foreach ($missing as $rtNumber) {
+            $displayNum = ltrim($rtNumber, '0') ?: '0';
+            static::create([
+                'rt_number' => $rtNumber,
+                'rw_number' => $baseline?->rw_number,
+                'kelurahan' => $kelurahan,
+                'kecamatan' => $baseline?->kecamatan ?? config('kelurahan.distrik'),
+                'kota' => $baseline?->kota ?? config('kelurahan.kabupaten'),
+                'provinsi' => $baseline?->provinsi ?? config('kelurahan.provinsi'),
+                'ketua_rt' => "Ketua RT {$displayNum}",
+                'alamat_kantor' => $baseline && filled($baseline->alamat_kantor)
+                    ? $baseline->letterKopAddressForRtNumber($rtNumber, $baseline->alamat_kantor)
+                    : null,
+            ]);
+        }
+    }
+
+    /** Satu profil kanonik per nomor RT untuk penautan akun pengurus (RT 1–16). */
+    public static function forStaffAssignment(): Collection
+    {
+        static::ensureInaugaRtProfilesExist();
+
+        return collect(static::inaugaRtNumberRange())
+            ->map(fn (int $num) => static::normalizeRtNumber((string) $num))
+            ->map(fn (string $rtNumber) => static::canonicalProfileIdForRtNumber($rtNumber))
+            ->filter()
+            ->map(fn (int $id) => static::find($id))
+            ->filter()
+            ->sortBy(fn (self $profile) => (int) static::normalizeRtNumber($profile->rt_number))
+            ->values();
     }
 
     /** Satu baris per nomor RT — id kanonik (pengurus RT > slug/KK > MIN id). */
@@ -183,7 +249,7 @@ class RtProfile extends Model
     public function hasRegisteredStaff(): bool
     {
         return $this->users()
-            ->whereIn('role', [UserRole::KetuaRt, UserRole::SekretarisRt])
+            ->where('role', UserRole::KetuaRt)
             ->whereNotNull('rt_profile_id')
             ->where('rt_profile_id', $this->id)
             ->exists();
@@ -259,17 +325,9 @@ class RtProfile extends Model
             ->values();
     }
 
-    /** @return Collection<int, User> */
-    public function registeredSekretarisUsers(): Collection
-    {
-        return $this->staffUsersCollection()
-            ->filter(fn (User $user) => $user->role === UserRole::SekretarisRt)
-            ->values();
-    }
-
     public function registeredStaffCount(): int
     {
-        return $this->registeredKetuaUsers()->count() + $this->registeredSekretarisUsers()->count();
+        return $this->registeredKetuaUsers()->count();
     }
 
     public function primaryKetua(): ?User
@@ -294,11 +352,6 @@ class RtProfile extends Model
     private function isGenericKetuaLabel(string $name): bool
     {
         return (bool) preg_match('/^Ketua\s+RT\b/i', $name);
-    }
-
-    public function primarySekretaris(): ?User
-    {
-        return $this->registeredSekretarisUsers()->first();
     }
 
     public function publicLeadName(): string
@@ -365,7 +418,6 @@ class RtProfile extends Model
     public function publicContactPhone(): ?string
     {
         return $this->primaryKetua()?->phone
-            ?? $this->primarySekretaris()?->phone
             ?? $this->phone;
     }
 
@@ -390,17 +442,7 @@ class RtProfile extends Model
 
     public function hasExpandablePublicDetail(): bool
     {
-        $sekretaris = $this->registeredSekretarisUsers();
-
-        if ($sekretaris->isEmpty()) {
-            return false;
-        }
-
-        if ($sekretaris->count() > 1) {
-            return true;
-        }
-
-        return filled($sekretaris->first()?->phone);
+        return false;
     }
 
     /** @return Collection<int, User> */
@@ -414,7 +456,7 @@ class RtProfile extends Model
         }
 
         return $this->users()
-            ->whereIn('role', [UserRole::KetuaRt, UserRole::SekretarisRt])
+            ->where('role', UserRole::KetuaRt)
             ->whereNotNull('rt_profile_id')
             ->where('rt_profile_id', $this->id)
             ->orderBy('id')

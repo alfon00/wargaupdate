@@ -48,23 +48,15 @@ final class HomeContent
             'surat' => [
                 'label' => 'Surat pengantar RT',
                 'anchor' => 'alur-surat',
-                'intro' => 'Dari pemilihan jenis surat hingga pengambilan fisik di sekretariat RT.',
+                'intro' => '',
                 'steps' => [
                     [
-                        'title' => 'Pilih layanan surat',
-                        'desc' => 'Dari halaman Layanan, buka Surat pengantar RT.',
-                    ],
-                    [
                         'title' => 'Pilih jenis surat',
-                        'desc' => 'Pilih jenis surat sesuai keperluan Anda.',
-                    ],
-                    [
-                        'title' => 'Baca persyaratan',
-                        'desc' => 'Lihat berkas yang diperlukan, lalu klik Ajukan.',
+                        'desc' => 'Pilih jenis surat, baca persyaratan, lalu klik Ajukan.',
                     ],
                     [
                         'title' => 'Verifikasi identitas',
-                        'desc' => 'Masukkan NIK, RT, dan nomor HP terdaftar. Wajib sudah terdata di sistem RT.',
+                        'desc' => 'Masukkan NIK, RT, dan nomor HP terdaftar.',
                     ],
                     [
                         'title' => 'Lengkapi permohonan',
@@ -72,30 +64,26 @@ final class HomeContent
                     ],
                     [
                         'title' => 'Surat siap',
-                        'desc' => 'Pengurus RT memverifikasi permohonan, menyusun surat PDF dengan tanda tangan digital, lalu menerbitkannya. Anda mendapat notifikasi WhatsApp; pengurus dapat mengirim PDF. Ambil salinan fisik di sekretariat RT bila diperlukan. Lacak status via menu Lacak.',
+                        'desc' => 'RT memverifikasi dan menerbitkan PDF. Notifikasi WhatsApp; Ambil salinan fisik di sekretariat RT bila perlu. Lacak status via menu Lacak.',
                     ],
                 ],
             ],
             'pendataan_ulang' => [
                 'label' => 'Pendataan ulang',
                 'anchor' => 'alur-pendataan-ulang',
-                'intro' => 'Untuk warga yang sudah terdata — perbarui berkas KK dan identitas anggota keluarga.',
+                'intro' => '',
                 'steps' => [
                     [
-                        'title' => 'Buka pendataan ulang',
-                        'desc' => 'Dari halaman Layanan, pilih Pendataan ulang.',
-                    ],
-                    [
                         'title' => 'Verifikasi identitas',
-                        'desc' => 'Masukkan NIK kepala KK, pilih RT, dan nomor HP terdaftar.',
+                        'desc' => 'NIK kepala KK, RT, dan nomor HP terdaftar.',
                     ],
                     [
                         'title' => 'Unggah berkas',
-                        'desc' => 'Unggah scan KK terbaru serta KTP/KIA setiap anggota keluarga.',
+                        'desc' => 'Scan KK terbaru dan KTP/KIA setiap anggota keluarga.',
                     ],
                     [
                         'title' => 'Verifikasi pengurus RT',
-                        'desc' => 'Pengurus RT memeriksa berkas melalui panel verifikasi pendataan.',
+                        'desc' => 'Pengurus RT memeriksa berkas melalui panel pendataan.',
                     ],
                     [
                         'title' => 'Data diperbarui',
@@ -106,15 +94,11 @@ final class HomeContent
             'pendataan_warga' => [
                 'label' => 'Pendataan warga',
                 'anchor' => 'alur-pendataan-warga',
-                'intro' => 'Untuk keluarga belum terdata — pencatatan awal ke sistem RT.',
+                'intro' => '',
                 'steps' => [
                     [
-                        'title' => 'Buka pendataan warga',
-                        'desc' => 'Dari halaman Layanan, pilih Pendataan warga.',
-                    ],
-                    [
                         'title' => 'Isi data keluarga',
-                        'desc' => 'Lengkapi data KK, alamat, dan anggota keluarga sesuai dokumen.',
+                        'desc' => 'Lengkapi data KK, alamat, dan anggota sesuai dokumen.',
                     ],
                     [
                         'title' => 'Unggah berkas & verifikasi wajah',
@@ -122,11 +106,11 @@ final class HomeContent
                     ],
                     [
                         'title' => 'Verifikasi pengurus RT',
-                        'desc' => 'Pengurus RT memeriksa kelengkapan berkas sebelum data dinyatakan aktif.',
+                        'desc' => 'Pengurus RT memeriksa kelengkapan berkas sebelum data aktif.',
                     ],
                     [
                         'title' => 'Keluarga tercatat',
-                        'desc' => 'Setelah disetujui, keluarga aktif di sistem RT. Anda dapat menerima notifikasi WhatsApp setelah pengajuan diproses.',
+                        'desc' => 'Setelah disetujui, keluarga aktif di sistem RT.',
                     ],
                 ],
             ],

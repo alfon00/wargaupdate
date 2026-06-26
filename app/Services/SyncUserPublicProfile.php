@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Enums\UserRole;
-use App\Models\RtProfile;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,8 +24,6 @@ class SyncUserPublicProfile
 
         if ($user->role === UserRole::KetuaRt) {
             $rt->ketua_rt = $user->name;
-        } elseif ($user->role === UserRole::SekretarisRt) {
-            $rt->sekretaris_rt = $user->name;
         }
 
         if ($user->phone) {

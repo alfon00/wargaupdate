@@ -79,5 +79,7 @@
     --lw-frame-radius: 1.25rem;
     --lw-radius-surface: 1rem;
     --lw-shadow-surface: var(--lw-shadow-sm);
+    --lw-font-body: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    --lw-font-display: "Plus Jakarta Sans", "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
 }
 </style>

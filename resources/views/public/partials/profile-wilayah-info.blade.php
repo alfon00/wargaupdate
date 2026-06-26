@@ -11,8 +11,16 @@
             <h2 id="wilayah-info-heading" class="lw-profile-wilayah__title">Informasi Wilayah</h2>
             <dl class="lw-profile-wilayah__list">
                 <div>
+                    <dt>Kelurahan</dt>
+                    <dd>{{ filled($kel['nama'] ?? null) ? $kel['nama'] : 'Kelurahan Inauga' }}</dd>
+                </div>
+                <div>
                     <dt>Distrik</dt>
                     <dd>{{ $kel['distrik'] }}</dd>
+                </div>
+                <div>
+                    <dt>Kabupaten</dt>
+                    <dd>{{ $kel['kabupaten'] }}</dd>
                 </div>
                 <div>
                     <dt>Provinsi</dt>

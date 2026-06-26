@@ -47,10 +47,7 @@ class KelurahanOfficial extends Model
         $official = static::lurah();
         $defaults = config('kelurahan.lurah', []);
 
-        $photo = $official->photoUrl();
-        if (! $photo && filled($defaults['photo'] ?? null)) {
-            $photo = asset($defaults['photo']);
-        }
+        $photo = $official->hasUploadedPhoto() ? $official->photoUrl() : null;
 
         return [
             'jabatan' => $official->jabatan ?: ($defaults['jabatan'] ?? null),
@@ -90,5 +87,26 @@ class KelurahanOfficial extends Model
         }
 
         return Storage::disk('public')->url($this->photo_path);
+    }
+
+    public static function resolvePublicPhotoUrl(string $path): ?string
+    {
+        if (str_starts_with($path, 'http')) {
+            return $path;
+        }
+
+        $local = ltrim($path, '/');
+        if (is_file(public_path($local))) {
+            return asset($local);
+        }
+
+        if (preg_match('/\.png$/i', $local)) {
+            $svg = preg_replace('/\.png$/i', '.svg', $local);
+            if (is_file(public_path($svg))) {
+                return asset($svg);
+            }
+        }
+
+        return null;
     }
 }

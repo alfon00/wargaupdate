@@ -6,14 +6,12 @@ enum UserRole: string
 {
     case Kelurahan = 'kelurahan';
     case KetuaRt = 'ketua_rt';
-    case SekretarisRt = 'sekretaris_rt';
 
     public function label(): string
     {
         return match ($this) {
             self::Kelurahan => 'Kelurahan',
             self::KetuaRt => 'Ketua RT',
-            self::SekretarisRt => 'Sekretaris RT',
         };
     }
 
@@ -21,7 +19,7 @@ enum UserRole: string
     public function accountGroup(): string
     {
         return match ($this) {
-            self::KetuaRt, self::SekretarisRt => 'Akun RT',
+            self::KetuaRt => 'Akun RT',
             self::Kelurahan => 'Akun Kelurahan',
         };
     }
@@ -30,7 +28,6 @@ enum UserRole: string
     {
         return match ($this) {
             self::KetuaRt => 'Mengelola permohonan surat, verifikasi pendataan, dan data warga di satu RT.',
-            self::SekretarisRt => 'Mendampingi operasional layanan dan data warga di satu RT.',
             self::Kelurahan => 'Mengelola akun pengurus, profil RT, layanan, monitoring wilayah, dan konten portal kelurahan.',
         };
     }
@@ -39,13 +36,13 @@ enum UserRole: string
     {
         return match ($this) {
             self::Kelurahan => 'Panel Kelurahan',
-            self::KetuaRt, self::SekretarisRt => 'Panel RT',
+            self::KetuaRt => 'Panel RT',
         };
     }
 
     public function isRtStaff(): bool
     {
-        return in_array($this, [self::KetuaRt, self::SekretarisRt], true);
+        return $this === self::KetuaRt;
     }
 
     public function isKelurahan(): bool
@@ -70,6 +67,6 @@ enum UserRole: string
     /** @return list<self> */
     public static function pengurusCases(): array
     {
-        return [self::KetuaRt, self::SekretarisRt, self::Kelurahan];
+        return [self::KetuaRt, self::Kelurahan];
     }
 }

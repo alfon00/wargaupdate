@@ -18,7 +18,7 @@ class LetterDownloadLink
             return null;
         }
 
-        if (! $letter->signature_path && ! $letter->signed_at) {
+        if (! $letter->issued_at) {
             return null;
         }
 

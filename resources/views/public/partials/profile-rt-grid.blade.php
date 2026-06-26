@@ -18,7 +18,6 @@
                     $residentCount = $residentCounts[$p->id] ?? 0;
                     $leadName = $p->publicLeadName();
                     $photoUrl = $p->publicLeadPhotoUrl();
-                    $initial = mb_strtoupper(mb_substr(preg_replace('/^[^A-Za-z0-9]+/u', '', $leadName) ?: 'R', 0, 1));
                     $isHighlighted = isset($highlightSlug) && $highlightSlug === $p->slug;
                 @endphp
                 <li>
@@ -41,9 +40,7 @@
                                     loading="lazy"
                                     decoding="async">
                             @else
-                                <div class="lw-profile-rt-card__placeholder" role="img" aria-label="Belum ada foto {{ $leadName }}">
-                                    <span>{{ $initial }}</span>
-                                </div>
+                                <x-photo-empty :name="$leadName" size="fill" class="lw-profile-rt-card__photo-empty" />
                             @endif
                         </div>
 

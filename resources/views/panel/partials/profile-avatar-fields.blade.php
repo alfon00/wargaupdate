@@ -1,7 +1,4 @@
 {{-- Expects $user (User). Must be inside the profile update form. --}}
-@php
-    $initial = mb_strtoupper(mb_substr(preg_replace('/^[^A-Za-z0-9]+/u', '', $user->name) ?: 'U', 0, 1));
-@endphp
 
 <section class="lw-panel-profile-photo" aria-labelledby="profile-photo-heading">
     <h2 id="profile-photo-heading" class="lw-panel-section-title">Foto profil</h2>
@@ -16,9 +13,12 @@
                 height="112"
             >
         @else
-            <div class="lw-panel-profile-avatar lw-panel-profile-avatar--placeholder" id="profile-avatar-preview" role="img" aria-label="Belum ada foto {{ $user->name }}">
-                <span>{{ $initial }}</span>
-            </div>
+            <x-photo-empty
+                :name="$user->name"
+                size="lg"
+                id="profile-avatar-preview"
+                class="lw-panel-profile-avatar lw-panel-profile-avatar--placeholder"
+            />
         @endif
         <label class="lw-panel-profile-upload">
             <span class="lw-panel-profile-upload-label">Pilih foto baru</span>

@@ -51,20 +51,12 @@ class LetterPdfStyles
             .ttd-place-line{text-decoration:underline}
             .ttd-hormat{margin-top:4px}
             .ttd-role{margin-top:2px}
-            .ttd-sign-block{width:100%;margin:12px auto 0;line-height:0;text-align:center}
-            .ttd-sign-block--with-cap{margin-bottom:0}
-            .ttd-sign-stack{position:relative;width:100%;height:2.9cm;margin:0 auto;overflow:visible}
-            .ttd-sign-stack--with-cap{height:2.9cm;overflow:visible}
-            .ttd-sign-stack .ttd-img{position:absolute;left:0;right:0;bottom:0;text-align:center;line-height:0;z-index:1}
-            .ttd-sign-stack .ttd-img img{display:inline-block;max-width:95%;max-height:2.8cm;width:auto;height:auto;object-fit:contain}
-            .ttd-sign-stack--with-cap .ttd-img img{max-width:98%;max-height:2.2cm}
-            .ttd-sign-stack--with-cap .ttd-cap{position:absolute;top:0;left:50%;margin-left:6px;line-height:0;z-index:2}
-            .ttd-sign-stack--with-cap .ttd-cap img{display:block;max-height:4.2cm;max-width:4.2cm;object-fit:contain}
-            .ttd-sign-placeholder{display:block;width:100%;height:2.8cm}
-            .ttd-sign-stack--with-cap .ttd-sign-placeholder{height:2.2cm}
-            .ttd-nama-paren,.ttd-nama{margin-top:4px;font-size:12pt;font-family:"Times New Roman",Times,serif}
+            .ttd-qrcode-block{width:100%;margin:12px auto 0;text-align:center;line-height:1.2}
+            .ttd-qrcode-img{display:inline-block;width:2.4cm;height:2.4cm;object-fit:contain}
+            .ttd-qrcode-caption{margin:4px 0 0;font-size:8pt;letter-spacing:.02em;font-family:"Courier New",Courier,monospace;color:#333}
+            .ttd-qrcode-placeholder{display:block;width:2.4cm;height:2.4cm;margin:0 auto}
+            .ttd-nama-paren,.ttd-nama{margin-top:8px;font-size:12pt;font-family:"Times New Roman",Times,serif}
             .ttd-nama-paren{text-decoration:underline;text-transform:uppercase;letter-spacing:.04em}
-            .ttd-sign-block--with-cap + .ttd-nama-paren,.ttd-sign-block--with-cap + .ttd-nama{margin-top:1cm;line-height:1.45}
 CSS;
     }
 }

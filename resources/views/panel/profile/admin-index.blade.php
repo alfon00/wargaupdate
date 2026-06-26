@@ -35,13 +35,12 @@
             @php
                 $lurahName = $lurah['nama'] ?? 'Lurah';
                 $lurahPhoto = $lurah['photo'] ?? null;
-                $initial = mb_strtoupper(mb_substr(preg_replace('/^[^A-Za-z0-9]+/u', '', $lurahName) ?: 'L', 0, 1));
             @endphp
             <a href="{{ route('admin.profile.kelurahan.show') }}" class="lw-panel-profile-card__photo-link" aria-label="Detail profil lurah {{ $lurahName }}">
                 @if($lurahPhoto)
                     <img src="{{ $lurahPhoto }}" alt="" class="lw-panel-profile-card__photo" width="96" height="96">
                 @else
-                    <span class="lw-panel-profile-card__photo lw-panel-profile-card__photo--placeholder" aria-hidden="true">{{ $initial }}</span>
+                    <x-photo-empty :name="$lurahName" size="xs" class="lw-panel-profile-card__photo lw-panel-profile-card__photo--empty" />
                 @endif
                 <span class="lw-panel-profile-card__photo-hint">Detail</span>
             </a>

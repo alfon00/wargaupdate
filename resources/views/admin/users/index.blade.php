@@ -6,7 +6,7 @@
 <div class="lw-admin-page">
 @include('admin.partials.page-head', [
     'title' => 'Pengguna',
-    'lead' => 'Buat akun pengurus RT atau kelurahan, lalu tautkan ketua/sekretaris RT ke profil RT yang sesuai.',
+    'lead' => 'Buat akun pengurus RT atau kelurahan, lalu tautkan ketua RT ke profil RT yang sesuai.',
 ])
 
 <x-admin.page-toolbar
@@ -63,7 +63,7 @@
                         <td>
                             @if($user->rtProfile)
                                 {{ $user->rtProfile->displayName() }}
-                            @elseif(in_array($user->role?->value, ['ketua_rt', 'sekretaris_rt'], true))
+                            @elseif($user->role?->value === 'ketua_rt')
                                 <span class="lw-panel-profile-warn lw-panel-profile-warn--compact">Belum tertaut</span>
                             @else
                                 —

@@ -2,9 +2,7 @@
     $kel = config('kelurahan');
     $leadName = $rtProfile->publicLeadName();
     $photoUrl = $rtProfile->publicLeadPhotoUrl();
-    $initial = mb_strtoupper(mb_substr(preg_replace('/^[^A-Za-z0-9]+/u', '', $leadName) ?: 'R', 0, 1));
     $ketuaUsers = $rtProfile->registeredKetuaUsers();
-    $sekretarisUsers = $rtProfile->registeredSekretarisUsers();
     $contactPhone = $rtProfile->publicContactPhone();
     $contactEmail = $rtProfile->publicContactEmail();
     $hasContacts = filled($contactPhone)
@@ -32,9 +30,7 @@
                     loading="lazy"
                     decoding="async">
             @else
-                <div class="lw-profile-rt-show-card__placeholder" role="img" aria-label="Belum ada foto {{ $leadName }}">
-                    <span>{{ $initial }}</span>
-                </div>
+                <x-photo-empty :name="$leadName" size="fill" class="lw-profile-rt-show-card__photo-empty" />
             @endif
         </div>
 
@@ -48,7 +44,7 @@
                 · {{ $kel['distrik'] }}
             </p>
 
-            @if($ketuaUsers->isNotEmpty() || $sekretarisUsers->isNotEmpty())
+            @if($ketuaUsers->isNotEmpty())
                 <ul class="lw-profile-rt-show-card__staff">
                     @foreach($ketuaUsers as $ketua)
                         <li>
@@ -56,15 +52,6 @@
                             <span class="lw-profile-rt-show-card__staff-name">{{ $ketua->name }}</span>
                             @if(filled($ketua->phone))
                                 <a href="tel:{{ preg_replace('/\s+/', '', $ketua->phone) }}" class="lw-profile-rt-show-card__staff-contact">{{ $ketua->phone }}</a>
-                            @endif
-                        </li>
-                    @endforeach
-                    @foreach($sekretarisUsers as $sekretaris)
-                        <li>
-                            <span class="lw-profile-rt-show-card__staff-role">Sekretaris RT</span>
-                            <span class="lw-profile-rt-show-card__staff-name">{{ $sekretaris->name }}</span>
-                            @if(filled($sekretaris->phone))
-                                <a href="tel:{{ preg_replace('/\s+/', '', $sekretaris->phone) }}" class="lw-profile-rt-show-card__staff-contact">{{ $sekretaris->phone }}</a>
                             @endif
                         </li>
                     @endforeach

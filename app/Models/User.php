@@ -48,10 +48,8 @@ class User extends Authenticatable
             return null;
         }
 
-        $field = $this->role === UserRole::KetuaRt ? 'ketua_rt' : 'sekretaris_rt';
-
         $byName = RtProfile::inauga()
-            ->where($field, $this->name)
+            ->where('ketua_rt', $this->name)
             ->first();
 
         if ($byName) {
@@ -61,7 +59,7 @@ class User extends Authenticatable
         if (filled($this->phone)) {
             return RtProfile::inauga()
                 ->whereHas('users', fn ($q) => $q
-                    ->whereIn('role', [UserRole::KetuaRt, UserRole::SekretarisRt])
+                    ->where('role', UserRole::KetuaRt)
                     ->where('phone', $this->phone))
                 ->first();
         }
@@ -97,7 +95,7 @@ class User extends Authenticatable
     public function dashboardRoute(): string
     {
         return match ($this->role) {
-            UserRole::KetuaRt, UserRole::SekretarisRt => route('rt.dashboard'),
+            UserRole::KetuaRt => route('rt.dashboard'),
             UserRole::Kelurahan => route('admin.dashboard'),
             default => route('home'),
         };
@@ -106,7 +104,7 @@ class User extends Authenticatable
     public function profileRoute(): string
     {
         return match ($this->role) {
-            UserRole::KetuaRt, UserRole::SekretarisRt => route('rt.profile'),
+            UserRole::KetuaRt => route('rt.profile'),
             UserRole::Kelurahan => route('admin.profile'),
             default => route('home'),
         };
@@ -115,7 +113,7 @@ class User extends Authenticatable
     public function profileUpdateRoute(): string
     {
         return match ($this->role) {
-            UserRole::KetuaRt, UserRole::SekretarisRt => route('rt.profile.update'),
+            UserRole::KetuaRt => route('rt.profile.update'),
             UserRole::Kelurahan => route('admin.profile.update'),
             default => route('home'),
         };
@@ -124,7 +122,7 @@ class User extends Authenticatable
     public function profileAvatarDestroyRoute(): string
     {
         return match ($this->role) {
-            UserRole::KetuaRt, UserRole::SekretarisRt => route('rt.profile.avatar.destroy'),
+            UserRole::KetuaRt => route('rt.profile.avatar.destroy'),
             UserRole::Kelurahan => route('admin.profile.avatar.destroy'),
             default => route('home'),
         };

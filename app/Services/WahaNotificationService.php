@@ -152,8 +152,8 @@ class WahaNotificationService
             return $log;
         }
 
-        if (! $letter->signature_path && ! $letter->signed_at) {
-            $log->update(['status' => 'failed', 'error_message' => 'Surat belum ditandatangani Ketua RT']);
+        if (! $letter->issued_at) {
+            $log->update(['status' => 'failed', 'error_message' => 'Surat PDF belum diterbitkan']);
 
             return $log;
         }

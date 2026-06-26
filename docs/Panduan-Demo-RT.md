@@ -12,11 +12,9 @@ Dokumen ini merangkum pertanyaan dan alur demo portal untuk pengurus RT. Fokusny
 |-------|-------|---------|
 | **Warga** | Mengajukan surat, pendataan, pengaduan, lacak status — tanpa login | Contoh pengajuan & lacak |
 | **Ketua RT** | Verifikasi permohonan, susun & terbitkan surat PDF, kelola data warga, kegiatan, laporan | Ya (utama) |
-| **Sekretaris RT** | Sama seperti Ketua RT sesuai akun yang diberikan admin | Opsional |
-| **Admin sistem** | Setup akun pengurus, profil RT, katalog layanan | Tidak (hanya jelaskan singkat) |
-| **Petugas / panel Kelurahan** | — | **Tidak digunakan** |
+| **Kelurahan** | Setup akun pengurus RT, profil RT, katalog layanan, monitoring wilayah | Tidak (hanya jelaskan singkat) |
 
-> **Catatan:** Operasional harian portal hanya melibatkan **warga ↔ pengurus RT**. Tidak ada panel kelurahan yang dipakai dalam alur layanan surat, pendataan, atau pengaduan. Profil lurah di halaman publik hanya informasi wilayah, bukan aktor proses layanan.
+> **Catatan:** Operasional harian portal hanya melibatkan **warga ↔ Ketua RT**. Panel kelurahan dipakai untuk konfigurasi akun, profil RT, dan monitoring — bukan untuk memproses permohonan harian. Profil lurah di halaman publik hanya informasi wilayah, bukan aktor proses layanan.
 
 ---
 
@@ -25,9 +23,9 @@ Dokumen ini merangkum pertanyaan dan alur demo portal untuk pengurus RT. Fokusny
 *Tujuan: pahami kondisi RT sekarang sebelum demo.*
 
 - Saat ini permohonan surat dari warga ditangani bagaimana? (WhatsApp, datang langsung, kertas?)
-- Berapa lama dari warga mengajuan sampai surat siap?
+- Berapa lama dari warga mengajukan sampai surat siap?
 - Bagian mana yang paling merepotkan: verifikasi berkas, tulis surat, TTD, cap/stempel, atau kabari warga?
-- Siapa yang mengerjakan: Ketua RT, Sekretaris, atau bergantian?
+- Siapa yang mengerjakan operasional harian di RT?
 
 ---
 
@@ -65,7 +63,6 @@ Domisili · SKTM (tidak mampu) · Usaha (SKU) · Pengantar KK · Pengantar KTP �
 
 - Verifikasi warga baru / pendataan ulang — lebih mudah atau lebih ribet dari manual?
 - Data warga di panel RT — sudah lengkap untuk administrasi?
-- Sekretaris RT perlu akses penuh atau cukup Ketua saja?
 
 ---
 
@@ -88,7 +85,7 @@ Domisili · SKTM (tidak mampu) · Usaha (SKU) · Pengantar KK · Pengantar KTP �
 - Fitur mana yang **paling berguna** minggu depan?
 - Fitur mana yang **belum bisa dipakai** (terutama format/layout surat)?
 - RT siap go-live untuk jenis surat apa dulu?
-- Siapa **operator utama** (Ketua/Sekretaris)?
+- Siapa **operator utama** (Ketua RT)?
 - Perlu pelatihan singkat (30–60 menit)?
 
 ### 3 pertanyaan kunci (jika waktu singkat)

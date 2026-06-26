@@ -1,5 +1,5 @@
 /**
- * Halaman susun surat RT: terbitkan, draf, auto-save TTD, validasi field layanan.
+ * Halaman susun surat RT: terbitkan, draf, validasi field layanan.
  */
 
 export function initLetterCompose(config) {
@@ -39,17 +39,6 @@ export function initLetterCompose(config) {
         setApplicantFieldsEditable(!isEditing);
     });
 
-    const csrf = config.csrfToken
-        || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-        || form.querySelector('input[name="_token"]')?.value;
-
-    if (config.signatureSaveUrl) {
-        window.letterSignatureSaveConfig = {
-            url: config.signatureSaveUrl,
-            csrfToken: csrf,
-        };
-    }
-
     const setStatus = (message, type = 'error') => {
         if (!statusEl) {
             return;
@@ -65,21 +54,6 @@ export function initLetterCompose(config) {
         statusEl.hidden = false;
         statusEl.textContent = message;
         statusEl.dataset.state = type;
-    };
-
-    const syncSignatureFromCanvas = () => {
-        if (typeof window.syncLetterSignatureInputs === 'function') {
-            return window.syncLetterSignatureInputs();
-        }
-
-        return form.querySelector('input[name="signature_data"]')?.value || '';
-    };
-
-    const collectSignature = () => syncSignatureFromCanvas() || '';
-
-    const hasValidSignature = () => {
-        const signature = collectSignature();
-        return Boolean(signature && signature.length >= 100);
     };
 
     const getRequiredLetterFieldInputs = () => {
@@ -108,7 +82,7 @@ export function initLetterCompose(config) {
             return;
         }
 
-        const canPublish = hasPublishedPdf || (hasValidSignature() && hasRequiredLetterFields());
+        const canPublish = hasPublishedPdf || hasRequiredLetterFields();
         publishBtn.disabled = !canPublish;
         publishBtn.setAttribute('aria-disabled', canPublish ? 'false' : 'true');
     };
@@ -122,19 +96,10 @@ export function initLetterCompose(config) {
             };
         }
 
-        if (!hasValidSignature()) {
-            return {
-                ok: false,
-                message: 'Gambar tanda tangan di kanvas terlebih dahulu sebelum menerbitkan surat.',
-            };
-        }
-
         return { ok: true, message: '' };
     };
 
     form.addEventListener('submit', (event) => {
-        syncSignatureFromCanvas();
-
         const check = validateBeforePublish();
         if (!check.ok) {
             event.preventDefault();
@@ -145,8 +110,6 @@ export function initLetterCompose(config) {
     });
 
     document.getElementById('letter-draft-form')?.addEventListener('submit', () => {
-        syncSignatureFromCanvas();
-
         document.querySelectorAll('.draft-field-sync').forEach((el) => {
             const key = el.dataset.fieldKey;
             const source = form.querySelector('[name="fields[' + key + ']"]');
@@ -154,11 +117,6 @@ export function initLetterCompose(config) {
                 el.value = source.value;
             }
         });
-
-        const draftSig = document.getElementById('draft_signature_data');
-        if (draftSig) {
-            draftSig.value = collectSignature();
-        }
     });
 
     form.querySelectorAll('[data-letter-field]').forEach((input) => {
@@ -168,13 +126,6 @@ export function initLetterCompose(config) {
                 setStatus('');
             }
         });
-    });
-
-    window.addEventListener('letter-signature-changed', () => {
-        setPublishEnabled();
-        if (hasValidSignature() && hasRequiredLetterFields()) {
-            setStatus('');
-        }
     });
 
     setPublishEnabled();

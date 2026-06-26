@@ -12,11 +12,13 @@ class GeneratedLetter extends Model
         'letter_template_id',
         'file_path',
         'letter_number',
+        'verification_token',
         'letter_fields',
         'signature_path',
         'signed_at',
         'signed_by',
         'issued_at',
+        'publish_count',
     ];
 
     protected function casts(): array
@@ -41,5 +43,27 @@ class GeneratedLetter extends Model
     public function signer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'signed_by');
+    }
+
+    public function publishCount(): int
+    {
+        return max(0, (int) $this->publish_count);
+    }
+
+    public function publishStatusLabel(): string
+    {
+        $count = $this->publishCount();
+
+        if ($count <= 0) {
+            return '';
+        }
+
+        if ($count === 1) {
+            return 'Diterbitkan 1 kali';
+        }
+
+        $republishCount = $count - 1;
+
+        return "Diterbitkan {$count} kali · {$republishCount} kali susun ulang";
     }
 }

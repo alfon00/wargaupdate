@@ -14,8 +14,6 @@
             'residentCounts' => $residentCounts,
             'highlightSlug' => $highlightSlug ?? null,
         ])
-
-        @include('public.partials.profile-wilayah-info')
     </div>
 </div>
 

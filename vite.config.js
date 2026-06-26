@@ -19,11 +19,16 @@ export default defineConfig({
                 'resources/js/rt-data-warga-table.js',
                 'resources/js/rt-household-members-panel.js',
                 'resources/js/pendataan-warga-face.js',
+                'resources/js/panel-menu.js',
+                'resources/js/panel-user-menu.js',
             ],
             refresh: true,
             fonts: [
                 bunny('Instrument Sans', {
                     weights: [400, 500, 600, 700, 800],
+                }),
+                bunny('Plus Jakarta Sans', {
+                    weights: [600, 700, 800],
                 }),
             ],
         }),

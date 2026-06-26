@@ -30,10 +30,7 @@
         <div class="lw-nav-panel">
             <div class="lw-nav-links">
                 @foreach($navLinks as $link)
-                    <a href="{{ route($link['route']) }}"
-                        class="lw-nav-link {{ $link['active'] ? 'lw-nav-link-active' : '' }}">
-                        {{ $link['label'] }}
-                    </a>
+                    <a href="{{ route($link['route']) }}" class="lw-nav-link{{ $link['active'] ? ' lw-nav-link-active' : '' }}">{{ $link['label'] }}</a>
                 @endforeach
 
                 @guest

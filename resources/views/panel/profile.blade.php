@@ -4,34 +4,20 @@
 
 @section('content')
 @php
-    $eyebrow = match (true) {
-        $user->isRtStaff() => 'Panel RT',
-        $user->isKelurahan() => $user->role->label(),
-        default => 'Panel pengurus',
-    };
     $linkedRt = $user->isRtStaff() ? $user->resolvedRtProfile() : null;
 @endphp
 
-<header class="lw-panel-page-head">
-    <div>
-        <p class="lw-panel-page-eyebrow">{{ $eyebrow }}</p>
-        <h1 class="lw-panel-page-title">Profil saya</h1>
-        <p class="lw-panel-page-lead">
-            Ubah foto profil, nama, email untuk masuk, dan kata sandi akun Anda.
-            @if($user->isRtStaff() || $user->isKelurahan())
-                Perubahan nama, foto, dan telepon juga tampil di halaman
-                <a href="{{ route('profile.index') }}" class="lw-panel-link" target="_blank" rel="noopener">Profil</a> publik.
-            @endif
-        </p>
-        @if($user->isRtStaff())
-            @if($linkedRt)
-                <p class="lw-panel-profile-linked">Terhubung ke <strong>{{ $linkedRt->displayName() }}</strong> di halaman Profil publik.</p>
-            @else
-                <p class="lw-panel-profile-warn">Akun belum terhubung ke profil RT di halaman publik. Hubungi admin untuk menetapkan RT.</p>
-            @endif
-        @endif
-    </div>
-</header>
+@if($user->isRtStaff() && ! $linkedRt)
+    <p class="lw-panel-profile-warn lw-mb-4">Akun belum terhubung ke profil RT di halaman publik. Hubungi admin untuk menetapkan RT.</p>
+@endif
+
+<p class="lw-panel-page-lead lw-mb-6">
+    Ubah foto profil, nama, email untuk masuk, dan kata sandi akun Anda.
+    @if($user->isRtStaff() || $user->isKelurahan())
+        Perubahan nama, foto, dan telepon juga tampil di halaman
+        <a href="{{ route('profile.index') }}" class="lw-panel-link" target="_blank" rel="noopener">Profil</a> publik.
+    @endif
+</p>
 
 <form method="POST" action="{{ $user->profileUpdateRoute() }}" enctype="multipart/form-data" class="lw-panel-profile-form lw-panel-profile-block lw-panel-profile-form--grid">
     @csrf

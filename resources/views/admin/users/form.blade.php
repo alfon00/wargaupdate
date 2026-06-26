@@ -6,7 +6,7 @@
 <div class="lw-admin-page">
 @include('admin.partials.page-head', [
     'title' => ($user->exists ? 'Edit' : 'Tambah').' Pengguna',
-    'lead' => $user->exists ? 'Perbarui data akun pengurus RT atau kelurahan.' : 'Buat akun pengurus RT (ketua/sekretaris) atau kelurahan.',
+    'lead' => $user->exists ? 'Perbarui data akun pengurus RT atau kelurahan.' : 'Buat akun pengurus RT (ketua) atau kelurahan.',
 ])
 
 <form method="POST" action="{{ $user->exists ? route('admin.users.update', $user) : route('admin.users.store') }}" class="lw-panel-form lw-panel-form--wide">
@@ -68,7 +68,7 @@
                     <option value="{{ $rt->id }}" @selected(old('rt_profile_id', $user->rt_profile_id) == $rt->id)>{{ $rt->displayName() }} — RW {{ $rt->rw_number ?: '—' }}</option>
                 @endforeach
             </select>
-            <p class="lw-panel-field-hint">Wajib untuk akun Ketua RT atau Sekretaris RT agar profil panel tersinkron ke halaman Profil publik.</p>
+            <p class="lw-panel-field-hint">Pilih RT 001–016. Wajib untuk akun Ketua RT agar profil panel tersinkron ke halaman Profil publik.</p>
         </div>
     </fieldset>
 
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var rtField = document.getElementById('rt-profile-field');
     var rtSelect = document.getElementById('rt_profile_id');
     var roleDescription = document.getElementById('role-description');
-    var rtRoles = ['ketua_rt', 'sekretaris_rt'];
+    var rtRoles = ['ketua_rt'];
     var roleDescriptions = @json($roleDescriptions);
     function toggleRt() {
         var show = rtRoles.indexOf(roleSelect.value) !== -1;

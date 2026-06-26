@@ -3,15 +3,11 @@
 @section('title', 'Permohonan')
 
 @section('content')
-@php
-    $settingsButton = view('rt.applications.partials.settings-button', compact('rt'))->render();
-@endphp
 <div class="lw-rt-page">
 @include('rt.partials.page-head', [
     'eyebrow' => $rt->displayName(),
     'title' => 'Daftar Permohonan',
-    'lead' => 'Terima atau tolak permohonan, susun dan terbitkan surat PDF dengan tanda tangan digital, lalu kirim PDF ke warga via WhatsApp bila diperlukan.',
-    'actions' => $settingsButton,
+    'lead' => 'Terima atau tolak permohonan, susun dan terbitkan surat PDF dengan QR code verifikasi keaslian, lalu kirim PDF ke warga via WhatsApp bila diperlukan.',
 ])
 
 <x-rt.list-toolbar :form-action="route('rt.applications.index')">
@@ -72,11 +68,5 @@
     </div>
     <div class="lw-panel-pagination">{{ $applications->links() }}</div>
 @endif
-
-@include('rt.applications.partials.stamp-settings-modal', compact('rt'))
 </div>
 @endsection
-
-@push('scripts')
-    @vite(['resources/js/rt-applications-settings.js'])
-@endpush

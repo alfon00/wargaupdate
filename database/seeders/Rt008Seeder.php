@@ -26,7 +26,6 @@ class Rt008Seeder extends Seeder
             'provinsi' => 'Provinsi Contoh',
             'ketua_rt' => 'Bapak Ketua RT',
             'ketua_rw' => 'Bapak Ketua RW',
-            'sekretaris_rt' => 'Ibu Sekretaris RT',
             'alamat_kantor' => 'Jl. Warga RT-008 No. 1',
         ]);
 

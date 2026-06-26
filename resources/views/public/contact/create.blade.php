@@ -7,7 +7,7 @@
     @include('public.partials.contact.hero')
 
     <div class="lw-container lw-container--wide lw-contact-board">
-        <div class="lw-track-hero-grid" aria-labelledby="contact-form-title">
+        <div class="lw-track-hero-grid" aria-labelledby="contact-hero-heading">
             <aside class="lw-track-intro" aria-label="Informasi pengaduan">
                 <h2 class="lw-track-intro__title">{{ $introTitle }}</h2>
                 <p class="lw-track-intro__lead">{{ $introLead }}</p>
@@ -41,8 +41,7 @@
             <div class="lw-contact-forms">
                 <article class="lw-form-card lw-contact-form-card">
                     <header class="lw-track-split__head">
-                        <h1 id="contact-form-title" class="lw-track-split__title">Pengaduan</h1>
-                        <p class="lw-track-split__lead">{{ $formLead }}</p>
+                        <p class="lw-track-split__lead lw-mb-0">{{ $formLead }}</p>
                     </header>
 
                     <div id="environment-requirements" class="lw-is-hidden">
@@ -59,7 +58,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('contact.store') }}" id="contact-form" class="lw-track-split__form" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('contact.store') }}" id="contact-form" class="lw-track-split__form" enctype="multipart/form-data" aria-labelledby="contact-hero-heading">
                         @csrf
                         <p class="lw-form-hint lw-mb-0">Field bertanda <span class="lw-form-label-required">*</span> wajib diisi.</p>
 
@@ -92,7 +91,7 @@
                                     value="{{ old('reporter_name') }}" class="lw-form-input">
                             </div>
                             <div class="lw-form-field">
-                                <label for="phone" class="lw-form-label">Nomor HP/ WhatsApp <span class="lw-form-label-required">*</span></label>
+                                <label for="phone" class="lw-form-label">Nomor HP / WhatsApp <span class="lw-form-label-required">*</span></label>
                                 <x-phone-input id="phone" name="phone" :value="old('phone')" class="lw-form-input" required />
                             </div>
                         </div>

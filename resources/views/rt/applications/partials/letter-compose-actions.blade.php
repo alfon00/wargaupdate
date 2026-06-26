@@ -1,7 +1,6 @@
 <div class="lw-letter-compose-toolbar-wrap">
     <div class="lw-letter-compose-toolbar">
-        <button type="submit" form="letter-compose-form" id="letter-publish-btn" class="lw-panel-btn"
-            @if(! $hasPublishedPdf) disabled @endif>
+        <button type="submit" form="letter-compose-form" id="letter-publish-btn" class="lw-panel-btn">
             {{ $hasPublishedPdf ? 'Terbitkan ulang PDF' : 'Terbitkan surat PDF' }}
         </button>
         @if($hasPublishedPdf)

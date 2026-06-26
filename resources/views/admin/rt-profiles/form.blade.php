@@ -45,10 +45,6 @@
             <input id="ketua_rw" name="ketua_rw" value="{{ old('ketua_rw', $profile->ketua_rw) }}">
             <p class="lw-panel-field-hint">Muncul di blok &quot;Mengetahui&quot; pada surat pengantar.</p>
         </div>
-        <div class="lw-panel-field">
-            <label for="sekretaris_rt">Nama sekretaris RT</label>
-            <input id="sekretaris_rt" name="sekretaris_rt" value="{{ old('sekretaris_rt', $profile->sekretaris_rt) }}">
-        </div>
     </fieldset>
 
     <fieldset class="lw-panel-form-fieldset">

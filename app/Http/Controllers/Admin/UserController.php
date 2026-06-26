@@ -54,7 +54,7 @@ class UserController extends Controller
             'roleDescriptions' => collect(UserRole::pengurusCases())
                 ->mapWithKeys(fn (UserRole $role) => [$role->value => $role->description()])
                 ->all(),
-            'rtProfiles' => RtProfile::inauga()->orderBy('rt_number')->get(),
+            'rtProfiles' => RtProfile::forStaffAssignment(),
         ]);
     }
 
@@ -79,7 +79,7 @@ class UserController extends Controller
             'roleDescriptions' => collect(UserRole::pengurusCases())
                 ->mapWithKeys(fn (UserRole $role) => [$role->value => $role->description()])
                 ->all(),
-            'rtProfiles' => RtProfile::inauga()->orderBy('rt_number')->get(),
+            'rtProfiles' => RtProfile::forStaffAssignment(),
         ]);
     }
 
@@ -124,8 +124,7 @@ class UserController extends Controller
         return collect(UserRole::pengurusCases())
             ->sortBy(fn (UserRole $role) => match ($role) {
                 UserRole::KetuaRt => 1,
-                UserRole::SekretarisRt => 2,
-                UserRole::Kelurahan => 3,
+                UserRole::Kelurahan => 2,
             })
             ->mapWithKeys(fn (UserRole $role) => [$role->value => $role->label()])
             ->all();
@@ -139,8 +138,7 @@ class UserController extends Controller
             ->map(fn ($roles) => $roles
                 ->sortBy(fn (UserRole $role) => match ($role) {
                     UserRole::KetuaRt => 1,
-                    UserRole::SekretarisRt => 2,
-                    UserRole::Kelurahan => 3,
+                    UserRole::Kelurahan => 2,
                 })
                 ->mapWithKeys(fn (UserRole $role) => [$role->value => $role->label()])
                 ->all())
@@ -150,7 +148,7 @@ class UserController extends Controller
     /** @return array<string, mixed> */
     private function validateUser(Request $request, ?User $user = null): array
     {
-        $rtRoles = [UserRole::KetuaRt->value, UserRole::SekretarisRt->value];
+        $rtRoles = [UserRole::KetuaRt->value];
 
         return $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -186,7 +184,7 @@ class UserController extends Controller
     /** @param  array<string, mixed>  $validated */
     private function normalizeRtProfileAssignment(array $validated): array
     {
-        $rtRoles = [UserRole::KetuaRt->value, UserRole::SekretarisRt->value];
+        $rtRoles = [UserRole::KetuaRt->value];
 
         if (! in_array($validated['role'] ?? '', $rtRoles, true)) {
             $validated['rt_profile_id'] = null;

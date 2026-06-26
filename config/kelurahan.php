@@ -8,10 +8,15 @@ return [
     'portal_subtitle_nav' => '',
     'portal_nama_schema' => 'Portal Layanan Warga RT',
 
-    'nama' => '',
+    'nama' => 'Kelurahan Inauga',
     'distrik' => 'Distrik Wania',
     'kabupaten' => 'Kabupaten Mimika',
     'provinsi' => 'Papua Tengah',
+
+    'rt_profile_range' => [
+        'min' => (int) env('KELURAHAN_RT_MIN', 1),
+        'max' => (int) env('KELURAHAN_RT_MAX', 16),
+    ],
 
     'staff_email_domain' => env('STAFF_EMAIL_DOMAIN', 'layananwarga.my.id'),
 
@@ -181,16 +186,16 @@ return [
     ],
 
     'lurah' => [
-        'jabatan' => 'Lurah',
+        'jabatan' => 'Lurah Kelurahan Inauga',
         'nama' => 'Gerson Rumbarar, S.E.',
-        'photo' => 'images/kelurahan/lurah.png',
+        'photo' => 'images/kelurahan/lurah.svg',
         'telepon' => null,
         'whatsapp' => null,
-        'email' => null,
-        'alamat_kantor' => 'Distrik Wania',
+        'email' => 'kelurahan@layananwarga.my.id',
+        'alamat_kantor' => 'Kantor Kelurahan Inauga, Distrik Wania, Kabupaten Mimika',
         'jam_layanan' => 'Senin–Jumat 08.00–14.00 WIT',
-        'visi' => 'Mewujudkan pelayanan publik yang transparan, responsif, dan mendukung kesejahteraan warga setempat.',
-        'misi' => '1. Mengkoordinasikan RT/RW dalam administrasi kependudukan. 2. Memastikan surat pengantar dan layanan publik berjalan tertib. 3. Menjalin sinergi dengan distrik dan pemerintah kabupaten.',
+        'visi' => 'Mewujudkan pelayanan kelurahan yang transparan, responsif, dan mendukung kesejahteraan warga Inauga.',
+        'misi' => "1. Mengkoordinasikan RT/RW dalam administrasi kependudukan.\n2. Memastikan surat pengantar dan layanan publik berjalan tertib.\n3. Menjalin sinergi dengan distrik dan pemerintah kabupaten.",
     ],
 
     'sosial' => [

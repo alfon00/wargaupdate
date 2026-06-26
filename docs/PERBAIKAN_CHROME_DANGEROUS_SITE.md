@@ -8,7 +8,7 @@ Peringatan di `https://layananwarga.my.id/masuk` berasal dari **Google Safe Brow
 |-----|--------|
 | **https://layananwarga.my.id/akses-pengurus** | Satu halaman masuk pengurus (email + kata sandi); panel RT / Kelurahan / Admin ditentukan otomatis dari akun |
 
-Path lama **`/masuk`** dan **`/akses-pengurus/rt`** (serta `/kelurahan`, `/admin`) dialihkan permanen (301) ke `/akses-pengurus` — jangan dibagikan URL portal terpisah ke pengurus.
+Path lama **`/masuk`** dan **`/akses-pengurus/rt`** (serta `/kelurahan`, `/admin` sebagai portal terpisah) dialihkan permanen (301) ke `/akses-pengurus` untuk login — setelah masuk, panel kelurahan ada di `/kelurahan`; URL `/admin` dialihkan ke `/kelurahan`.
 
 ## Yang sudah dilakukan di server
 

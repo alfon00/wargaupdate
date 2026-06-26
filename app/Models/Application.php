@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Application extends Model
 {
     protected $fillable = [
-        'application_number', 'service_type_id', 'resident_id', 'rt_profile_id', 'submitted_by',
+        'application_number', 'letter_verification_token', 'service_type_id', 'resident_id', 'rt_profile_id', 'submitted_by',
         'status', 'purpose', 'form_data', 'rejection_reason', 'processed_by',
         'submitted_at', 'completed_at',
     ];

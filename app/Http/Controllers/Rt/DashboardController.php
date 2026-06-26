@@ -142,7 +142,7 @@ class DashboardController extends Controller
             return 'Akun Anda memiliki profil RT (#'.$user->rt_profile_id.') tetapi tidak dapat di-resolve. Hubungi admin untuk memperbaiki penautan.';
         }
 
-        $roleLabel = $user->role === \App\Enums\UserRole::KetuaRt ? 'Ketua RT' : 'Sekretaris RT';
+        $roleLabel = 'Ketua RT';
 
         return 'Sebagai '.$roleLabel.', akun Anda belum ditautkan ke profil RT di Admin → Pengguna. Data layanan dari /layanan tidak akan tampil sampai rt_profile_id diisi.';
     }

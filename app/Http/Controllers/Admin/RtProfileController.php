@@ -17,7 +17,7 @@ class RtProfileController extends Controller
             ->inauga()
             ->withCount([
                 'users as staff_count' => function ($query) {
-                    $query->whereIn('role', ['ketua_rt', 'sekretaris_rt'])
+                    $query->where('role', 'ketua_rt')
                         ->whereColumn('users.rt_profile_id', 'rt_profiles.id');
                 },
                 'users',
@@ -100,7 +100,6 @@ class RtProfileController extends Controller
             'kota' => ['nullable', 'string', 'max:255'],
             'provinsi' => ['nullable', 'string', 'max:255'],
             'ketua_rt' => ['nullable', 'string', 'max:255'],
-            'sekretaris_rt' => ['nullable', 'string', 'max:255'],
             'ketua_rw' => ['nullable', 'string', 'max:255'],
             'alamat_kantor' => ['nullable', 'string', 'max:500'],
             'phone' => PhoneNormalizer::validationRules(),

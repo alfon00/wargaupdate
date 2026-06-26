@@ -134,11 +134,11 @@ class PanelUiTest extends TestCase
         $this->actingAs($staff)
             ->get(route('rt.dashboard'))
             ->assertOk()
-            ->assertSee('lw-panel-date', false)
+            ->assertSee('lw-panel-topbar-date', false)
             ->assertSee('Hari ini', false)
             ->assertSee('Kamis, 11 Juni 2026', false)
             ->assertDontSee('lw-nav-date', false)
-            ->assertDontSee('lw-panel-topbar-date', false);
+            ->assertDontSee('lw-panel-date lw-panel-date--compact', false);
     }
 
     public function test_kelurahan_dashboard_and_index_pages_render(): void
@@ -149,10 +149,6 @@ class PanelUiTest extends TestCase
             'password' => Hash::make('password'),
             'role' => UserRole::Kelurahan,
         ]);
-
-        $this->actingAs($kelurahan)
-            ->get(route('kelurahan.dashboard'))
-            ->assertRedirect(route('admin.dashboard'));
 
         $this->actingAs($kelurahan)
             ->get(route('admin.dashboard'))
@@ -214,6 +210,11 @@ class PanelUiTest extends TestCase
             ->assertOk()
             ->assertDontSee('lw-panel-nav-group-label">Akun', false)
             ->assertSee('lw-panel-user-link', false)
+            ->assertSee('lw-panel-user-menu', false)
+            ->assertDontSee('Ganti akun', false)
+            ->assertDontSee('Profil saya', false)
+            ->assertDontSee('>Profil</span>', false)
+            ->assertSee('Keluar', false)
             ->assertSee(route('rt.profile'), false);
 
         $kelurahan = User::create([
@@ -228,6 +229,9 @@ class PanelUiTest extends TestCase
             ->assertOk()
             ->assertDontSee('lw-panel-nav-group-label">Akun', false)
             ->assertSee('lw-panel-user-link', false)
+            ->assertDontSee('Ganti akun', false)
+            ->assertDontSee('Profil saya', false)
+            ->assertDontSee('>Profil</span>', false)
             ->assertSee(route('admin.profile'), false);
     }
 }

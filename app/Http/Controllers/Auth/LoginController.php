@@ -19,11 +19,8 @@ class LoginController extends Controller
         }
 
         return view('auth.login-hub', [
-            'introTitle' => AuthContent::introTitle(),
-            'introLead' => AuthContent::introLead(),
             'formLead' => AuthContent::formLead(),
             'loginNote' => AuthContent::loginNote(),
-            'securityBenefits' => AuthContent::securityBenefits(),
         ]);
     }
 
@@ -63,6 +60,10 @@ class LoginController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        if ($request->input('redirect') === 'login') {
+            return redirect()->route('login.hub');
+        }
 
         return redirect()->route('home');
     }

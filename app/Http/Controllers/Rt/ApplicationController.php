@@ -16,8 +16,6 @@ use App\Services\WahaNotificationService;
 use App\Support\ApplicationRejectionMessage;
 use App\Support\LetterFieldSchema;
 use App\Support\ResidentLetterProfile;
-use App\Support\RtStampStorage;
-use App\Support\SignatureStorage;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -63,36 +61,6 @@ class ApplicationController extends Controller
         $applications = $query->paginate(20)->withQueryString();
 
         return view('rt.applications.index', compact('applications', 'rt'));
-    }
-
-    public function updateStamp(Request $request): RedirectResponse
-    {
-        $rt = $this->requireRtProfile();
-
-        $request->validate([
-            'stamp' => ['required', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
-        ]);
-
-        $path = RtStampStorage::storeUploadedFile($request->file('stamp'), $rt);
-        $rt->update(['stamp_path' => $path]);
-
-        return redirect()
-            ->route('rt.applications.index')
-            ->with('success', 'Cap resmi RT berhasil diunggah. Cap akan tampil di atas tanda tangan pada surat PDF.');
-    }
-
-    public function destroyStamp(): RedirectResponse
-    {
-        $rt = $this->requireRtProfile();
-
-        if ($rt->stamp_path) {
-            RtStampStorage::deleteStoredPath($rt->stamp_path);
-            $rt->update(['stamp_path' => null]);
-        }
-
-        return redirect()
-            ->route('rt.applications.index')
-            ->with('success', 'Cap resmi RT berhasil dihapus.');
     }
 
     public function destroy(Application $application): RedirectResponse
@@ -154,7 +122,7 @@ class ApplicationController extends Controller
 
         return redirect()
             ->route('rt.applications.letter.compose', $application)
-            ->with('success', 'Permohonan diterima. Lanjutkan susun dan tandatangani surat pengantar RT.');
+            ->with('success', 'Permohonan diterima. Lanjutkan susun dan terbitkan surat pengantar RT.');
     }
 
     /** @deprecated Use verify() — kept for backward-compatible route name */
@@ -190,7 +158,7 @@ class ApplicationController extends Controller
         $this->abortUnlessOwnsApplication($application);
 
         if (! $application->status->canMarkReady()) {
-            return back()->withErrors(['error' => 'Status permohonan tidak dapat ditandai siap diambil.']);
+            return back()->withErrors(['error' => 'Status permohonan tidak dapat ditandai selesai.']);
         }
 
         $application->updateQuietly([
@@ -199,7 +167,7 @@ class ApplicationController extends Controller
             'completed_at' => now(),
         ]);
 
-        return back()->with('success', 'Permohonan ditandai siap diambil.');
+        return back()->with('success', 'Permohonan ditandai selesai.');
     }
 
     public function updateStatus(Request $request, Application $application): RedirectResponse
@@ -311,24 +279,12 @@ class ApplicationController extends Controller
         $profileIncomplete = $resident && ! ResidentLetterProfile::isComplete($resident);
         $missingProfileLabels = $resident ? ResidentLetterProfile::missingLabels($resident) : [];
 
-        $existingSignatureDataUri = null;
-        if ($publishedLetter?->signature_path) {
-            $existingSignatureDataUri = SignatureStorage::toDataUriFromPath($publishedLetter->signature_path);
-        }
-
-        if (! $existingSignatureDataUri) {
-            $draftSignature = $application->form_data['letter']['signature_data'] ?? null;
-            if ($draftSignature && ! SignatureStorage::isBlank($draftSignature)) {
-                $existingSignatureDataUri = $draftSignature;
-            }
-        }
-
         $canSendLetterWhatsApp = false;
         $letterWhatsAppBlockReason = null;
 
         if ($hasPublishedPdf && $publishedLetter) {
-            if (! $publishedLetter->signature_path && ! $publishedLetter->signed_at) {
-                $letterWhatsAppBlockReason = 'Gambar tanda tangan Ketua RT terlebih dahulu.';
+            if (! $publishedLetter->issued_at) {
+                $letterWhatsAppBlockReason = 'Surat PDF belum diterbitkan.';
             } elseif (! filled($resident?->whatsappNotificationPhone())) {
                 $letterWhatsAppBlockReason = 'Nomor HP warga belum terdaftar.';
             } elseif (! $resident->whatsapp_notify) {
@@ -355,7 +311,6 @@ class ApplicationController extends Controller
             'missingProfileLabels',
             'kopProfileIncomplete',
             'missingKopLabels',
-            'existingSignatureDataUri',
             'canSendLetterWhatsApp',
             'letterWhatsAppBlockReason',
             'lastLetterWhatsAppLog',
@@ -467,7 +422,6 @@ class ApplicationController extends Controller
 
         $validated = $request->validate([
             'fields' => ['required', 'array'],
-            'signature_data' => ['nullable', 'string', 'max:500000'],
             ...LetterFieldSchema::validate($application->serviceType->code, $request->input('fields', [])),
             ...LetterFieldSchema::letterNumberValidationRules(required: false),
         ]);
@@ -478,10 +432,6 @@ class ApplicationController extends Controller
             'draft_saved_by' => auth()->id(),
         ]);
 
-        if (array_key_exists('signature_data', $validated)) {
-            $letterDraft['signature_data'] = $validated['signature_data'];
-        }
-
         $formData = $application->form_data ?? [];
         $formData['letter'] = $letterDraft;
         $application->update(['form_data' => $formData]);
@@ -489,34 +439,6 @@ class ApplicationController extends Controller
         return redirect()
             ->route('rt.applications.letter.compose', $application)
             ->with('success', 'Draf data surat disimpan.');
-    }
-
-    public function saveLetterSignature(Request $request, Application $application): JsonResponse
-    {
-        $this->abortUnlessOwnsApplication($application);
-
-        if (! $application->status->canGenerateLetter()) {
-            return response()->json(['message' => 'Status permohonan tidak memungkinkan penyimpanan tanda tangan.'], 403);
-        }
-
-        $validated = $request->validate([
-            'signature_data' => ['nullable', 'string', 'max:500000'],
-        ]);
-
-        $signatureData = $validated['signature_data'] ?? null;
-        if (SignatureStorage::isBlank($signatureData)) {
-            $signatureData = null;
-        }
-
-        $formData = $application->form_data ?? [];
-        $formData['letter'] = array_merge($formData['letter'] ?? [], [
-            'signature_data' => $signatureData,
-            'signature_saved_at' => now()->toIso8601String(),
-            'signature_saved_by' => auth()->id(),
-        ]);
-        $application->update(['form_data' => $formData]);
-
-        return response()->json(['ok' => true]);
     }
 
     public function previewLetter(Request $request, Application $application): Response|JsonResponse
@@ -533,7 +455,6 @@ class ApplicationController extends Controller
             $html = $this->letters->previewHtml(
                 $application,
                 $validated['fields'],
-                $validated['signature_data'] ?? null,
             );
 
             if ($this->previewWantsJson($request)) {
@@ -581,19 +502,12 @@ class ApplicationController extends Controller
             return back()->withErrors(['letter' => 'Verifikasi berkas terlebih dahulu sebelum menerbitkan surat.']);
         }
 
-        $validated = $this->validateLetterCompose($request, $application, requireSignature: true);
-
-        if (SignatureStorage::isBlank($validated['signature_data'] ?? null)) {
-            return back()
-                ->withInput()
-                ->withErrors(['signature_data' => 'Tanda tangan wajib diisi pada kanvas sebelum menerbitkan surat.']);
-        }
+        $validated = $this->validateLetterCompose($request, $application);
 
         try {
             $this->letters->generate(
                 $application,
                 $validated['fields'],
-                $validated['signature_data'],
                 auth()->id(),
             );
         } catch (\Throwable $e) {
@@ -630,13 +544,12 @@ class ApplicationController extends Controller
     }
 
     /**
-     * @return array{fields: array<string, string>, signature_data?: string|null}
+     * @return array{fields: array<string, string>}
      */
     protected function validateLetterPreview(Request $request, Application $application): array
     {
         $request->validate([
             'fields' => ['nullable', 'array'],
-            'signature_data' => ['nullable', 'string', 'max:500000'],
         ]);
 
         $defaults = LetterFieldSchema::defaultValues($application);
@@ -652,26 +565,19 @@ class ApplicationController extends Controller
 
         return [
             'fields' => $merged,
-            'signature_data' => $request->input('signature_data'),
         ];
     }
 
     /**
-     * @return array{fields: array<string, string>, signature_data?: string}
+     * @return array{fields: array<string, string>}
      */
-    protected function validateLetterCompose(Request $request, Application $application, bool $requireSignature): array
+    protected function validateLetterCompose(Request $request, Application $application): array
     {
         $rules = [
             'fields' => ['required', 'array'],
             ...LetterFieldSchema::validate($application->serviceType->code, $request->input('fields', [])),
             ...LetterFieldSchema::letterNumberValidationRules(),
         ];
-
-        if ($requireSignature) {
-            $rules['signature_data'] = ['required', 'string', 'max:500000'];
-        } else {
-            $rules['signature_data'] = ['nullable', 'string', 'max:500000'];
-        }
 
         return $request->validate($rules);
     }

@@ -1,0 +1,127 @@
+{{-- Expects panel nav variables from layouts.panel --}}
+@php
+    $linkClass = $panelNavLinkClass ?? static fn (bool $active): string => 'lw-panel-nav-link'.($active ? ' lw-panel-nav-link--active' : '');
+@endphp
+
+<nav class="lw-panel-nav" aria-label="Navigasi panel">
+    @if(auth()->user()->isRtStaff())
+        <a href="{{ route('rt.dashboard') }}" class="{{ $linkClass(request()->routeIs('rt.dashboard')) }}">
+            <span class="lw-panel-nav-link-inner">
+                <svg class="lw-panel-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                Dashboard
+            </span>
+        </a>
+        <a href="{{ route('rt.pendataan.index') }}" class="{{ $linkClass(request()->routeIs('rt.pendataan.*')) }}">
+            <span class="lw-panel-nav-link-inner">
+                <svg class="lw-panel-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+                Pendataan
+            </span>
+            @if($pendingPendataan > 0)
+                <span class="lw-panel-badge">{{ $pendingPendataan }}</span>
+            @endif
+        </a>
+        <a href="{{ route('rt.data-warga.index') }}" class="{{ $linkClass(request()->routeIs('rt.data-warga.*') || request()->routeIs('rt.residents.*') || request()->routeIs('rt.households.*')) }}">
+            <span class="lw-panel-nav-link-inner">
+                <svg class="lw-panel-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Data warga
+            </span>
+        </a>
+        <a href="{{ route('rt.applications.index') }}" class="{{ $linkClass(request()->routeIs('rt.applications.*')) }}">
+            <span class="lw-panel-nav-link-inner">
+                <svg class="lw-panel-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                Permohonan
+            </span>
+            @if($pendingApps > 0)
+                <span class="lw-panel-badge lw-panel-badge--muted">{{ $pendingApps }}</span>
+            @endif
+        </a>
+        <a href="{{ route('rt.reports.index') }}" class="{{ $linkClass(request()->routeIs('rt.reports.*')) }}">
+            <span class="lw-panel-nav-link-inner">
+                <svg class="lw-panel-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Kontak
+            </span>
+            @if($newReports > 0)
+                <span class="lw-panel-badge">{{ $newReports }}</span>
+            @endif
+        </a>
+        <a href="{{ route('rt.notifications.index') }}" class="{{ $linkClass(request()->routeIs('rt.notifications.*')) }}">
+            <span class="lw-panel-nav-link-inner">
+                <svg class="lw-panel-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                Notifikasi
+            </span>
+        </a>
+        <a href="{{ route('rt.kegiatan.index') }}" class="{{ $linkClass(request()->routeIs('rt.kegiatan.*') || request()->routeIs('rt.pengumuman.*')) }}">
+            <span class="lw-panel-nav-link-inner">
+                <svg class="lw-panel-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Kegiatan
+            </span>
+        </a>
+    @elseif(auth()->user()->isKelurahan())
+        <a href="{{ route('admin.dashboard') }}" class="{{ $linkClass(request()->routeIs('admin.dashboard')) }}">
+            <span class="lw-admin-nav-link-inner">
+                <svg class="lw-admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                Dashboard
+            </span>
+        </a>
+        <a href="{{ route('kelurahan.applications.index') }}" class="{{ $linkClass(request()->routeIs('kelurahan.applications.*')) }}">
+            <span class="lw-admin-nav-link-inner">
+                <svg class="lw-admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                Permohonan
+            </span>
+            @if($pendingApps > 0)
+                <span class="lw-panel-badge lw-panel-badge--muted">{{ $pendingApps }}</span>
+            @endif
+        </a>
+        <a href="{{ route('kelurahan.population.index') }}" class="{{ $linkClass(request()->routeIs('kelurahan.population.*')) }}">
+            <span class="lw-admin-nav-link-inner">
+                <svg class="lw-admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Data warga
+            </span>
+        </a>
+        <a href="{{ route('kelurahan.reports.index') }}" class="{{ $linkClass(request()->routeIs('kelurahan.reports.*')) }}">
+            <span class="lw-admin-nav-link-inner">
+                <svg class="lw-admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Laporan
+            </span>
+            @if($newReports > 0)
+                <span class="lw-panel-badge">{{ $newReports }}</span>
+            @endif
+        </a>
+        <a href="{{ route('admin.users.index') }}" class="{{ $linkClass(request()->routeIs('admin.users.*')) }}">
+            <span class="lw-admin-nav-link-inner">
+                <svg class="lw-admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Pengguna
+            </span>
+            @if($rtStaffWithoutProfile > 0)
+                <span class="lw-panel-badge">{{ $rtStaffWithoutProfile }}</span>
+            @endif
+        </a>
+        <a href="{{ route('admin.rt-profiles.index') }}" class="{{ $linkClass(request()->routeIs('admin.rt-profiles.*')) }}">
+            <span class="lw-admin-nav-link-inner">
+                <svg class="lw-admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
+                Profil RT
+            </span>
+        </a>
+        <a href="{{ route('admin.deletion-requests.index') }}" class="{{ $linkClass(request()->routeIs('admin.deletion-requests.*')) }}">
+            <span class="lw-admin-nav-link-inner">
+                <svg class="lw-admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                Hapus permanen
+            </span>
+            @if($pendingDeletionRequests > 0)
+                <span class="lw-panel-badge">{{ $pendingDeletionRequests }}</span>
+            @endif
+        </a>
+        <a href="{{ route('admin.services.index') }}" class="{{ $linkClass(request()->routeIs('admin.services.*')) }}">
+            <span class="lw-admin-nav-link-inner">
+                <svg class="lw-admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+                Layanan
+            </span>
+        </a>
+        <a href="{{ route('kelurahan.kegiatan.index') }}" class="{{ $linkClass(request()->routeIs('kelurahan.kegiatan.*') || request()->routeIs('kelurahan.pengumuman.*')) }}">
+            <span class="lw-admin-nav-link-inner">
+                <svg class="lw-admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Kegiatan
+            </span>
+        </a>
+    @endif
+</nav>

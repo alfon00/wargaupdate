@@ -107,16 +107,24 @@ class ResidentDataController extends Controller
 
         $households = $this->residentDataIndex
             ->buildHouseholdQuery($rt, $filter, $kategori, $search)
-            ->get();
+            ->get()
+            ->filter(fn ($household) => $household->residents->isNotEmpty())
+            ->values();
+
+        $kategoriLabel = collect(ResidentDataIndexService::KATEGORI_OPTIONS)
+            ->firstWhere('value', $kategori)['label'] ?? ucfirst($kategori);
 
         $pdf = Pdf::loadView('rt.resident-data.report-pdf', [
             'rt' => $rt,
             'households' => $households,
             'filter' => $filter,
             'kategori' => $kategori,
+            'kategoriLabel' => $kategoriLabel,
             'search' => $search,
+            'totalHouseholds' => $households->count(),
+            'totalResidents' => $households->sum(fn ($household) => $household->residents->count()),
             'generatedAt' => now('Asia/Jayapura'),
-        ])->setPaper('A4');
+        ])->setPaper('a4', 'landscape');
 
         return $pdf->download('laporan-rt-data-warga-'.now('Asia/Jayapura')->format('Ymd-His').'.pdf');
     }

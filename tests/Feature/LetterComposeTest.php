@@ -15,6 +15,7 @@ use App\Models\RtProfile;
 use App\Models\ServiceType;
 use App\Models\User;
 use App\Support\LetterDownloadLink;
+use App\Support\LetterVerificationLink;
 use App\Support\SuratPengantarTemplate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -139,8 +140,8 @@ class LetterComposeTest extends TestCase
             ->assertSee('letter-compose-root', false)
             ->assertSee('Nomor surat', false)
             ->assertSee('name="fields[nomor_surat]"', false)
-            ->assertSee('Tanda tangan', false)
-            ->assertSee('letter-signature-canvas', false);
+            ->assertSee('verifikasi keaslian', false)
+            ->assertDontSee('id="letter-signature-canvas"', false);
     }
 
     public function test_publish_letter_uses_custom_nomor_surat(): void
@@ -155,7 +156,6 @@ class LetterComposeTest extends TestCase
                 'fields' => array_merge($this->sampleFields($application), [
                     'nomor_surat' => $customNumber,
                 ]),
-                'signature_data' => $this->sampleSignatureDataUri(),
             ])
             ->assertRedirect(route('rt.applications.letter.compose', $application))
             ->assertSessionHas('success');
@@ -326,7 +326,6 @@ class LetterComposeTest extends TestCase
             ->from(route('rt.applications.letter.compose', $application))
             ->post(route('rt.applications.letter.publish', $application), [
                 'fields' => $this->sampleFields(),
-                'signature_data' => $this->sampleSignatureDataUri(),
             ])
             ->assertRedirect(route('rt.applications.letter.compose', $application))
             ->assertSessionHas('success');
@@ -336,37 +335,19 @@ class LetterComposeTest extends TestCase
         $this->assertSame(ApplicationStatus::SiapDiambil, $application->status);
     }
 
-    public function test_save_letter_signature_persists_in_form_data(): void
+    public function test_draft_save_persists_fields(): void
     {
         [, $staff, $application] = $this->createLetterReadyApplication();
-        $signature = $this->sampleSignatureDataUri();
-
-        $this->actingAs($staff)
-            ->postJson(route('rt.applications.letter.signature', $application), [
-                'signature_data' => $signature,
-            ])
-            ->assertOk()
-            ->assertJson(['ok' => true]);
-
-        $application->refresh();
-        $this->assertSame($signature, $application->form_data['letter']['signature_data'] ?? null);
-    }
-
-    public function test_draft_save_includes_signature(): void
-    {
-        [, $staff, $application] = $this->createLetterReadyApplication();
-        $signature = $this->sampleSignatureDataUri();
 
         $this->actingAs($staff)
             ->from(route('rt.applications.letter.compose', $application))
             ->post(route('rt.applications.letter.draft', $application), [
                 'fields' => $this->sampleFields(),
-                'signature_data' => $signature,
             ])
             ->assertRedirect(route('rt.applications.letter.compose', $application));
 
         $application->refresh();
-        $this->assertSame($signature, $application->form_data['letter']['signature_data'] ?? null);
+        $this->assertSame('Warga Surat', $application->form_data['letter']['fields']['nama'] ?? null);
     }
 
     public function test_preview_fragment_excludes_inline_styles(): void
@@ -400,7 +381,6 @@ class LetterComposeTest extends TestCase
         $response = $this->actingAs($staff)
             ->post(route('rt.applications.letter.preview', $application), [
                 'fields' => $this->sampleFields(),
-                'signature_data' => $this->sampleSignatureDataUri(),
             ]);
 
         $response->assertOk();
@@ -466,18 +446,19 @@ class LetterComposeTest extends TestCase
         $this->assertStringContainsString('SURAT PENGANTAR RUKUN TETANGGA', $response->getContent());
     }
 
-    public function test_publish_letter_requires_signature(): void
+    public function test_publish_letter_requires_required_fields(): void
     {
         [, $staff, $application] = $this->createLetterReadyApplication();
 
         $this->actingAs($staff)
             ->from(route('rt.applications.letter.compose', $application))
             ->post(route('rt.applications.letter.publish', $application), [
-                'fields' => $this->sampleFields(),
-                'signature_data' => '',
+                'fields' => array_merge($this->sampleFields(), [
+                    'keperluan' => '',
+                ]),
             ])
             ->assertRedirect(route('rt.applications.letter.compose', $application))
-            ->assertSessionHasErrors('signature_data');
+            ->assertSessionHasErrors('fields.keperluan');
     }
 
     public function test_compose_letter_renders_usaha_application(): void
@@ -501,7 +482,6 @@ class LetterComposeTest extends TestCase
             ->from(route('rt.applications.letter.compose', $application))
             ->post(route('rt.applications.letter.publish', $application), [
                 'fields' => array_merge($this->sampleFields(), $this->sampleUsahaFields()),
-                'signature_data' => $this->sampleSignatureDataUri(),
             ])
             ->assertRedirect(route('rt.applications.letter.compose', $application))
             ->assertSessionHas('success');
@@ -770,27 +750,32 @@ class LetterComposeTest extends TestCase
         $this->assertStringContainsString('( Maurissa )', $html);
         $this->assertStringContainsString('font-family:"Times New Roman",Times,serif', $html);
         $this->assertStringContainsString('.ttd-nama-paren{text-decoration:underline;text-transform:uppercase', $html);
-        $this->assertStringContainsString('.ttd-sign-stack .ttd-img img{display:inline-block;max-width:95%;max-height:2.8cm', $html);
+        $this->assertStringContainsString('.ttd-qrcode-block{width:100%', $html);
     }
 
-    public function test_preview_includes_signature_image_in_ttd_area(): void
+    public function test_preview_includes_qrcode_in_ttd_area(): void
     {
         [, $staff, $application] = $this->createLetterReadyApplication();
 
         $response = $this->actingAs($staff)
             ->post(route('rt.applications.letter.preview', $application), [
                 'fields' => $this->sampleFields(),
-                'signature_data' => $this->sampleSignatureDataUri(),
             ]);
 
         $response->assertOk();
         $html = $response->getContent();
-        $this->assertStringContainsString('class="ttd-img"', $html);
-        $this->assertMatchesRegularExpression('/class="ttd-img"[^>]*>[\s\S]*?<img/i', $html);
-        $this->assertStringContainsString('alt="Tanda tangan"', $html);
+        $this->assertStringContainsString('class="ttd-qrcode-block"', $html);
+        $this->assertStringContainsString('class="ttd-qrcode-img"', $html);
+        $this->assertStringContainsString('alt="QR code verifikasi surat"', $html);
+        $this->assertStringContainsString('Verifikasi keaslian surat', $html);
+        $this->assertStringNotContainsString($application->application_number.'|', $html);
+
+        $token = LetterVerificationLink::resolveToken($application->fresh());
+        $verifyUrl = LetterVerificationLink::urlForToken($token);
+        $this->assertStringContainsString('/surat/verifikasi/', $verifyUrl);
     }
 
-    public function test_publish_stores_signature_png_on_disk(): void
+    public function test_publish_stores_pdf_on_disk(): void
     {
         Storage::fake('local');
         [, $staff, $application] = $this->createLetterReadyApplication();
@@ -799,43 +784,29 @@ class LetterComposeTest extends TestCase
             ->from(route('rt.applications.letter.compose', $application))
             ->post(route('rt.applications.letter.publish', $application), [
                 'fields' => $this->sampleFields(),
-                'signature_data' => $this->sampleSignatureDataUri(),
             ])
             ->assertRedirect(route('rt.applications.letter.compose', $application));
 
         $application->refresh();
         $letter = $application->generatedLetter;
         $this->assertNotNull($letter);
-        $this->assertNotNull($letter->signature_path);
-        Storage::disk('local')->assertExists($letter->signature_path);
+        $this->assertNull($letter->signature_path);
+        $this->assertNotNull($letter->issued_at);
         Storage::disk('local')->assertExists($letter->file_path);
     }
 
-    public function test_compose_page_prefills_signature_from_published_letter(): void
+    public function test_compose_page_shows_qrcode_note(): void
     {
         Storage::fake('local');
         [, $staff, $application] = $this->createLetterReadyApplication();
 
         $this->withoutVite();
 
-        $this->actingAs($staff)
-            ->from(route('rt.applications.letter.compose', $application))
-            ->post(route('rt.applications.letter.publish', $application), [
-                'fields' => $this->sampleFields(),
-                'signature_data' => $this->sampleSignatureDataUri(),
-            ]);
-
         $response = $this->actingAs($staff)
             ->get(route('rt.applications.letter.compose', $application));
 
         $response->assertOk();
-        $this->assertStringContainsString('data:image/png;base64,', $response->getContent());
-        $this->assertStringContainsString('id="signature_data"', $response->getContent());
-    }
-
-    public function test_sample_signature_is_not_considered_blank(): void
-    {
-        $this->assertFalse(\App\Support\SignatureStorage::isBlank($this->sampleSignatureDataUri()));
+        $this->assertStringContainsString('verifikasi keaslian', $response->getContent());
     }
 
     public function test_compose_page_shows_whatsapp_button_when_pdf_published(): void
@@ -849,7 +820,6 @@ class LetterComposeTest extends TestCase
             ->from(route('rt.applications.letter.compose', $application))
             ->post(route('rt.applications.letter.publish', $application), [
                 'fields' => $this->sampleFields(),
-                'signature_data' => $this->sampleSignatureDataUri(),
             ])
             ->assertRedirect(route('rt.applications.letter.compose', $application));
 
@@ -883,7 +853,6 @@ class LetterComposeTest extends TestCase
             ->from(route('rt.applications.letter.compose', $application))
             ->post(route('rt.applications.letter.publish', $application), [
                 'fields' => $this->sampleFields(),
-                'signature_data' => $this->sampleSignatureDataUri(),
             ])
             ->assertRedirect(route('rt.applications.letter.compose', $application));
 
@@ -940,7 +909,6 @@ class LetterComposeTest extends TestCase
             ->from(route('rt.applications.letter.compose', $application))
             ->post(route('rt.applications.letter.publish', $application), [
                 'fields' => $this->sampleFields(),
-                'signature_data' => $this->sampleSignatureDataUri(),
             ])
             ->assertRedirect(route('rt.applications.letter.compose', $application));
 
@@ -978,7 +946,6 @@ class LetterComposeTest extends TestCase
         $this->actingAs($staff)
             ->post(route('rt.applications.letter.publish', $application), [
                 'fields' => $this->sampleFields(),
-                'signature_data' => $this->sampleSignatureDataUri(),
             ])
             ->assertRedirect(route('rt.applications.letter.compose', $application));
 
@@ -1012,7 +979,6 @@ class LetterComposeTest extends TestCase
         $this->actingAs($staff)
             ->post(route('rt.applications.letter.publish', $application), [
                 'fields' => $this->sampleFields(),
-                'signature_data' => $this->sampleSignatureDataUri(),
             ])
             ->assertRedirect(route('rt.applications.letter.compose', $application));
 
@@ -1031,7 +997,6 @@ class LetterComposeTest extends TestCase
         $this->actingAs($staff)
             ->post(route('rt.applications.letter.publish', $application), [
                 'fields' => $this->sampleFields(),
-                'signature_data' => $this->sampleSignatureDataUri(),
             ])
             ->assertRedirect(route('rt.applications.letter.compose', $application));
 
@@ -1047,7 +1012,7 @@ class LetterComposeTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_send_letter_whatsapp_fails_without_signature(): void
+    public function test_send_letter_whatsapp_fails_without_issued_pdf(): void
     {
         Storage::fake('local');
         [, $staff, $application] = $this->createLetterReadyApplication();
@@ -1063,7 +1028,7 @@ class LetterComposeTest extends TestCase
             'letter_fields' => [],
             'signature_path' => null,
             'signed_at' => null,
-            'issued_at' => now(),
+            'issued_at' => null,
         ]);
 
         $this->actingAs($staff)
@@ -1091,7 +1056,6 @@ class LetterComposeTest extends TestCase
             ->from(route('rt.applications.letter.compose', $application))
             ->post(route('rt.applications.letter.publish', $application), [
                 'fields' => $this->sampleFields(),
-                'signature_data' => $this->sampleSignatureDataUri(),
             ])
             ->assertRedirect(route('rt.applications.letter.compose', $application));
 
@@ -1126,7 +1090,6 @@ class LetterComposeTest extends TestCase
             ->from(route('rt.applications.letter.compose', $application))
             ->post(route('rt.applications.letter.publish', $application), [
                 'fields' => $this->sampleFields(),
-                'signature_data' => $this->sampleSignatureDataUri(),
             ]);
 
         $this->withoutVite();
@@ -1171,94 +1134,5 @@ class LetterComposeTest extends TestCase
             'jenis_usaha' => 'Perdagangan eceran',
             'alamat_usaha' => 'Jl. Usaha RT 008 No. 3',
         ];
-    }
-
-    private function sampleSignatureDataUri(): string
-    {
-        $image = imagecreatetruecolor(200, 80);
-        $white = imagecolorallocate($image, 255, 255, 255);
-        $black = imagecolorallocate($image, 0, 0, 0);
-        imagefill($image, 0, 0, $white);
-        imagefilledellipse($image, 100, 40, 120, 40, $black);
-        imagestring($image, 5, 40, 32, 'TTD', $black);
-
-        ob_start();
-        imagepng($image);
-        $png = ob_get_clean();
-        imagedestroy($image);
-
-        return 'data:image/png;base64,'.base64_encode($png ?: '');
-    }
-
-    private function attachSampleStamp(RtProfile $profile): void
-    {
-        Storage::fake('public');
-
-        $image = imagecreatetruecolor(120, 120);
-        $white = imagecolorallocate($image, 255, 255, 255);
-        $red = imagecolorallocate($image, 180, 0, 0);
-        imagefill($image, 0, 0, $white);
-        imageellipse($image, 60, 60, 100, 100, $red);
-        imagestring($image, 3, 28, 54, 'RT', $red);
-
-        ob_start();
-        imagepng($image);
-        $png = ob_get_clean();
-        imagedestroy($image);
-
-        $path = 'stamps/rt-'.RtProfile::normalizeRtNumber($profile->rt_number).'.png';
-        Storage::disk('public')->put($path, $png ?: '');
-        $profile->update(['stamp_path' => $path]);
-    }
-
-    public function test_preview_includes_rt_stamp_above_signature_when_signed(): void
-    {
-        [$profile, $staff, $application] = $this->createLetterReadyApplication();
-        $this->attachSampleStamp($profile);
-
-        $response = $this->actingAs($staff)
-            ->post(route('rt.applications.letter.preview', $application), [
-                'fields' => $this->sampleFields(),
-                'signature_data' => $this->sampleSignatureDataUri(),
-            ]);
-
-        $response->assertOk();
-        $html = $response->getContent();
-        $this->assertStringContainsString('class="ttd-sign-stack ttd-sign-stack--with-cap"', $html);
-        $this->assertStringContainsString('class="ttd-sign-block ttd-sign-block--with-cap"', $html);
-        $this->assertMatchesRegularExpression('/class="ttd-sign-stack ttd-sign-stack--with-cap"[^>]*>[\s\S]*?class="ttd-img"[\s\S]*?class="ttd-cap"/i', $html);
-        $this->assertMatchesRegularExpression('/class="ttd-cap"[^>]*>[\s\S]*?alt="Cap resmi RT"/i', $html);
-        $this->assertStringContainsString('.ttd-sign-stack--with-cap{height:2.9cm;overflow:visible}', $html);
-        $this->assertStringContainsString('.ttd-sign-stack--with-cap .ttd-cap img{display:block;max-height:4.2cm;max-width:4.2cm', $html);
-    }
-
-    public function test_preview_omits_rt_stamp_without_signature(): void
-    {
-        [$profile, $staff, $application] = $this->createLetterReadyApplication();
-        $this->attachSampleStamp($profile);
-
-        $response = $this->actingAs($staff)
-            ->post(route('rt.applications.letter.preview', $application), [
-                'fields' => $this->sampleFields(),
-            ]);
-
-        $response->assertOk();
-        $html = $response->getContent();
-        $this->assertStringNotContainsString('alt="Cap resmi RT"', $html);
-        $this->assertDoesNotMatchRegularExpression('/<div class="ttd-cap"[^>]*>[\s\S]*?<img/i', $html);
-    }
-
-    public function test_preview_omits_rt_stamp_when_profile_has_no_stamp_file(): void
-    {
-        [, $staff, $application] = $this->createLetterReadyApplication();
-
-        $response = $this->actingAs($staff)
-            ->post(route('rt.applications.letter.preview', $application), [
-                'fields' => $this->sampleFields(),
-                'signature_data' => $this->sampleSignatureDataUri(),
-            ]);
-
-        $response->assertOk();
-        $this->assertStringNotContainsString('alt="Cap resmi RT"', $response->getContent());
     }
 }

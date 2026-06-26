@@ -6,7 +6,6 @@
 @php
     $lurahName = $lurah['nama'] ?? 'Lurah';
     $lurahPhoto = $lurah['photo'] ?? null;
-    $initial = mb_strtoupper(mb_substr(preg_replace('/^[^A-Za-z0-9]+/u', '', $lurahName) ?: 'L', 0, 1));
     $kel = config('kelurahan');
 @endphp
 <div class="lw-admin-page">
@@ -20,7 +19,7 @@
                 @if($lurahPhoto)
                     <img src="{{ $lurahPhoto }}" alt="Foto {{ $lurahName }}" class="lw-panel-profile-show-hero__photo" width="112" height="112">
                 @else
-                    <div class="lw-panel-profile-show-hero__photo lw-panel-profile-show-hero__photo--placeholder" aria-hidden="true">{{ $initial }}</div>
+                    <x-photo-empty :name="$lurahName" size="lg" class="lw-panel-profile-show-hero__photo-empty" />
                 @endif
             </div>
             <div class="lw-panel-profile-show-hero__content">
@@ -30,19 +29,29 @@
             </div>
         </div>
 
-        @if(filled($lurah['visi'] ?? null) || filled($lurah['misi'] ?? null))
-            <div class="lw-mt-4">
-                @if(filled($lurah['visi'] ?? null))
-                    <h2 class="lw-panel-section-title">Visi</h2>
-                    <p class="lw-panel-profile-show-text">{{ $lurah['visi'] }}</p>
-                @endif
-                @if(filled($lurah['misi'] ?? null))
-                    <h2 class="lw-panel-section-title lw-mt-4">Misi</h2>
-                    <p class="lw-panel-profile-show-text lw-pre-wrap">{{ $lurah['misi'] }}</p>
-                @endif
-            </div>
-        @endif
+        <div class="lw-mt-4">
+            <h2 class="lw-panel-section-title">Visi</h2>
+            @if(filled($lurah['visi'] ?? null))
+                <p class="lw-panel-profile-show-text">{{ $lurah['visi'] }}</p>
+            @else
+                <p class="lw-panel-profile-show-text lw-panel-profile-show-text--empty">Belum diisi</p>
+            @endif
+            <h2 class="lw-panel-section-title lw-mt-4">Misi</h2>
+            @if(filled($lurah['misi'] ?? null))
+                <p class="lw-panel-profile-show-text lw-pre-wrap">{{ $lurah['misi'] }}</p>
+            @else
+                <p class="lw-panel-profile-show-text lw-panel-profile-show-text--empty">Belum diisi</p>
+            @endif
+        </div>
 
+        @php
+            $hasContact = filled($lurah['telepon'] ?? null)
+                || filled($lurah['whatsapp'] ?? null)
+                || filled($lurah['email'] ?? null)
+                || filled($lurah['jam_layanan'] ?? null)
+                || filled($lurah['alamat_kantor'] ?? null);
+        @endphp
+        @if($hasContact)
         <dl class="lw-panel-dl lw-mt-4">
             @if(filled($lurah['telepon'] ?? null))
                 <div class="lw-panel-dl-row">
@@ -75,6 +84,9 @@
                 </div>
             @endif
         </dl>
+        @else
+            <p class="lw-panel-profile-show-text lw-panel-profile-show-text--empty lw-mt-4">Kontak kantor belum diisi.</p>
+        @endif
 
         <div class="lw-panel-profile-show-actions">
             <a href="{{ route('admin.profile.kelurahan.edit') }}" class="lw-panel-btn">Edit profil lurah</a>

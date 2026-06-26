@@ -368,6 +368,34 @@ class RtResidentDataIndexTest extends TestCase
             ->assertHeader('content-type', 'application/pdf');
     }
 
+    public function test_data_warga_report_pdf_groups_residents_by_household(): void
+    {
+        [$staff, $household] = $this->seedHouseholdWithMembers();
+
+        $html = view('rt.resident-data.report-pdf', [
+            'rt' => $household->rtProfile,
+            'households' => app(ResidentDataIndexService::class)
+                ->buildHouseholdQuery($household->rtProfile, 'semua', 'semua', '')
+                ->get()
+                ->filter(fn ($item) => $item->residents->isNotEmpty())
+                ->values(),
+            'filter' => 'semua',
+            'kategori' => 'semua',
+            'kategoriLabel' => 'Semua',
+            'search' => '',
+            'totalHouseholds' => 1,
+            'totalResidents' => 2,
+            'generatedAt' => now('Asia/Jayapura'),
+        ])->render();
+
+        $this->assertStringContainsString('Keluarga 1', $html);
+        $this->assertStringContainsString($household->family_card_number, $html);
+        $this->assertStringContainsString('Anggota keluarga (2)', $html);
+        $this->assertStringContainsString('Budi Aktif', $html);
+        $this->assertStringContainsString('Siti Arsip', $html);
+        $this->assertStringContainsString('3201010101010099', $html);
+    }
+
     public function test_pendataan_document_storage_uses_structured_private_path(): void
     {
         Storage::fake('local');
@@ -1380,6 +1408,10 @@ class RtResidentDataIndexTest extends TestCase
             ->get(route('rt.data-warga.create'))
             ->assertOk()
             ->assertSee('Daftar KK')
+            ->assertSee('PDF/JPG/PNG, maks. 5 MB per berkas.', false)
+            ->assertSee('Arsip dokumen keluarga.', false)
+            ->assertSee('Referensi wajah surat online', false)
+            ->assertDontSee('pendataan warga baru', false)
             ->assertSee('data-rt-registration-page', false)
             ->assertSee('lw-rt-reg-form', false)
             ->assertSee('lw-panel-form--labeled', false)

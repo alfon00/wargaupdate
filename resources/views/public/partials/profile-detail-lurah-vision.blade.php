@@ -1,18 +1,27 @@
-@if(! empty($lurah['visi']) || ! empty($lurah['misi']))
-    <dl class="lw-profile-detail-vision lw-profile-detail-vision--summary">
-        @if(! empty($lurah['visi']))
-            <div>
-                <dt>Visi</dt>
-                <dd class="lw-profile-vision-text">{{ $lurah['visi'] }}</dd>
-            </div>
-        @endif
-        @if(! empty($lurah['misi']))
-            <div>
-                <dt>Misi</dt>
-                <dd>
-                    @include('public.partials.profile-vision-misi-body', ['text' => $lurah['misi']])
-                </dd>
-            </div>
-        @endif
-    </dl>
-@endif
+{{-- Expects $lurah array --}}
+@php
+    $hasVisi = filled($lurah['visi'] ?? null);
+    $hasMisi = filled($lurah['misi'] ?? null);
+@endphp
+<dl class="lw-profile-detail-vision lw-profile-detail-vision--summary">
+    <div>
+        <dt>Visi</dt>
+        <dd>
+            @if($hasVisi)
+                <span class="lw-profile-vision-text">{{ $lurah['visi'] }}</span>
+            @else
+                <x-profile-content-empty tag="span">Belum diisi</x-profile-content-empty>
+            @endif
+        </dd>
+    </div>
+    <div>
+        <dt>Misi</dt>
+        <dd>
+            @if($hasMisi)
+                @include('public.partials.profile-vision-misi-body', ['text' => $lurah['misi']])
+            @else
+                <x-profile-content-empty tag="span">Belum diisi</x-profile-content-empty>
+            @endif
+        </dd>
+    </div>
+</dl>

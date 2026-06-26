@@ -10,14 +10,14 @@ class NormalizeMisassignedUsers extends Command
 {
     protected $signature = 'lw:normalize-user-roles {--dry-run : Tampilkan perubahan tanpa menyimpan}';
 
-    protected $description = 'Perbaiki akun admin yang salah di-assign sebagai Ketua/Sekretaris RT di profil publik';
+    protected $description = 'Perbaiki akun admin yang salah di-assign sebagai Ketua RT di profil publik';
 
     public function handle(): int
     {
         $dryRun = (bool) $this->option('dry-run');
 
         $candidates = User::query()
-            ->whereIn('role', [UserRole::KetuaRt, UserRole::SekretarisRt])
+            ->where('role', UserRole::KetuaRt)
             ->whereNotNull('rt_profile_id')
             ->where(function ($q) {
                 $q->where('name', 'like', 'Admin%')

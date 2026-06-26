@@ -13,7 +13,7 @@
             </h1>
             <p class="lw-profile-hero__lead">
                 Kirim laporan atau pertanyaan terkait layanan portal.
-                Untuk kontak ketua atau sekretaris RT, lihat halaman
+                Untuk kontak ketua RT, lihat halaman
                 <a href="{{ route('profile.index') }}" class="lw-inline-link">Profil</a>.
             </p>
         </div>

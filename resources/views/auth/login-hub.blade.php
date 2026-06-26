@@ -8,41 +8,9 @@
 
 @section('content')
 <div class="lw-auth-page-wrapper">
-    @include('public.partials.auth.hero')
-
     <div class="lw-container lw-auth-board">
         <section class="lw-auth-split lw-auth-page" aria-labelledby="auth-login-title">
-            <div class="lw-track-hero-grid">
-                <aside class="lw-track-intro" aria-label="Informasi keamanan panel">
-                    <h2 class="lw-track-intro__title">{{ $introTitle }}</h2>
-                    <p class="lw-track-intro__lead">{{ $introLead }}</p>
-                    <ul class="lw-track-benefits">
-                        @foreach($securityBenefits as $benefit)
-                            <li class="lw-track-benefit">
-                                <span class="lw-track-benefit__icon" aria-hidden="true">
-                                    @if($loop->index === 0)
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
-                                            <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/>
-                                        </svg>
-                                    @elseif($loop->index === 1)
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
-                                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
-                                        </svg>
-                                    @else
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
-                                            <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                        </svg>
-                                    @endif
-                                </span>
-                                <span class="lw-track-benefit__text">
-                                    <strong>{{ $benefit['title'] }}</strong>
-                                    <span>{{ $benefit['desc'] }}</span>
-                                </span>
-                            </li>
-                        @endforeach
-                    </ul>
-                </aside>
-
+            <div class="lw-track-hero-grid lw-track-hero-grid--solo">
                 <div class="lw-auth-forms">
                     <article class="lw-form-card lw-auth-form-card">
                         <header class="lw-track-split__head">

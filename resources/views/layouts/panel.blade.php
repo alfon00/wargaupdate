@@ -12,15 +12,52 @@
     @include('layouts.partials.lw-styles')
 </head>
 <body class="lw-panel-body lw-panel-theme @if(auth()->user()?->isRtStaff()) lw-panel--rt @elseif(auth()->user()?->isKelurahan()) lw-panel--kelurahan @endif">
+    @php
+        $rtProfile = auth()->user()->isRtStaff()
+            ? \App\Models\RtProfile::forRtStaffUser(auth()->user())
+            : null;
+        $pendingPendataan = $rtProfile
+            ? \App\Models\Resident::forRtProfile($rtProfile)
+                ->where('is_head_of_family', true)
+                ->pendingPendataan()
+                ->count()
+            : 0;
+        $pendingApps = match (true) {
+            $rtProfile !== null => \App\Models\Application::forRtProfile($rtProfile)
+                ->pendingRtSidebar()
+                ->count(),
+            auth()->user()->isKelurahan() => \App\Models\Application::pendingRtSidebar()->count(),
+            default => 0,
+        };
+        $newReports = match (true) {
+            $rtProfile !== null => \App\Models\CitizenReport::forRtProfile($rtProfile)
+                ->where('status', \App\Enums\ReportStatus::Baru)
+                ->count(),
+            auth()->user()->isKelurahan() => \App\Models\CitizenReport::where('status', \App\Enums\ReportStatus::Baru)->count(),
+            default => 0,
+        };
+        $rtStaffWithoutProfile = auth()->user()->isKelurahan()
+            ? \App\Models\User::query()
+                ->where('role', \App\Enums\UserRole::KetuaRt)
+                ->whereNull('rt_profile_id')
+                ->count()
+            : 0;
+        $pendingDeletionRequests = auth()->user()->isKelurahan()
+            ? \App\Models\PermanentDeletionRequest::query()->pending()->count()
+            : 0;
+        $panelNavLinkClass = function (bool $active): string {
+            return 'lw-panel-nav-link'.($active ? ' lw-panel-nav-link--active' : '');
+        };
+    @endphp
     <div class="lw-panel-layout">
-        <input type="checkbox" id="lw-panel-menu-toggle" class="lw-panel-menu-toggle" aria-hidden="true">
-        <label for="lw-panel-menu-toggle" class="lw-panel-backdrop" aria-label="Tutup menu"></label>
+        <input type="checkbox" id="lw-panel-menu-toggle" class="lw-panel-menu-toggle" aria-hidden="true" tabindex="-1">
+        <label for="lw-panel-menu-toggle" class="lw-panel-backdrop" aria-hidden="true"></label>
 
         @include('layouts.partials.panel-sidebar')
 
         <div class="lw-panel-main">
             <header class="lw-panel-topbar">
-                <label for="lw-panel-menu-toggle" class="lw-panel-menu-btn" aria-label="Buka menu panel">
+                <label for="lw-panel-menu-toggle" class="lw-panel-menu-btn" aria-expanded="false" aria-controls="lw-panel-sidebar" aria-label="Buka menu panel">
                     <span class="lw-panel-menu-icon" aria-hidden="true"></span>
                 </label>
                 <div class="lw-panel-topbar-center">
@@ -33,11 +70,9 @@
                         @endif
                     </p>
                 </div>
+                <x-today-date variant="labeled" class="lw-panel-topbar-date" />
                 <div class="lw-panel-topbar-actions">
-                    <form method="POST" action="{{ route('logout') }}" class="lw-panel-topbar-logout">
-                        @csrf
-                        <button type="submit" class="lw-panel-logout-btn lw-panel-logout-btn--compact">Keluar</button>
-                    </form>
+                    @include('layouts.partials.panel-user-menu')
                 </div>
             </header>
 
@@ -72,5 +107,7 @@
         @vite('resources/js/rt-delete-signature.js')
     @endif
     @stack('scripts')
+    @vite('resources/js/panel-menu.js')
+    @vite('resources/js/panel-user-menu.js')
 </body>
 </html>

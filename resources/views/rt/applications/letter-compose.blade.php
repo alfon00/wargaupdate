@@ -15,7 +15,6 @@
     $composeConfig = [
         'csrfToken' => csrf_token(),
         'hasPublishedPdf' => $hasPublishedPdf,
-        'signatureSaveUrl' => route('rt.applications.letter.signature', $application),
     ];
 @endphp
 
@@ -43,12 +42,20 @@
                 @endif
                 @if($hasPublishedPdf)
                 <p class="lw-panel-card-note lw-letter-compose-lead">
-                    PDF sudah terbit — terbitkan ulang jika TTD atau data berubah. Kirim PDF ke warga via tombol WhatsApp di bawah.
+                    PDF sudah terbit
+                    @if($application->generatedLetter?->publishCount() > 0)
+                        ({{ $application->generatedLetter->publishStatusLabel() }})
+                    @endif
+                    — terbitkan ulang jika data berubah. QR code mengarah ke verifikasi keaslian di portal. Kirim PDF ke warga via tombol WhatsApp di bawah.
+                </p>
+                @else
+                <p class="lw-panel-card-note lw-letter-compose-lead">
+                    Setelah diterbitkan, surat PDF memuat QR code yang mengarah ke halaman verifikasi keaslian di portal resmi. Nomor surat hanya tercantum pada dokumen surat.
                 </p>
                 @endif
 
                 <form method="POST" action="{{ route('rt.applications.letter.publish', $application) }}"
-                    class="lw-panel-form lw-panel-form--in-card" data-letter-signature-form id="letter-compose-form">
+                    class="lw-panel-form lw-panel-form--in-card" id="letter-compose-form">
                     @csrf
 
                     <fieldset class="lw-form-fieldset lw-letter-fieldset">
@@ -94,24 +101,6 @@
 
                     @include('rt.applications.partials.letter-compose-service-fields', compact('application', 'fieldValues'))
 
-                    <fieldset class="lw-form-fieldset lw-letter-fieldset lw-letter-fieldset--signature">
-                        <legend class="lw-form-legend lw-letter-signature-legend">
-                            <span>Tanda tangan</span>
-                        </legend>
-                        <p class="lw-panel-card-note">Gambar tanda tangan di kanvas.</p>
-                        <div class="lw-letter-signature-pad">
-                            <canvas id="letter-signature-canvas" class="lw-letter-signature-canvas touch-none"></canvas>
-                        </div>
-                        <button type="button" id="letter-signature-clear" class="lw-panel-link lw-letter-signature-clear">
-                            Hapus tanda tangan
-                        </button>
-                        <input type="hidden" name="signature_data" id="signature_data"
-                            value="{{ old('signature_data', $existingSignatureDataUri ?? '') }}">
-                        @error('signature_data')
-                            <p class="lw-form-error">{{ $message }}</p>
-                        @enderror
-                    </fieldset>
-
                     @error('letter')
                         <p class="lw-form-error">{{ $message }}</p>
                     @enderror
@@ -128,7 +117,6 @@
                     <input type="hidden" name="fields[nomor_surat]"
                         value="{{ old('fields.nomor_surat', $fieldValues['nomor_surat'] ?? '') }}"
                         class="draft-field-sync" data-field-key="nomor_surat">
-                    <input type="hidden" name="signature_data" id="draft_signature_data" value="">
                 </form>
 
                 @include('rt.applications.partials.letter-compose-actions', compact(
@@ -151,5 +139,5 @@
 @endsection
 
 @push('scripts')
-    @vite(['resources/js/letter-signature.js', 'resources/js/letter-compose.js'])
+    @vite(['resources/js/letter-compose.js'])
 @endpush

@@ -89,24 +89,24 @@
 
         <fieldset class="lw-panel-form-fieldset">
             <legend class="lw-panel-form-legend">Lampiran berkas</legend>
-            <p class="lw-panel-field-hint lw-mb-4">
-                KTP/KIA per anggota dipakai verifikasi wajah saat pendataan warga baru. Scan KK tetap wajib sebagai dokumen keluarga, tetapi tidak dipakai deteksi wajah. Lampiran foto tambahan tidak mempengaruhi badge kesiapan.
-                Format: PDF/JPG/JPEG/PNG maksimal 5 MB per file. Untuk KTP, unggah foto JPG/PNG yang jelas (hindari PDF scan buram).
-            </p>
+            <p class="lw-panel-field-hint lw-mb-4">PDF/JPG/PNG, maks. 5 MB per berkas.</p>
             <div class="lw-panel-form-grid lw-panel-form-grid--labeled">
                 <div class="lw-panel-field">
                     <label class="lw-panel-field-label">Scan/foto KK <span class="lw-form-label-required">*</span></label>
                     <input type="file" name="document_kk" class="lw-panel-field-input" accept=".pdf,.jpg,.jpeg,.png" required>
+                    <p class="lw-panel-field-hint">Arsip dokumen keluarga.</p>
                     @error('document_kk')<p class="lw-form-error">{{ $message }}</p>@enderror
                 </div>
                 <div class="lw-panel-field">
                     <label class="lw-panel-field-label">Scan/foto KTP kepala KK <span class="lw-form-label-required">*</span></label>
                     <input type="file" name="document_ktp" class="lw-panel-field-input" accept=".pdf,.jpg,.jpeg,.png" required>
+                    <p class="lw-panel-field-hint">Referensi wajah surat online. Foto JPG/PNG yang jelas.</p>
                     @error('document_ktp')<p class="lw-form-error">{{ $message }}</p>@enderror
                 </div>
                 <div class="lw-panel-field lw-panel-field--span2">
                     <label class="lw-panel-field-label">Lampiran tambahan (opsional)</label>
                     <input type="file" name="documents[]" class="lw-panel-field-input" accept=".pdf,.jpg,.jpeg,.png" multiple>
+                    <p class="lw-panel-field-hint">Berkas pendukung lain. KTP/KIA anggota lain dilengkapi lewat Edit warga.</p>
                     @error('documents')<p class="lw-form-error">{{ $message }}</p>@enderror
                     @error('documents.*')<p class="lw-form-error">{{ $message }}</p>@enderror
                 </div>

@@ -8,10 +8,10 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Kelurahan\ApplicationController as KelurahanApplicationController;
 use App\Http\Controllers\Kelurahan\ContactReportController as KelurahanContactReportController;
-use App\Http\Controllers\Kelurahan\DashboardController as KelurahanDashboardController;
 use App\Http\Controllers\Panel\ProfileController as PanelProfileController;
 use App\Http\Controllers\Public\GuestApplicationController;
 use App\Http\Controllers\Public\LetterDownloadController;
+use App\Http\Controllers\Public\LetterVerificationController;
 use App\Http\Controllers\Public\LetterServiceController;
 use App\Http\Controllers\Public\ActivityController;
 use App\Http\Controllers\Public\HomeController;
@@ -83,6 +83,8 @@ Route::middleware(RedirectPengurusToPanel::class)->group(function () {
     Route::get('/kontak/terkirim', [ContactReportController::class, 'success'])->name('contact.success');
     Route::get('/lacak', [TrackController::class, 'form'])->name('track.form');
     Route::post('/lacak', [TrackController::class, 'show'])->name('track.show');
+    Route::get('/surat/verifikasi/{token}', [LetterVerificationController::class, 'show'])
+        ->name('public.letter.verify');
     Route::get('/surat/{application:id}/unduh', [LetterDownloadController::class, 'download'])
         ->middleware('signed')
         ->name('public.letter.download');
@@ -129,8 +131,6 @@ Route::middleware(['auth', 'role.rt'])->prefix('rt')->name('rt.')->group(functio
     Route::get('laporan/{report:report_number}', [RtContactReportController::class, 'show'])->name('reports.show');
     Route::post('laporan/{report:report_number}/status', [RtContactReportController::class, 'updateStatus'])->name('reports.status');
     Route::get('applications', [RtApplicationController::class, 'index'])->name('applications.index');
-    Route::post('applications/cap', [RtApplicationController::class, 'updateStamp'])->name('applications.stamp.update');
-    Route::delete('applications/cap', [RtApplicationController::class, 'destroyStamp'])->name('applications.stamp.destroy');
     Route::delete('applications/{application}', [RtApplicationController::class, 'destroy'])->name('applications.destroy');
     Route::get('applications/{application}', [RtApplicationController::class, 'show'])->name('applications.show');
     Route::post('applications/{application}/verifikasi', [RtApplicationController::class, 'verify'])->name('applications.verify');
@@ -145,7 +145,6 @@ Route::middleware(['auth', 'role.rt'])->prefix('rt')->name('rt.')->group(functio
     Route::get('applications/{application}/surat/buat', [RtApplicationController::class, 'composeLetter'])->name('applications.letter.compose');
     Route::get('applications/{application}/surat/cari-warga', [RtApplicationController::class, 'lookupLetterResident'])->name('applications.letter.resident-lookup');
     Route::post('applications/{application}/surat/draf', [RtApplicationController::class, 'saveLetterDraft'])->name('applications.letter.draft');
-    Route::post('applications/{application}/surat/ttd', [RtApplicationController::class, 'saveLetterSignature'])->name('applications.letter.signature');
     Route::post('applications/{application}/surat/pratinjau', [RtApplicationController::class, 'previewLetter'])->name('applications.letter.preview');
     Route::post('applications/{application}/surat/terbitkan', [RtApplicationController::class, 'publishLetter'])->name('applications.letter.publish');
     Route::post('applications/{application}/surat/kirim-wa', [RtApplicationController::class, 'sendLetterWhatsApp'])->name('applications.letter.whatsapp');
@@ -173,44 +172,49 @@ Route::middleware(['auth', 'role.rt'])->prefix('rt')->name('rt.')->group(functio
     Route::delete('profil/foto', [PanelProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
 });
 
-Route::middleware(['auth', 'role.kelurahan'])->prefix('kelurahan')->name('kelurahan.')->group(function () {
-    Route::get('/', KelurahanDashboardController::class)->name('dashboard');
-    Route::get('applications', [KelurahanApplicationController::class, 'index'])->name('applications.index');
-    Route::get('applications/{application}', [KelurahanApplicationController::class, 'show'])->name('applications.show');
-    Route::get('applications/{application}/dokumen/{document}/lihat', [KelurahanApplicationController::class, 'viewDocument'])->name('applications.document.view');
-    Route::get('applications/{application}/dokumen/{document}/cetak', [\App\Http\Controllers\Panel\DocumentViewerController::class, 'kelurahanApplicationDocument'])->name('applications.document.print');
-    Route::get('applications/{application}/dokumen/{document}', [KelurahanApplicationController::class, 'downloadDocument'])->name('applications.document');
-    Route::get('applications/{application}/surat/lihat', [KelurahanApplicationController::class, 'viewLetter'])->name('applications.letter.view');
-    Route::get('applications/{application}/surat/cetak', [\App\Http\Controllers\Panel\DocumentViewerController::class, 'kelurahanLetter'])->name('applications.letter.print');
-    Route::get('applications/{application}/surat/unduh', [KelurahanApplicationController::class, 'downloadLetter'])->name('applications.letter.download');
-    Route::get('kegiatan', [\App\Http\Controllers\Kelurahan\PublicationController::class, 'indexKegiatan'])->name('kegiatan.index');
-    Route::get('pengumuman', [\App\Http\Controllers\Kelurahan\PublicationController::class, 'indexPengumuman'])->name('pengumuman.index');
-    Route::get('data-penduduk', [\App\Http\Controllers\Kelurahan\ResidentDataController::class, 'index'])->name('population.index');
-    Route::get('data-penduduk/{resident}', [\App\Http\Controllers\Kelurahan\ResidentDataController::class, 'show'])->name('data-warga.show');
-    Route::get('laporan', [KelurahanContactReportController::class, 'index'])->name('reports.index');
-    Route::get('laporan/{report:report_number}', [KelurahanContactReportController::class, 'show'])->name('reports.show');
-    Route::post('laporan/{report:report_number}/status', [KelurahanContactReportController::class, 'updateStatus'])->name('reports.status');
+Route::middleware(['auth', 'role.kelurahan'])->prefix('kelurahan')->group(function () {
+    Route::name('admin.')->group(function () {
+        Route::get('/', SystemDashboardController::class)->name('dashboard');
+        Route::resource('users', UserController::class)->except(['show']);
+        Route::resource('rt-profiles', AdminRtProfileController::class)->except(['show']);
+        Route::get('layanan', [AdminServiceTypeController::class, 'index'])->name('services.index');
+        Route::get('layanan/{serviceType}/edit', [AdminServiceTypeController::class, 'edit'])->name('services.edit');
+        Route::put('layanan/{serviceType}', [AdminServiceTypeController::class, 'update'])->name('services.update');
+        Route::delete('layanan/{serviceType}', [AdminServiceTypeController::class, 'destroy'])->name('services.destroy');
+        Route::get('hapus-permanen', [PermanentDeletionRequestController::class, 'index'])->name('deletion-requests.index');
+        Route::get('hapus-permanen/{deletionRequest}', [PermanentDeletionRequestController::class, 'show'])->name('deletion-requests.show');
+        Route::post('hapus-permanen/{deletionRequest}/setujui', [PermanentDeletionRequestController::class, 'approve'])->name('deletion-requests.approve');
+        Route::post('hapus-permanen/{deletionRequest}/tolak', [PermanentDeletionRequestController::class, 'reject'])->name('deletion-requests.reject');
+        Route::get('profil', [PanelProfileController::class, 'indexAdmin'])->name('profile');
+        Route::get('profil/akun', [PanelProfileController::class, 'showAccount'])->name('profile.account.show');
+        Route::get('profil/akun/edit', [PanelProfileController::class, 'editAccount'])->name('profile.account.edit');
+        Route::put('profil', [PanelProfileController::class, 'update'])->name('profile.update');
+        Route::delete('profil/foto', [PanelProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
+        Route::get('profil/kelurahan', [PanelProfileController::class, 'showKelurahan'])->name('profile.kelurahan.show');
+        Route::get('profil/kelurahan/edit', [PanelProfileController::class, 'editKelurahan'])->name('profile.kelurahan.edit');
+        Route::put('profil/kelurahan', [PanelProfileController::class, 'updateKelurahanPublicProfile'])->name('profile.kelurahan.update');
+        Route::delete('profil/kelurahan/foto', [PanelProfileController::class, 'destroyKelurahanPublicPhoto'])->name('profile.kelurahan.photo.destroy');
+    });
+
+    Route::name('kelurahan.')->group(function () {
+        Route::get('applications', [KelurahanApplicationController::class, 'index'])->name('applications.index');
+        Route::get('applications/{application}', [KelurahanApplicationController::class, 'show'])->name('applications.show');
+        Route::get('applications/{application}/dokumen/{document}/lihat', [KelurahanApplicationController::class, 'viewDocument'])->name('applications.document.view');
+        Route::get('applications/{application}/dokumen/{document}/cetak', [\App\Http\Controllers\Panel\DocumentViewerController::class, 'kelurahanApplicationDocument'])->name('applications.document.print');
+        Route::get('applications/{application}/dokumen/{document}', [KelurahanApplicationController::class, 'downloadDocument'])->name('applications.document');
+        Route::get('applications/{application}/surat/lihat', [KelurahanApplicationController::class, 'viewLetter'])->name('applications.letter.view');
+        Route::get('applications/{application}/surat/cetak', [\App\Http\Controllers\Panel\DocumentViewerController::class, 'kelurahanLetter'])->name('applications.letter.print');
+        Route::get('applications/{application}/surat/unduh', [KelurahanApplicationController::class, 'downloadLetter'])->name('applications.letter.download');
+        Route::get('kegiatan', [\App\Http\Controllers\Kelurahan\PublicationController::class, 'indexKegiatan'])->name('kegiatan.index');
+        Route::get('pengumuman', [\App\Http\Controllers\Kelurahan\PublicationController::class, 'indexPengumuman'])->name('pengumuman.index');
+        Route::get('data-penduduk', [\App\Http\Controllers\Kelurahan\ResidentDataController::class, 'index'])->name('population.index');
+        Route::get('data-penduduk/{resident}', [\App\Http\Controllers\Kelurahan\ResidentDataController::class, 'show'])->name('data-warga.show');
+        Route::get('laporan', [KelurahanContactReportController::class, 'index'])->name('reports.index');
+        Route::get('laporan/{report:report_number}', [KelurahanContactReportController::class, 'show'])->name('reports.show');
+        Route::post('laporan/{report:report_number}/status', [KelurahanContactReportController::class, 'updateStatus'])->name('reports.status');
+    });
 });
 
-Route::middleware(['auth', 'role.admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', SystemDashboardController::class)->name('dashboard');
-    Route::resource('users', UserController::class)->except(['show']);
-    Route::resource('rt-profiles', AdminRtProfileController::class)->except(['show']);
-    Route::get('layanan', [AdminServiceTypeController::class, 'index'])->name('services.index');
-    Route::get('layanan/{serviceType}/edit', [AdminServiceTypeController::class, 'edit'])->name('services.edit');
-    Route::put('layanan/{serviceType}', [AdminServiceTypeController::class, 'update'])->name('services.update');
-    Route::delete('layanan/{serviceType}', [AdminServiceTypeController::class, 'destroy'])->name('services.destroy');
-    Route::get('hapus-permanen', [PermanentDeletionRequestController::class, 'index'])->name('deletion-requests.index');
-    Route::get('hapus-permanen/{deletionRequest}', [PermanentDeletionRequestController::class, 'show'])->name('deletion-requests.show');
-    Route::post('hapus-permanen/{deletionRequest}/setujui', [PermanentDeletionRequestController::class, 'approve'])->name('deletion-requests.approve');
-    Route::post('hapus-permanen/{deletionRequest}/tolak', [PermanentDeletionRequestController::class, 'reject'])->name('deletion-requests.reject');
-    Route::get('profil', [PanelProfileController::class, 'indexAdmin'])->name('profile');
-    Route::get('profil/akun', [PanelProfileController::class, 'showAccount'])->name('profile.account.show');
-    Route::get('profil/akun/edit', [PanelProfileController::class, 'editAccount'])->name('profile.account.edit');
-    Route::put('profil', [PanelProfileController::class, 'update'])->name('profile.update');
-    Route::delete('profil/foto', [PanelProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
-    Route::get('profil/kelurahan', [PanelProfileController::class, 'showKelurahan'])->name('profile.kelurahan.show');
-    Route::get('profil/kelurahan/edit', [PanelProfileController::class, 'editKelurahan'])->name('profile.kelurahan.edit');
-    Route::put('profil/kelurahan', [PanelProfileController::class, 'updateKelurahanPublicProfile'])->name('profile.kelurahan.update');
-    Route::delete('profil/kelurahan/foto', [PanelProfileController::class, 'destroyKelurahanPublicPhoto'])->name('profile.kelurahan.photo.destroy');
-});
+Route::permanentRedirect('/admin', '/kelurahan');
+Route::permanentRedirect('/admin/{path}', '/kelurahan/{path}')
+    ->where('path', '.*');

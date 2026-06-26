@@ -6,8 +6,7 @@
 <section class="lw-home-section lw-home-process lw-services-section lw-service-flow-tabs" id="{{ $sectionId }}" aria-labelledby="{{ $headingId }}" tabindex="-1">
     <div class="lw-container">
         <header class="lw-home-section-head">
-            <h2 id="{{ $headingId }}" class="lw-section-title">Alur layanan</h2>
-            <p class="lw-section-desc lw-home-process-lead">Setiap layanan memiliki alur berbeda. Pilih tab di bawah untuk melihat langkah-langkahnya.</p>
+            <h2 id="{{ $headingId }}" class="lw-section-title">Cara pengajuan</h2>
         </header>
 
         <div class="lw-service-flow-tabs__root">
@@ -43,7 +42,9 @@
                     aria-labelledby="flow-tab-label-{{ $key }}"
                     tabindex="0"
                 >
-                    <p class="lw-service-flow-panel__intro">{{ $flow['intro'] }}</p>
+                    @if(filled($flow['intro']))
+                        <p class="lw-service-flow-panel__intro">{{ $flow['intro'] }}</p>
+                    @endif
                     <div class="lw-flow-grid">
                         @foreach($flow['steps'] as $index => $step)
                             <div class="lw-flow-step">

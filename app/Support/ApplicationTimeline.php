@@ -32,8 +32,8 @@ class ApplicationTimeline
             ],
             [
                 'key' => 'siap',
-                'title' => 'Surat siap',
-                'desc' => 'Surat PDF diterbitkan. Ambil di sekretariat RT atau cek WhatsApp jika pengurus mengirim PDF.',
+                'title' => 'Selesai',
+                'desc' => 'Surat PDF diterbitkan. Permohonan selesai — warga dapat mengambil salinan fisik di sekretariat RT atau menerima PDF via WhatsApp.',
                 'reached' => $status === ApplicationStatus::SiapDiambil,
                 'date' => $status === ApplicationStatus::SiapDiambil ? $completed : null,
             ],

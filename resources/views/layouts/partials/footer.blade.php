@@ -2,8 +2,6 @@
     <div class="lw-footer-inner">
         @unless(request()->routeIs('security'))
             <div class="lw-footer-top">
-                <x-site-disclaimer variant="footer" />
-
                 <p class="lw-footer-security">
                     <strong>Keamanan & keaslian situs:</strong>
                     Pastikan Anda mengakses portal resmi dengan alamat yang benar.

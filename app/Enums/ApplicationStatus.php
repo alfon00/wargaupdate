@@ -19,7 +19,7 @@ enum ApplicationStatus: string
             self::VerifikasiRt => 'Verifikasi RT',
             self::Disetujui => 'Disetujui',
             self::Ditolak => 'Ditolak',
-            self::SiapDiambil => 'Siap Diambil',
+            self::SiapDiambil => 'Selesai',
         };
     }
 

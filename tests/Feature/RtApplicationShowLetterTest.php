@@ -129,6 +129,7 @@ class RtApplicationShowLetterTest extends TestCase
             'signature_path' => 'letters/test-signature.png',
             'signed_at' => now(),
             'issued_at' => now(),
+            'publish_count' => 1,
         ]);
 
         $application->update([
@@ -140,10 +141,47 @@ class RtApplicationShowLetterTest extends TestCase
             ->get(route('rt.applications.show', $application))
             ->assertOk()
             ->assertSee('lw-letter-show-status', false)
+            ->assertSee('Diterbitkan 1 kali', false)
             ->assertSee($letterNumber, false)
-            ->assertSee('Lihat / cetak PDF', false)
-            ->assertSee('Susun ulang / kirim WhatsApp', false)
+            ->assertSee('Lihat / unduh PDF', false)
+            ->assertSee('Susun ulang / WhatsApp', false)
             ->assertDontSee('Unduh PDF', false)
             ->assertDontSee('Catat nomor surat &amp; kirim notifikasi', false);
+    }
+
+    public function test_show_page_displays_republish_count_after_second_publish(): void
+    {
+        Storage::fake('local');
+        [$staff, $application] = $this->createIssuableApplication('RT008-2026050003');
+
+        $fields = [
+            'nomor_surat' => 'RT008/SK/06/2026/0003',
+            'nama' => 'Warga Surat',
+            'nik' => '3201010101010008',
+            'ttl' => 'Timika, 1 Januari 1990',
+            'jenis_kelamin' => 'Laki-laki',
+            'pekerjaan' => 'Karyawan',
+            'no_ktp_kk' => '3201010101010008',
+            'kewarganegaraan' => 'WNI',
+            'pendidikan' => 'SMA',
+            'agama' => 'Islam',
+            'status_perkawinan' => 'Kawin',
+            'alamat' => 'Jl. Test No. 1',
+            'rt_rw' => 'RT 008 / RW 005',
+            'keperluan' => 'Keperluan administrasi',
+        ];
+
+        $this->actingAs($staff)
+            ->post(route('rt.applications.letter.publish', $application), ['fields' => $fields])
+            ->assertRedirect();
+
+        $this->actingAs($staff)
+            ->post(route('rt.applications.letter.publish', $application->fresh()), ['fields' => $fields])
+            ->assertRedirect();
+
+        $this->actingAs($staff)
+            ->get(route('rt.applications.show', $application->fresh()))
+            ->assertOk()
+            ->assertSee('Diterbitkan 2 kali · 1 kali susun ulang', false);
     }
 }

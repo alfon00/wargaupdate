@@ -86,7 +86,7 @@ Membangun portal layanan warga RT berbasis web yang dapat diakses melalui browse
 4. Menyediakan halaman pelacakan status permohonan tanpa login warga.
 5. Mengintegrasikan notifikasi teks WhatsApp otomatis via WAHA pada perubahan status layanan.
 6. Menyediakan panel operasional pengurus RT untuk verifikasi, pencatatan nomor surat manual, dan manajemen data warga.
-7. Menyediakan panel admin sistem untuk konfigurasi pengguna, profil RT, dan katalog layanan.
+7. Menyediakan panel kelurahan untuk konfigurasi pengguna, profil RT, katalog layanan, monitoring wilayah, dan profil lurah publik.
 
 ---
 
@@ -104,7 +104,7 @@ Membangun portal layanan warga RT berbasis web yang dapat diakses melalui browse
 |---|---|
 | **Warga** | Mengajukan surat, pendataan, dan pengaduan online tanpa login; lacak status via nomor permohonan; terima notifikasi WhatsApp |
 | **Pengurus RT** | Panel terpusat untuk verifikasi pendataan, proses permohonan, kelola data warga, publikasi kegiatan, dan log notifikasi |
-| **Admin sistem** | Manajemen akun pengurus, profil RT, katalog layanan, dan persetujuan penghapusan data permanen |
+| **Kelurahan** | Manajemen akun pengurus RT & kelurahan, profil RT, katalog layanan, monitoring seluruh RT, persetujuan hapus permanen, dan profil lurah publik |
 
 ---
 
@@ -294,6 +294,7 @@ flowchart TD
         S1[Portal_web_Laravel]
         S2[Verifikasi_identitas]
         S3[Panel_RT]
+        S5[Panel_Kelurahan]
         S4[Notifikasi_WAHA]
     end
 
@@ -309,9 +310,11 @@ flowchart TD
     M3 --> S1
     S1 --> S2
     S1 --> S3
+    S1 --> S5
     S1 --> S4
     S2 --> O1
     S3 --> O2
+    S5 --> O2
     S1 --> O3
     S4 --> O4
 ```
@@ -350,8 +353,9 @@ Situasi awal yang diidentifikasi dari analisis kebutuhan dan kebijakan proyek:
 | F11 | Kelola data warga (KK, anggota, lampiran dokumen) | Pengurus RT | Tinggi |
 | F12 | Kelola pengaduan warga, update status | Pengurus RT | Sedang |
 | F13 | CRUD kegiatan & pengumuman, broadcast WhatsApp | Pengurus RT | Sedang |
-| F14 | Manajemen pengguna, profil RT, katalog layanan | Admin | Tinggi |
+| F14 | Manajemen akun pengurus, profil RT, katalog layanan, persetujuan hapus permanen | Kelurahan | Tinggi |
 | F15 | Kirim notifikasi teks WhatsApp otomatis | Sistem | Tinggi |
+| F16 | Monitoring permohonan, data warga, kegiatan, dan laporan seluruh RT | Kelurahan | Sedang |
 
 ### 3.1.3 Kebutuhan Non-Fungsional
 
@@ -374,7 +378,7 @@ flowchart TB
     subgraph Aktor
         Warga((Warga))
         RT((Pengurus_RT))
-        Admin((Admin_Sistem))
+        Kelurahan((Kelurahan))
     end
 
     subgraph Portal_Publik
@@ -394,15 +398,16 @@ flowchart TB
         UC11[Publikasi_broadcast_WA]
     end
 
-    subgraph Panel_Admin
-        UC12[Manajemen_pengguna]
+    subgraph Panel_Kelurahan
+        UC12[Manajemen_akun_pengurus]
         UC13[Konfigurasi_RT_dan_layanan]
         UC14[Persetujuan_hapus_permanen]
+        UC15[Monitoring_wilayah_RT]
     end
 
     Warga --> UC1 & UC2 & UC3 & UC4 & UC5 & UC6
     RT --> UC7 & UC8 & UC9 & UC10 & UC11
-    Admin --> UC12 & UC13 & UC14
+    Kelurahan --> UC12 & UC13 & UC14 & UC15
 ```
 
 ---
@@ -434,7 +439,7 @@ flowchart TB
 
 | Field | Keterangan |
 |---|---|
-| **Aktor** | Ketua RT / Sekretaris RT |
+| **Aktor** | Ketua RT |
 | **Alur utama** | 1) Buka detail permohonan → 2) Periksa berkas → 3) Cetak surat fisik di sekretariat → 4) Catat nomor surat manual → 5) Kirim notifikasi WA *siap diambil* |
 | **Alur alternatif** | Berkas kurang → minta lengkap; Tolak → hapus + notifikasi penolakan |
 | **Controller** | `Rt\ApplicationController` |
@@ -470,7 +475,19 @@ flowchart TD
     D --> G[Periksa_berkas_cetak_manual_catat_nomor_WA]
 ```
 
-### 3.4.3 Verifikasi Wajah Pendataan Warga
+### 3.4.3 Aktivitas Kelurahan
+
+```mermaid
+flowchart TD
+    A([Login_kelurahan]) --> B[Dashboard_admin]
+    B --> C[Kelola_akun_pengurus_RT_dan_kelurahan]
+    B --> D[Kelola_profil_RT_dan_katalog_layanan]
+    B --> E[Monitoring_permohonan_dan_data_warga]
+    B --> F[Persetujuan_hapus_data]
+    B --> G[Profil_lurah_publik]
+```
+
+### 3.4.4 Verifikasi Wajah Pendataan Warga
 
 ```mermaid
 flowchart TD
@@ -486,7 +503,7 @@ flowchart TD
 
 Threshold kecocokan: `FACE_MATCH_THRESHOLD` (default 0.6) di `config/kelurahan.php`.
 
-### 3.4.4 Alur Tiga Layanan Utama
+### 3.4.5 Alur Tiga Layanan Utama
 
 ```mermaid
 flowchart TD
@@ -505,7 +522,7 @@ flowchart TD
 flowchart LR
     Warga([Warga]) -->|Formulir_berkas| Portal[Portal_Layanan_Warga_RT]
     RT([Pengurus_RT]) -->|Verifikasi_proses| Portal
-    Admin([Admin]) -->|Konfigurasi| Portal
+    Kelurahan([Kelurahan]) -->|Konfigurasi_dan_monitoring| Portal
     Portal -->|Notifikasi_teks| WAHA[WAHA_WhatsApp]
     WAHA -->|Pesan| Warga
     Portal -->|Baca_tulis| DB[(MySQL)]
@@ -519,13 +536,13 @@ flowchart TD
     subgraph Portal
         P1[1.0_Layanan_Publik]
         P2[2.0_Panel_RT]
-        P3[3.0_Panel_Admin]
+        P3[3.0_Panel_Kelurahan]
         P4[4.0_Notifikasi_WA]
     end
 
     Warga --> P1
     RT --> P2
-    Admin --> P3
+    Kelurahan --> P3
     P1 --> DB[(Database)]
     P2 --> DB
     P3 --> DB
@@ -552,9 +569,8 @@ erDiagram
     Household ||--o{ Resident : contains
     Household ||--o{ PendataanDocument : attachments
 
-    Resident ||--o{ Application : submits
     Resident ||--o{ ResidentFaceReference : face_refs
-    Resident ||--o| User : linked_account
+    Resident ||--o{ Application : submits
 
     ServiceType ||--o{ Application : typed
     Application ||--o{ ApplicationDocument : docs
@@ -576,9 +592,9 @@ erDiagram
 | `ResidentFaceReference` | Descriptor wajah referensi (JSON) | `app/Models/ResidentFaceReference.php` |
 | `CitizenReport` | Pengaduan/laporan warga | `app/Models/CitizenReport.php` |
 | `NotificationLog` | Log notifikasi WhatsApp | `app/Models/NotificationLog.php` |
-| `User` | Akun pengurus (role: ketua_rt, sekretaris_rt, super_admin) | `app/Models/User.php` |
+| `User` | Akun pengurus (role: `ketua_rt`, `kelurahan`) | `app/Models/User.php` |
 
-Migrasi awal: `database/migrations/2026_05_18_000001_create_rt008_schema.php` (55 file migrasi total).
+Migrasi awal: `database/migrations/2026_05_18_000001_create_rt008_schema.php` (56 file migrasi total).
 
 ---
 
@@ -604,9 +620,9 @@ Layout: sidebar + konten (`resources/views/layouts/panel.blade.php`).
 
 Modul sidebar: Dashboard, Verifikasi pendataan, Data warga, Permohonan surat, Laporan warga, Kegiatan, Pengumuman, Notifikasi, Profil.
 
-### 3.7.3 Panel Admin
+### 3.7.3 Panel Kelurahan
 
-- **Admin** (`/admin`): manajemen pengguna, profil RT, katalog layanan, hapus permanen.
+- **Kelurahan** (`/kelurahan/*`): manajemen akun pengurus RT & kelurahan, profil RT, katalog layanan, monitoring wilayah, persetujuan hapus permanen, profil lurah publik.
 
 ---
 
@@ -646,14 +662,14 @@ Domain produksi: `https://layananwarga.my.id`
 | Aspek | Implementasi |
 |---|---|
 | **Autentikasi** | Session Laravel; login hub `/akses-pengurus` |
-| **Autorisasi** | Middleware `role.rt`, `role.admin` di `bootstrap/app.php` |
+| **Autorisasi** | Middleware `role.rt`, `role.kelurahan`, `role.admin` di `bootstrap/app.php` |
 | **HTTPS** | Wajib; HSTS via middleware `SecurityHeaders` |
 | **CSP** | Content Security Policy pada response HTML |
 | **Berkas privat** | `storage/app/private`; akses via `DocumentViewerController` (pengurus login) |
 | **Rate limiting** | Endpoint publik sensitif (verifikasi identitas) |
 | **Validasi input** | Form Request Laravel; NIK 16 digit; validasi MIME unggah |
 
-Role yang boleh login via hub: Ketua RT, Sekretaris RT, Super Admin. Role Warga diarahkan ke Lacak.
+Role yang boleh login via hub: **Ketua RT** dan **Kelurahan**. Warga tidak memiliki akun login; layanan publik diakses tanpa registrasi.
 
 ---
 
@@ -680,21 +696,24 @@ Role yang boleh login via hub: Ketua RT, Sekretaris RT, Super Admin. Role Warga 
 ```
 layananwarga/
 ├── app/
-│   ├── Http/Controllers/   # Public, Rt, Admin, Auth
+│   ├── Http/Controllers/   # Public, Rt, Kelurahan, Admin, Auth
 │   ├── Models/             # 17 model Eloquent
 │   ├── Services/           # WahaNotification, FaceVerification, dll.
 │   ├── Jobs/               # SendWhatsAppNotification, dll.
-│   └── Enums/              # UserRole, ApplicationStatus, dll.
+│   └── Enums/              # UserRole (RT & Kelurahan), ApplicationStatus, dll.
 ├── resources/
-│   ├── views/              # Blade templates per area
-│   ├── js/                 # Modul JS (pendataan, face-api)
+│   ├── views/              # Blade templates per area (public, rt, kelurahan, admin)
+│   ├── js/                 # Modul JS (pendataan, face-api, tanda tangan)
 │   └── css/                # Tailwind app.css
-├── routes/web.php          # Semua route web (~234 baris)
-├── database/migrations/    # 55 migrasi
+├── routes/web.php          # Semua route web (~216 baris)
+├── database/migrations/    # 56 migrasi
 ├── tests/Feature/          # 44 file test feature
+├── tests/Unit/             # 5 file test unit
 ├── docker/                 # Dockerfile, nginx config
 └── docs/                   # Dokumentasi sistem
 ```
+
+**Role pengurus (`UserRole`):** dua peran — `ketua_rt` dan `kelurahan`. Warga **tidak** memiliki akun login; layanan publik diakses tanpa registrasi.
 
 ---
 
@@ -704,7 +723,7 @@ layananwarga/
 
 **File kunci:** `app/Http/Controllers/Public/*`
 
-Implementasi halaman beranda, profil kelurahan/RT, katalog layanan, kegiatan & pengumuman, keamanan. Konten dinamis dari `HomeContent.php` dan `config/kelurahan.php`.
+Implementasi halaman beranda, profil kelurahan/RT, katalog layanan, kegiatan & pengumuman, keamanan. Konten dinamis dari `HomeContent.php` dan `config/kelurahan.php`. Warga mengakses layanan **tanpa registrasi**; tidak ada portal login warga (`/portal` dihapus).
 
 Keunggulan platform (sesuai tampilan web):
 - *Cepat & praktis* — pengajuan online tanpa antre di kantor RT untuk tahap awal.
@@ -761,6 +780,8 @@ Persyaratan pendataan warga (dari `config/kelurahan.php`):
 
 ### 4.3.4 Panel Pengurus RT
 
+**Akses:** akun **Ketua RT** (`ketua_rt`) via `/akses-pengurus`, ditautkan ke satu profil RT.
+
 **File kunci:** `app/Http/Controllers/Rt/*`
 
 | Modul | Controller | Fitur |
@@ -793,15 +814,31 @@ API WAHA yang dipanggil: `GET /api/sessions/{session}`, `POST /api/sendText`.
 
 Event notifikasi: `submitted`, `verified`, `approved`, `rejected`, `letter_ready`, `pendataan_*`, `report_*`, `publication_broadcast`.
 
-### 4.3.6 Modul Admin & Keamanan
+### 4.3.6 Panel Kelurahan, Manajemen Akun & Keamanan
 
 **File kunci:**
-- `Admin/UserController.php` — CRUD pengguna pengurus
-- `Admin/RtProfileController.php` — profil RT
+- `Admin/UserController.php` — CRUD akun pengurus RT dan kelurahan (grup **Akun RT** / **Akun Kelurahan**)
+- `Admin/RtProfileController.php` — profil RT publik
 - `Admin/ServiceTypeController.php` — katalog layanan
-- `Admin/PermanentDeletionRequestController.php` — approval hapus permanen
+- `Admin/PermanentDeletionRequestController.php` — persetujuan hapus permanen data warga
+- `Kelurahan/*` — monitoring permohonan, data warga seluruh RT, kegiatan, laporan (mode baca)
+- `Panel/ProfileController.php` — profil akun kelurahan & profil lurah publik
 - `Http/Middleware/SecurityHeaders.php` — CSP, HSTS
-- `Http/Middleware/EnsureUserIsRtStaff.php` — RBAC
+- `Http/Middleware/EnsureUserIsRtStaff.php`, `EnsureUserIsKelurahan.php` — RBAC
+
+**Model role (`app/Enums/UserRole.php`):**
+
+| Grup | Nilai enum | Label UI | Panel |
+|---|---|---|---|
+| Akun RT | `ketua_rt` | Ketua RT | `/rt` |
+| Akun Kelurahan | `kelurahan` | Kelurahan | `/kelurahan` |
+
+Akun **Kelurahan** menggabungkan fungsi konfigurasi sistem (pengguna, profil RT, katalog layanan, hapus permanen, profil lurah) dan monitoring operasional seluruh RT di bawah prefix `/kelurahan`.
+
+**Keamanan akses:**
+- Login pengurus: `/akses-pengurus` — hanya akun RT atau kelurahan.
+- Middleware: `role.rt`, `role.kelurahan`, `role.admin` (semua route admin hanya untuk role `kelurahan`).
+- Portal warga **tanpa login** — tidak ada route `/portal` atau akun role `warga`.
 
 ---
 
@@ -816,11 +853,13 @@ Event notifikasi: `submitted`, `verified`, `approved`, `rejected`, `letter_ready
 | 3 | Surat pengantar | `/layanan/surat` | Katalog jenis surat |
 | 4 | Formulir pendataan | `/layanan/pendataan-warga` | Form KK + selfie wajah |
 | 5 | Lacak permohonan | `/lacak` | Form nomor permohonan |
-| 6 | Login pengurus | `/akses-pengurus` | Halaman login hub |
-| 7 | Dashboard RT | `/rt` | Ringkasan operasional |
+| 6 | Login pengurus | `/akses-pengurus` | Login akun RT atau kelurahan |
+| 7 | Dashboard RT | `/rt` | Ringkasan operasional RT |
 | 8 | Detail permohonan RT | `/rt/applications/{id}` | Catat nomor surat manual |
 | 9 | Data warga RT | `/rt/data-warga` | Daftar KK & anggota |
-| 10 | Panel admin | `/admin` | Manajemen pengguna |
+| 10 | Dashboard kelurahan | `/kelurahan` | Manajemen pengguna, profil RT, monitoring wilayah |
+| 11 | Monitoring permohonan | `/kelurahan/applications` | Daftar permohonan seluruh RT (baca) |
+| 12 | Data warga kelurahan | `/kelurahan/data-penduduk` | Rekap & data warga seluruh RT |
 
 ---
 
@@ -851,15 +890,15 @@ Pengujian komponen terisolasi: `FaceVerificationService`, `PhoneNormalizer`, `Le
 
 | Metrik | Nilai |
 |---|---|
-| **Total test** | 379 |
-| **Passed** | 379 |
+| **Total test** | 380 |
+| **Passed** | 380 |
 | **Failed** | 0 |
-| **Assertions** | 2.176 |
-| **Durasi** | 85,78 detik |
+| **Assertions** | 2.186 |
+| **Durasi** | 135,29 detik |
 | **Tanggal pengujian** | Juni 2026 |
 | **Perintah** | `php artisan test` |
 
-**Kesimpulan:** Seluruh 379 test lulus tanpa kegagalan.
+**Kesimpulan:** Seluruh 380 test lulus tanpa kegagalan.
 
 ### Tabel Pengujian Black-Box per Fitur
 
@@ -878,7 +917,7 @@ Pengujian komponen terisolasi: `FaceVerificationService`, `PhoneNormalizer`, `Le
 | 11 | Notifikasi WhatsApp permohonan | `WhatsAppNotificationTest.php` | Lulus |
 | 12 | Notifikasi WhatsApp publikasi | `PublicationWhatsAppTest.php` | Lulus |
 | 13 | Lacak permohonan & nomor surat manual | `TrackAndLoginHubPageTest.php` | Lulus |
-| 14 | Login hub pengurus | `LoginHubValidationTest.php` | Lulus |
+| 14 | Login hub pengurus RT & kelurahan | `LoginHubValidationTest.php` | Lulus |
 | 15 | Review aksi permohonan RT | `RtApplicationReviewActionsTest.php` | Lulus |
 | 16 | Hapus permohonan RT | `RtApplicationDeleteTest.php` | Lulus |
 | 17 | Cap/stempel RT pada permohonan | `RtApplicationStampTest.php` | Lulus |
@@ -887,15 +926,19 @@ Pengujian komponen terisolasi: `FaceVerificationService`, `PhoneNormalizer`, `Le
 | 20 | Dashboard analytics RT | `RtDashboardAnalyticsTest.php` | Lulus |
 | 21 | Hapus laporan warga | `RtReportDeleteTest.php` | Lulus |
 | 22 | Publikasi RT visibility | `RtPublicationVisibilityTest.php` | Lulus |
-| 23 | Panel admin UI | `AdminPanelUiTest.php` | Lulus |
-| 24 | Manajemen user admin | `AdminUserEmailTest.php` | Lulus |
-| 25 | Hapus permanen (approval admin) | `PermanentDeletionRequestTest.php` | Lulus |
-| 26 | Halaman publik layout | `PublicPagesLayoutTest.php` | Lulus |
-| 27 | Halaman beranda | `HomePageTest.php` | Lulus |
-| 28 | Persyaratan layanan | `ServiceRequirementsTest.php` | Lulus |
-| 29 | Document viewer (berkas privat) | `DocumentViewerTest.php` | Lulus |
-| 30 | Verifikasi wajah (unit) | `FaceVerificationServiceTest.php` | Lulus |
-| 31 | Normalisasi nomor HP (unit) | `PhoneNormalizerTest.php` | Lulus |
+| 23 | Panel kelurahan & UI pengurus | `AdminPanelUiTest.php`, `PanelUiTest.php` | Lulus |
+| 24 | Manajemen akun pengurus (RT & kelurahan) | `AdminUserEmailTest.php` | Lulus |
+| 25 | Hapus permanen (persetujuan kelurahan) | `PermanentDeletionRequestTest.php` | Lulus |
+| 26 | Monitoring permohonan kelurahan | `KelurahanApplicationDetailTest.php` | Lulus |
+| 27 | Monitoring kegiatan seluruh RT | `KelurahanPublicationTest.php` | Lulus |
+| 28 | Rekap data penduduk kelurahan | `KelurahanPopulationTest.php` | Lulus |
+| 29 | Profil lurah publik (kelurahan) | `AdminKelurahanProfileTest.php` | Lulus |
+| 30 | Halaman publik layout | `PublicPagesLayoutTest.php` | Lulus |
+| 31 | Halaman beranda | `HomePageTest.php` | Lulus |
+| 32 | Persyaratan layanan | `ServiceRequirementsTest.php` | Lulus |
+| 33 | Document viewer (berkas privat) | `DocumentViewerTest.php` | Lulus |
+| 34 | Verifikasi wajah (unit) | `FaceVerificationServiceTest.php` | Lulus |
+| 35 | Normalisasi nomor HP (unit) | `PhoneNormalizerTest.php` | Lulus |
 
 Log lengkap: lihat [Lampiran G](#lampiran-g-log-hasil-php-artisan-test).
 
@@ -909,25 +952,30 @@ Berdasarkan perancangan, implementasi, dan pengujian Portal Layanan Warga RT, da
 
 1. **Tujuan umum tercapai** — portal layanan administrasi RT berbasis web telah dibangun dan di-deploy di `https://layananwarga.my.id` untuk Kelurahan Inauga, Kabupaten Mimika.
 
-2. **Modul layanan utama berfungsi** — permohonan surat pengantar (7 jenis), pendataan warga baru, pendataan ulang, pelacakan status, dan pengaduan masyarakat dapat diakses warga tanpa login.
+2. **Modul layanan utama berfungsi** — permohonan surat pengantar (7 jenis), pendataan warga baru, pendataan ulang, pelacakan status, dan pengaduan masyarakat dapat diakses warga **tanpa login** melalui halaman publik.
 
 3. **Verifikasi identitas terimplementasi** — surat pengantar menggunakan verifikasi NIK + RT + nomor HP; pendataan warga baru menggunakan verifikasi wajah selfie berbasis face-api.js di browser.
 
-4. **Panel operasional RT lengkap** — pengurus RT dapat memverifikasi pendataan, memproses permohonan surat dengan pencatatan nomor surat manual, mengelola data warga, menangani pengaduan, dan mempublikasikan kegiatan.
+4. **Panel operasional RT lengkap** — Ketua RT dapat memverifikasi pendataan, memproses permohonan surat dengan pencatatan nomor surat manual, mengelola data warga, menangani pengaduan, dan mempublikasikan kegiatan.
 
-5. **Notifikasi WhatsApp otomatis** — integrasi WAHA mengirim pesan teks pada perubahan status permohonan, pendataan, pengaduan, dan publikasi.
+5. **Panel kelurahan terintegrasi** — akun kelurahan mengelola akun pengurus RT, profil RT, katalog layanan, profil lurah publik, persetujuan hapus permanen, serta memantau permohonan, data warga, kegiatan, dan laporan seluruh RT.
 
-6. **Pengujian sistematis** — 379 test PHPUnit (2.176 assertions) seluruhnya lulus, memvalidasi alur bisnis utama.
+6. **Model role disederhanakan** — hanya dua peran pengurus (`ketua_rt`, `kelurahan`); tidak ada akun login warga maupun role admin terpisah.
+
+7. **Notifikasi WhatsApp otomatis** — integrasi WAHA mengirim pesan teks pada perubahan status permohonan, pendataan, pengaduan, dan publikasi.
+
+8. **Pengujian sistematis** — 380 test PHPUnit (2.186 assertions) seluruhnya lulus, memvalidasi alur bisnis utama termasuk panel RT, panel kelurahan, dan login pengurus.
 
 ### Kontribusi / Keunggulan Sistem
 
 1. **Integrasi layanan RT end-to-end** — pendataan hingga pemrosesan surat pengantar dalam satu portal.
 2. **Verifikasi identitas terarah** — NIK/RT/HP untuk surat; verifikasi wajah AI untuk pendataan baru.
-3. **Akses warga tanpa registrasi** — cukup verifikasi identitas saat mengajukan; lacak via nomor permohonan.
+3. **Akses warga tanpa registrasi** — cukup verifikasi identitas saat mengajukan; lacak via nomor permohonan; tidak perlu akun login.
 4. **Notifikasi teks WhatsApp otomatis** — tanpa pengiriman berkas PDF.
-5. **Panel operasional RT terpusat** — data warga, permohonan, publikasi dalam satu antarmuka.
-6. **Keamanan berkas dan keaslian situs** — dokumen privat; halaman `/keamanan` menegaskan portal resmi gratis.
-7. **Deploy containerized** — replikasi mudah via Docker Compose.
+5. **Dua panel operasional terpusat** — Panel RT untuk operasional harian; Panel Kelurahan untuk manajemen sistem dan monitoring wilayah.
+6. **Role pengurus jelas** — hanya RT dan Kelurahan, memudahkan administrasi akun di tingkat kelurahan.
+7. **Keamanan berkas dan keaslian situs** — dokumen privat; halaman `/keamanan` menegaskan portal resmi gratis.
+8. **Deploy containerized** — replikasi mudah via Docker Compose.
 
 ---
 
@@ -935,10 +983,11 @@ Berdasarkan perancangan, implementasi, dan pengujian Portal Layanan Warga RT, da
 
 1. **Integrasi SIAK/Dukcapil** — sinkronisasi data kependudukan resmi apabila API tersedia di tingkat kabupaten.
 2. **Aplikasi mobile** — Progressive Web App (PWA) atau aplikasi native untuk aksesibilitas warga di perangkat mobile.
-3. **Evaluasi pengguna** — kuesioner System Usability Scale (SUS) kepada warga dan pengurus RT pasca implementasi.
+3. **Evaluasi pengguna** — kuesioner System Usability Scale (SUS) kepada warga dan pengurus RT serta petugas kelurahan pasca implementasi.
 4. **OTP verifikasi HP** — lapisan keamanan tambahan pada verifikasi identitas surat pengantar.
 5. **Backup & disaster recovery** — prosedur backup otomatis database dan berkas privat.
-6. **Pelatihan pengurus RT** — sosialisasi penggunaan panel operasional di seluruh RT Kelurahan Inauga.
+6. **Pelatihan pengurus** — sosialisasi Panel RT di seluruh RT dan Panel Kelurahan (manajemen akun, monitoring, katalog layanan) di Kelurahan Inauga.
+7. **Audit berkala akun pengurus** — peninjauan berkala daftar akun RT dan kelurahan agar selaras dengan struktur pengurus terbaru.
 
 ---
 
@@ -946,7 +995,7 @@ Berdasarkan perancangan, implementasi, dan pengujian Portal Layanan Warga RT, da
 
 ## Lampiran A — Use Case & Activity Diagram Lengkap
 
-Diagram use case (§3.2), activity warga (§3.4.1), activity RT (§3.4.2), verifikasi wajah (§3.4.3), alur layanan (§3.4.4), dan sequence surat (§4.3.2) dapat diekspor ke PNG via [Mermaid Live Editor](https://mermaid.live) atau ekstensi VS Code.
+Diagram use case (§3.2), activity warga (§3.4.1), activity RT (§3.4.2), activity kelurahan (§3.4.3), verifikasi wajah (§3.4.4), alur layanan (§3.4.5), dan sequence surat (§4.3.2) dapat diekspor ke PNG via [Mermaid Live Editor](https://mermaid.live) atau ekstensi VS Code.
 
 ---
 
@@ -960,7 +1009,7 @@ Diagram use case (§3.2), activity warga (§3.4.1), activity RT (§3.4.2), verif
 | rt_number | varchar(10) | Nomor RT |
 | rw_number | varchar(10) | Nomor RW |
 | kelurahan, kecamatan, kota, provinsi | varchar | Wilayah |
-| ketua_rt, sekretaris_rt | varchar | Nama pengurus |
+| ketua_rt | varchar | Nama ketua RT |
 | alamat_kantor | text | Alamat sekretariat |
 | slug | varchar | URL profil publik |
 | stamp_path | varchar | Path cap/stempel RT |
@@ -1028,13 +1077,13 @@ Diagram use case (§3.2), activity warga (§3.4.1), activity RT (§3.4.2), verif
 
 ## Lampiran C — Screenshot Halaman
 
-*[Placeholder: lampirkan screenshot produksi — beranda, layanan, panel RT, lacak, login hub, admin]*
+*[Placeholder: lampirkan screenshot produksi — beranda, layanan, panel RT, lacak, login hub, panel kelurahan]*
 
 ---
 
 ## Lampiran D — Tabel Pengujian Black-Box Lengkap
 
-Lihat Tabel 4.6 di BAB IV §4.6. Total 44 file Feature Test + 5 file Unit Test = 49 file test, 379 method test.
+Lihat Tabel 4.6 di BAB IV §4.6. Total 44 file Feature Test + 5 file Unit Test = 49 file test, 380 method test.
 
 ---
 
@@ -1102,19 +1151,28 @@ Sumber: `config/kelurahan.php`
 
 ### F.2 Panduan Pengurus RT
 
-1. **Login:** `layananwarga.my.id/akses-pengurus` — akun Ketua RT atau Sekretaris RT.
+1. **Login:** `layananwarga.my.id/akses-pengurus` — akun Ketua RT.
 2. **Verifikasi pendataan:** Panel → Verifikasi pendataan → periksa berkas → Setujui/Tolak.
 3. **Proses surat:** Panel → Permohonan surat → buka detail → periksa berkas → cetak surat fisik di sekretariat → catat nomor surat → kirim notifikasi WhatsApp.
 4. **Data warga:** Panel → Data warga → cari/tambah KK & anggota → unduh laporan PDF jika perlu.
 5. **Pengaduan:** Panel → Laporan warga → update status → notifikasi otomatis ke pelapor.
+
+### F.3 Panduan Kelurahan
+
+1. **Login:** `layananwarga.my.id/akses-pengurus` — akun Kelurahan (grup **Akun Kelurahan**).
+2. **Manajemen akun:** Panel `/kelurahan/users` → tambah/edit akun Ketua RT atau Kelurahan.
+3. **Profil RT & katalog layanan:** Panel `/kelurahan/rt-profiles` dan `/kelurahan/layanan` — konfigurasi data publik RT serta katalog surat pengantar.
+4. **Monitoring wilayah:** Menu `/kelurahan/applications`, `/kelurahan/data-penduduk`, dll. — pantau permohonan, data warga, kegiatan, dan laporan seluruh RT (mode baca).
+5. **Hapus permanen:** Panel `/kelurahan/hapus-permanen` — tinjau permintaan penghapusan data warga dari pengurus RT.
+6. **Profil lurah:** Panel `/kelurahan/profil/kelurahan` — kelola informasi lurah yang tampil di halaman publik `/profil`.
 
 ---
 
 ## Lampiran G — Log Hasil `php artisan test`
 
 ```
-Tests:    379 passed (2176 assertions)
-Duration: 85.78s
+Tests:    380 passed (2186 assertions)
+Duration: 135.29s
 ```
 
 **Environment:** PHPUnit 12, Laravel testing, SQLite in-memory, queue sync.

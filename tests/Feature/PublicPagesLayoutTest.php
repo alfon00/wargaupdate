@@ -26,7 +26,7 @@ class PublicPagesLayoutTest extends TestCase
             ->assertOk()
             ->assertDontSee('lw-home-quick-actions', false)
             ->assertDontSee('Mulai dari sini', false)
-            ->assertSee('Layanan Warga RT', false)
+            ->assertSee('Layanan', false)
             ->assertDontSee('Inauga', false)
             ->assertDontSee('Kelurahan', false)
             ->assertDontSee('Kabupaten Mimika', false)
@@ -70,7 +70,7 @@ class PublicPagesLayoutTest extends TestCase
             ->assertOk()
             ->assertSee('lw-services-hero', false)
             ->assertSee('lw-profile-hero__title', false)
-            ->assertSee('Layanan Warga RT', false)
+            ->assertSee('Layanan', false)
             ->assertDontSee('class="lw-hero-title-accent"', false)
             ->assertDontSee('Menu layanan', false)
             ->assertDontSee('Katalog &amp; permohonan', false)
@@ -85,23 +85,22 @@ class PublicPagesLayoutTest extends TestCase
         $this->get(route('services.index'))
             ->assertOk()
             ->assertSee('lw-service-flow-tabs', false)
-            ->assertSee('Alur layanan', false)
+            ->assertSee('Cara pengajuan', false)
             ->assertSee('Pilih jenis surat', false)
-            ->assertSee('Baca persyaratan', false)
+            ->assertSee('baca persyaratan', false)
             ->assertSee('Verifikasi identitas', false)
-            ->assertSee('notifikasi WhatsApp', false)
+            ->assertSee('Notifikasi WhatsApp', false)
             ->assertSee('Ambil salinan fisik di sekretariat RT', false)
             ->assertSee('Lacak status via menu Lacak', false)
             ->assertSee('Pendataan ulang', false)
             ->assertSee('Unggah berkas &amp; verifikasi wajah', false)
             ->assertSee('Keluarga tercatat', false)
+            ->assertDontSee('Pilih layanan', false)
+            ->assertDontSee('Pilih salah satu layanan', false)
+            ->assertDontSee('Setiap layanan memiliki alur', false)
             ->assertDontSee('id="persyaratan-heading"', false)
             ->assertDontSee('Persyaratan umum', false)
-            ->assertSeeInOrder([
-                'layanan-hub-heading',
-                'catalog-heading-alur',
-            ], false)
-            ->assertSee('Pilih jenis surat →', false)
+            ->assertSee('Buka surat →', false)
             ->assertSee('id="alur-surat"', false)
             ->assertSee('id="alur-pendataan-ulang"', false)
             ->assertSee('id="alur-pendataan-warga"', false);
@@ -268,22 +267,22 @@ class PublicPagesLayoutTest extends TestCase
             ->assertSessionMissing('surat_intended_service_code');
     }
 
-    public function test_disclaimer_appears_in_footer_not_main_banner(): void
+    public function test_disclaimer_not_shown_in_footer(): void
     {
         $disclaimerSnippet = 'Portal RT — bukan situs Dukcapil';
 
         $this->get(route('services.index'))
             ->assertOk()
-            ->assertSee('lw-footer-disclaimer', false)
-            ->assertSee($disclaimerSnippet, false)
+            ->assertDontSee('class="lw-footer-disclaimer"', false)
+            ->assertDontSee($disclaimerSnippet, false)
             ->assertDontSee('Inauga', false)
             ->assertDontSee('Kelurahan', false)
             ->assertDontSee('Kabupaten Mimika', false);
 
         $this->get(route('services.pendataan-ulang'))
             ->assertOk()
-            ->assertSee('lw-footer-disclaimer', false)
-            ->assertSee($disclaimerSnippet, false)
+            ->assertDontSee('class="lw-footer-disclaimer"', false)
+            ->assertDontSee($disclaimerSnippet, false)
             ->assertDontSee('rounded-lg border border-emerald-200 lw-surface', false);
     }
 
@@ -292,9 +291,10 @@ class PublicPagesLayoutTest extends TestCase
         $response = $this->get(route('home'));
 
         $response->assertOk()
-            ->assertSee('lw-footer-disclaimer', false)
             ->assertSee('Keamanan & keaslian situs', false)
             ->assertSee('Layanan Warga RT', false)
+            ->assertDontSee('class="lw-footer-disclaimer"', false)
+            ->assertDontSee('Portal RT — bukan situs Dukcapil', false)
             ->assertDontSee('lw-footer-contact', false);
 
         $html = $response->getContent();
@@ -310,11 +310,12 @@ class PublicPagesLayoutTest extends TestCase
             ->assertOk()
             ->assertSee('Profil RT', false)
             ->assertSee('lw-profile-rt-grid', false)
-            ->assertSee('lw-profile-lurah-card', false)
+            ->assertSee('lw-profile-kelurahan-section', false)
+            ->assertSee('Profil Kelurahan', false)
+            ->assertSee('Profil Kelurahan &amp; RT', false)
             ->assertSee(config('kelurahan.lurah.nama'), false)
-            ->assertSee('lw-profile-wilayah', false)
-            ->assertSee('Profil &amp; RT', false)
-            ->assertDontSee('Kabupaten Mimika', false)
+            ->assertDontSee('Informasi Wilayah', false)
+            ->assertDontSee(config('kelurahan.penjelasan_wilayah'), false)
             ->assertSee('Visi', false)
             ->assertSee('Misi', false)
             ->assertDontSee('id="rt-picker"', false)
@@ -447,11 +448,10 @@ class PublicPagesLayoutTest extends TestCase
     public function test_inner_pages_use_compact_body_class_and_hero(): void
     {
         $innerRoutes = [
-            'profile.index' => 'Profil &amp; RT',
+            'profile.index' => 'Profil Kelurahan &amp; RT',
             'activities.index' => 'Kegiatan &amp; Pengumuman',
-            'services.index' => 'Layanan Warga RT',
+            'services.index' => 'Layanan',
             'contact.create' => 'Pengaduan',
-            'login.hub' => 'Akses Pengurus RT',
         ];
 
         foreach ($innerRoutes as $routeName => $title) {
@@ -461,6 +461,13 @@ class PublicPagesLayoutTest extends TestCase
                 ->assertSee('lw-profile-hero__title', false)
                 ->assertSee($title, false);
         }
+
+        $this->get(route('login.hub'))
+            ->assertOk()
+            ->assertSee('class="lw-shell lw-page-inner"', false)
+            ->assertSee('lw-track-split__title', false)
+            ->assertSee('Masuk ke panel', false)
+            ->assertDontSee('id="auth-hero-heading"', false);
 
         $this->get(route('home'))
             ->assertOk()
@@ -514,9 +521,9 @@ class PublicPagesLayoutTest extends TestCase
             ->assertOk()
             ->assertSee('class="lw-shell lw-page-inner"', false)
             ->assertSee('lw-profile-board', false)
-            ->assertSee('lw-profile-lurah-card', false)
+            ->assertSee('lw-profile-kelurahan-section', false)
             ->assertSee('lw-profile-rt-grid', false)
-            ->assertSee('lw-profile-wilayah', false);
+            ->assertDontSee('class="lw-profile-wilayah"', false);
     }
 
     public function test_track_page_renders_compact_form_classes(): void

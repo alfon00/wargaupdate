@@ -6,7 +6,7 @@
 <div class="lw-admin-page">
 @include('admin.partials.page-head', [
     'title' => 'Profil RT',
-    'lead' => 'Kelola entitas RT di wilayah portal sebelum akun ketua/sekretaris ditautkan.',
+    'lead' => 'Kelola entitas RT di wilayah portal sebelum akun ketua RT ditautkan.',
 ])
 
 <x-admin.page-toolbar

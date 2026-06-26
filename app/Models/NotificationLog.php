@@ -62,7 +62,7 @@ class NotificationLog extends Model
             'rejected' => 'Permohonan ditolak',
             'application_rejected' => 'Permohonan ditolak',
             'letter_sent' => 'PDF surat dikirim',
-            'letter_ready' => 'Surat siap diambil',
+            'letter_ready' => 'Surat selesai',
             'report_submitted' => 'Laporan diterima',
             'report_status_updated' => 'Status laporan diperbarui',
             'publication_broadcast' => 'Pengumuman dikirim',

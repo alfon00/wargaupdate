@@ -14,7 +14,7 @@ class ProfileController extends Controller
     {
         $profiles = RtProfile::inauga()
             ->withRegisteredStaff()
-            ->with(['users' => fn ($q) => $q->whereIn('role', [UserRole::KetuaRt, UserRole::SekretarisRt])])
+            ->with(['users' => fn ($q) => $q->where('role', UserRole::KetuaRt)])
             ->orderByDesc('id')
             ->get()
             ->unique('rt_number')
@@ -47,7 +47,7 @@ class ProfileController extends Controller
             404
         );
 
-        $rtProfile->load(['users' => fn ($q) => $q->whereIn('role', [UserRole::KetuaRt, UserRole::SekretarisRt])]);
+        $rtProfile->load(['users' => fn ($q) => $q->where('role', UserRole::KetuaRt)]);
         abort_unless($rtProfile->registeredStaffCount() > 0, 404);
 
         $residentCount = $rtProfile->activeResidentCount();
@@ -65,7 +65,7 @@ class ProfileController extends Controller
         abort_unless((int) $user->rt_profile_id === (int) $rtProfile->id, 404);
         abort_unless($user->isRtStaff(), 404);
 
-        $roleLabel = $user->role === UserRole::KetuaRt ? 'Ketua RT' : 'Sekretaris RT';
+        $roleLabel = 'Ketua RT';
 
         return view('public.profile-staff-show', compact('rtProfile', 'user', 'roleLabel'));
     }

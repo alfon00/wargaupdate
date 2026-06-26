@@ -38,7 +38,7 @@ class SkuLetterTemplate
         <td width="50%"></td>
         <td width="50%" class="ttd-right">
             <p>Ketua {{rt}},</p>
-            {{ttd_tanda_cap}}
+            {{ttd_qrcode}}
             <p class="ttd-nama"><strong>{{ketua_rt}}</strong></p>
         </td>
     </tr>

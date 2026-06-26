@@ -5,10 +5,11 @@ namespace App\Services;
 use App\Models\Application;
 use App\Models\GeneratedLetter;
 use App\Models\LetterTemplate;
+use App\Support\LetterQrCode;
+use App\Support\LetterVerificationLink;
 use App\Support\LetterFieldSchema;
 use App\Support\LetterKopFields;
 use App\Support\LetterPdfStyles;
-use App\Support\SignatureStorage;
 use App\Models\RtProfile;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
@@ -22,7 +23,6 @@ class LetterGeneratorService
     public function generate(
         Application $application,
         array $fields = [],
-        ?string $signatureDataUri = null,
         ?int $signedBy = null,
     ): GeneratedLetter {
         $application->loadMissing(['resident.household.rtProfile', 'assignedRtProfile', 'serviceType', 'generatedLetter']);
@@ -32,17 +32,9 @@ class LetterGeneratorService
             ->firstOrFail();
 
         $existingLetter = $application->generatedLetter;
-        $signaturePath = null;
-        if ($signatureDataUri && ! SignatureStorage::isBlank($signatureDataUri)) {
-            if ($existingLetter?->signature_path) {
-                Storage::disk('local')->delete($existingLetter->signature_path);
-            }
-            $signaturePath = SignatureStorage::store($signatureDataUri, $application->id);
-        } elseif ($existingLetter?->signature_path && Storage::disk('local')->exists($existingLetter->signature_path)) {
-            $signaturePath = $existingLetter->signature_path;
-        }
+        $verificationToken = LetterVerificationLink::resolveToken($application);
 
-        $merged = $this->mergeFields($application, $fields, $signatureDataUri, $signaturePath);
+        $merged = $this->mergeFields($application, $fields, $verificationToken);
         $html = $this->renderTemplate($template->body_html, $merged);
 
         $filename = 'letters/'.Str::slug($application->application_number).'-'.now()->format('YmdHis').'.pdf';
@@ -50,8 +42,10 @@ class LetterGeneratorService
         Storage::disk('local')->put($filename, $pdf->output());
 
         $snapshot = collect($merged)
-            ->except(['ttd_gambar', 'cap_rt_gambar', 'ttd_tanda_cap', 'nomor_surat', 'tanggal'])
+            ->except(['ttd_qrcode', 'nomor_surat', 'tanggal'])
             ->all();
+
+        $publishCount = ($existingLetter?->publish_count ?? 0) + 1;
 
         return GeneratedLetter::updateOrCreate(
             ['application_id' => $application->id],
@@ -59,19 +53,20 @@ class LetterGeneratorService
                 'letter_template_id' => $template->id,
                 'file_path' => $filename,
                 'letter_number' => $merged['nomor_surat'],
+                'verification_token' => $verificationToken,
                 'letter_fields' => $snapshot,
-                'signature_path' => $signaturePath ?? $existingLetter?->signature_path,
-                'signed_at' => $signedBy ? now() : ($existingLetter?->signed_at),
+                'signature_path' => null,
+                'signed_at' => now(),
                 'signed_by' => $signedBy ?? $existingLetter?->signed_by,
                 'issued_at' => now(),
+                'publish_count' => $publishCount,
             ]
         );
     }
-
     /**
      * @param  array<string, string>  $fields
      */
-    public function previewHtml(Application $application, array $fields = [], ?string $signatureDataUri = null): string
+    public function previewHtml(Application $application, array $fields = []): string
     {
         $application->loadMissing(['resident.household.rtProfile', 'assignedRtProfile', 'serviceType', 'generatedLetter']);
 
@@ -79,17 +74,8 @@ class LetterGeneratorService
             ->where('is_active', true)
             ->firstOrFail();
 
-        $existingLetter = $application->generatedLetter;
-        $existingSignaturePath = $existingLetter?->signature_path;
-
-        $merged = $this->mergeFields(
-            $application,
-            $fields,
-            $signatureDataUri,
-            $existingSignaturePath && Storage::disk('local')->exists($existingSignaturePath)
-                ? $existingSignaturePath
-                : null,
-        );
+        $verificationToken = LetterVerificationLink::resolveToken($application);
+        $merged = $this->mergeFields($application, $fields, $verificationToken);
 
         return $this->renderTemplate($template->body_html, $merged);
     }
@@ -124,12 +110,8 @@ class LetterGeneratorService
      * @param  array<string, string>  $fields
      * @return array<string, string>
      */
-    protected function mergeFields(
-        Application $application,
-        array $fields,
-        ?string $signatureDataUri,
-        ?string $signatureFilePath = null,
-    ): array {
+    protected function mergeFields(Application $application, array $fields, string $verificationToken): array
+    {
         $merged = array_merge(
             LetterFieldSchema::defaultValues($application),
             LetterKopFields::forApplication($application),
@@ -144,65 +126,13 @@ class LetterGeneratorService
             $merged['rw_nomor'] ?? '',
         );
         $merged['tanggal'] = now()->format('d-m-Y');
-        $merged['ttd_gambar'] = $this->resolveSignatureImgTag($signatureDataUri, $signatureFilePath);
-        $merged['cap_rt_gambar'] = $this->resolveStampImgTag($application, $signatureDataUri, $signatureFilePath);
-        $merged['ttd_tanda_cap'] = $this->resolveTtdSignBlock(
-            $application,
-            $signatureDataUri,
-            $signatureFilePath,
-        );
+        $merged['ttd_qrcode'] = LetterQrCode::block($application, $verificationToken);
         $merged['logo_rt'] = LetterFieldSchema::logoImgTag($application);
         if (! filled($merged['logo_kop'] ?? null)) {
             $merged['logo_kop'] = LetterKopFields::kopLogoImgTag();
         }
 
         return $merged;
-    }
-
-    protected function resolveSignatureImgTag(?string $signatureDataUri, ?string $signatureFilePath): string
-    {
-        if ($signatureFilePath && Storage::disk('local')->exists($signatureFilePath)) {
-            return SignatureStorage::toImgTagForPdf(Storage::disk('local')->path($signatureFilePath));
-        }
-
-        return SignatureStorage::toImgTag($signatureDataUri);
-    }
-
-    protected function resolveStampImgTag(
-        Application $application,
-        ?string $signatureDataUri,
-        ?string $signatureFilePath,
-    ): string {
-        if (! $this->hasSignature($signatureDataUri, $signatureFilePath)) {
-            return '';
-        }
-
-        return LetterFieldSchema::stampImgTag($application);
-    }
-
-    protected function resolveTtdSignBlock(
-        Application $application,
-        ?string $signatureDataUri,
-        ?string $signatureFilePath,
-    ): string {
-        $signature = $this->resolveSignatureImgTag($signatureDataUri, $signatureFilePath);
-        $stamp = $this->resolveStampImgTag($application, $signatureDataUri, $signatureFilePath);
-        $withCap = $stamp !== '' ? ' ttd-sign-stack--with-cap' : '';
-        $blockClass = 'ttd-sign-block'.($stamp !== '' ? ' ttd-sign-block--with-cap' : '');
-
-        return '<div class="'.$blockClass.'"><div class="ttd-sign-stack'.$withCap.'">'
-            .'<div class="ttd-img">'.$signature.'</div>'
-            .($stamp !== '' ? '<div class="ttd-cap">'.$stamp.'</div>' : '')
-            .'</div></div>';
-    }
-
-    protected function hasSignature(?string $signatureDataUri, ?string $signatureFilePath): bool
-    {
-        if ($signatureFilePath && Storage::disk('local')->exists($signatureFilePath)) {
-            return true;
-        }
-
-        return $signatureDataUri && ! SignatureStorage::isBlank($signatureDataUri);
     }
 
     public static function suggestLetterNumber(Application $application): string
@@ -239,7 +169,7 @@ class LetterGeneratorService
     protected function renderTemplate(string $body, array $vars): string
     {
         $content = $body;
-        $htmlKeys = ['ttd_gambar', 'cap_rt_gambar', 'ttd_tanda_cap', 'logo_rt', 'logo_kop'];
+        $htmlKeys = ['ttd_qrcode', 'logo_rt', 'logo_kop'];
 
         foreach ($vars as $key => $value) {
             $placeholder = '{{'.$key.'}}';

@@ -110,7 +110,7 @@ HTML;
             <p class="ttd-place"><span class="ttd-place-line">{{tempat_surat}}, {{tanggal}}</span></p>
             <p class="ttd-hormat">Hormat kami,</p>
             <p class="ttd-role">Pengurus RT {{rt_nomor}}</p>
-            {{ttd_tanda_cap}}
+            {{ttd_qrcode}}
             <p class="ttd-nama-paren">( {{ketua_rt}} )</p>
         </td>
     </tr>

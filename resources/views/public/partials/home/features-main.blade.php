@@ -37,8 +37,8 @@
                 <span class="lw-home-feature-icon" aria-hidden="true">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
                 </span>
-                <h3 class="lw-home-feature-title">Pengaduan warga</h3>
-                <p class="lw-home-feature-desc">Sampaikan keluhan atau laporan secara cepat dan mudah.</p>
+                <h3 class="lw-home-feature-title">Pengaduan</h3>
+                <p class="lw-home-feature-desc">Kirim keluhan ke pengurus RT.</p>
             </a>
             <a href="{{ route('activities.index') }}" class="lw-home-feature-card lw-home-feature-card--link">
                 <span class="lw-home-feature-icon" aria-hidden="true">
